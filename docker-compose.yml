@@ -1,0 +1,62 @@
+# SkynetClaw — the whole stack, one command.
+#
+#   docker compose up -d
+#   docker compose exec ollama ollama pull llama3.1:8b     # first run only
+#   open http://127.0.0.1:8766/api/system/health
+#
+# Everything runs locally. No account, no cloud, no data leaves the machine
+# unless you configure a cloud provider in .env.
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: skynetclaw-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      # Models are large — keep them in a named volume so they survive rebuilds.
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    # Uncomment to use an NVIDIA GPU. CPU works without this — it is just slower.
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  skynetclaw:
+    build: .
+    container_name: skynetclaw
+    ports:
+      - "127.0.0.1:8766:8766"
+    depends_on:
+      ollama:
+        condition: service_started
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+    env_file:
+      # Optional cloud provider keys. Create it from .env.example; compose
+      # tolerates it being absent.
+      - path: .env
+        required: false
+    volumes:
+      # Your config, editable without rebuilding the image.
+      - ./backend/settings.json:/app/backend/settings.json
+      # Persist the institutional memory: the database IS the system's memory,
+      # so losing it means the House forgets everything it has learned.
+      - skynetclaw-data:/app/backend/data
+      # Optional: expose an Obsidian vault to the agents (read/write).
+      # - ${VAULT_PATH:-./vault}:/vault
+    restart: unless-stopped
+
+volumes:
+  ollama-models:
+  skynetclaw-data:

@@ -1,0 +1,28 @@
+.git
+.github
+.venv
+venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Never bake secrets or per-install state into an image
+.env
+.env.*
+!.env.example
+backend/settings.json
+**/*.db
+**/*.db-wal
+**/*.db-shm
+backend/sessions/
+backend/memory/
+
+# Not needed at runtime
+docs/
+portraits/
+SkynetClaw-Vault/
+*.md
+!backend/prompts/*.md
+!backend/skills/**/*.md

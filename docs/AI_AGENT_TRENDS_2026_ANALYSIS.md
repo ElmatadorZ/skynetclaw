@@ -145,7 +145,7 @@ _Source Analysis: Google Cloud Report + Beam AI, Salesforce, Gartner/IDC Researc
 
 ## 📖 REFERENCES & DATA SOURCES (แหล่งข้อมูลอ้างอิง)
 
-1. **Google Cloud AI Agent Trends 2026 Report** — [PDF downloaded](D:\GenesisMind\SkynetClaw-Agent\trends_analysis_google.pdf)  
+1. **Google Cloud AI Agent Trends 2026 Report** — third-party report, not redistributed here  
 2. **Beam.ai Enterprise Insights** — "7 trends defining enterprise AI agents in 2026"  
 3. **Salesforce Blog** — "8 Ways AI Agents Are Evolving in 2026"  
 4. **Smart Process Automation Community** — Gartner/IDC backed analysis  

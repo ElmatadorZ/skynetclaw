@@ -83,6 +83,39 @@ jobs:
           python migrate.py up
           python -m pytest -q --maxfail=5 || echo "::warning::test suite has failures — see log"
 
+  docker:
+    # The compose route is the one most first-time users will take, so the image
+    # has to be proven to build — not assumed to.
+    name: docker image builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t skynetclaw:ci .
+      - name: Boot the container and probe health
+        run: |
+          cp backend/settings.example.json backend/settings.json
+          docker run -d --name sc -p 8766:8766 skynetclaw:ci
+          for i in $(seq 1 40); do
+            sleep 3
+            if curl -sf --max-time 5 http://127.0.0.1:8766/api/system/health/quick >/dev/null; then
+              break
+            fi
+          done
+          curl -sf --max-time 15 http://127.0.0.1:8766/api/system/health/quick
+          echo
+          docker logs sc | tail -20
+          docker rm -f sc
+
+  compose:
+    name: compose config is valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          cp backend/settings.example.json backend/settings.json
+          docker compose config >/dev/null && echo "  OK  compose config valid"
+
   privacy:
     # A public release assembled from a private instance must prove, every push,
     # that nothing personal has crept back in.
