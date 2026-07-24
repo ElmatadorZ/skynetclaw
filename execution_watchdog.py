@@ -29,6 +29,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+from pathlib import Path
 
 # The supervisor must never die because of its own log line: under a cp1252
 # console (or DEVNULL when spawned by the backend) non-ASCII crashed log() at
@@ -39,7 +40,8 @@ try:
 except Exception:
     pass
 
-ROOT     = os.environ.get("LLAMACPP_ROOT", r"C:\Users\judgm\llamacpp_test")
+ROOT     = os.environ.get("LLAMACPP_ROOT",
+                          str(Path.home() / "llamacpp_test"))
 EXE      = os.path.join(ROOT, "llama-server.exe")
 MODEL    = os.environ.get("EXEC_MODEL", os.path.join(ROOT, "qwen25-14b.gguf"))
 if not os.path.exists(MODEL):

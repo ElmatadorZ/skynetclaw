@@ -45,7 +45,7 @@ Runtime files (auto-created on first use):
 
 ## Install — one command
 
-From the project root (`D:\GenesisMind\SkynetClaw-Agent`):
+From the project root (the directory you cloned into):
 
 ```cmd
 install_masterpiece.bat

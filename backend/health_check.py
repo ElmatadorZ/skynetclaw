@@ -10,7 +10,7 @@ Output shape:
     checks: [ {name, status, msg, latency_ms}, ... ] }
 """
 from __future__ import annotations
-import time, sqlite3, json
+import time, sqlite3, json, os
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -18,10 +18,15 @@ _BASE = Path(__file__).parent
 _ROOT = _BASE.parent
 
 
-def _check_file(name: str, path: Path, min_bytes: int = 0) -> Dict[str, Any]:
+def _check_file(name: str, path: Path, min_bytes: int = 0,
+                generated: bool = False) -> Dict[str, Any]:
+    """generated=True marks a file the House writes for itself at boot; its
+    absence on a fresh checkout is a state to report, not a fault to fail on."""
     t0 = time.time()
     if not path.exists():
-        return {"name": name, "status": "RED", "msg": f"not found: {path.name}",
+        return {"name": name, "status": "YELLOW" if generated else "RED",
+                "msg": (f"not yet generated: {path.name}" if generated
+                        else f"not found: {path.name}"),
                 "latency_ms": int((time.time()-t0)*1000)}
     sz = path.stat().st_size
     if sz < min_bytes:
@@ -65,7 +70,10 @@ def _check_db(name: str, db: Path, expected_tables: List[str]) -> Dict[str, Any]
                 "latency_ms": int((time.time()-t0)*1000)}
 
 
-async def _check_ollama(base_url: str = "http://localhost:11434") -> Dict[str, Any]:
+async def _check_ollama(base_url: str = "") -> Dict[str, Any]:
+    # Inside a container the runtime is a sibling service, not localhost, so the
+    # deployment says where it is (docker-compose sets OLLAMA_BASE_URL).
+    base_url = (base_url or os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434").rstrip("/")
     t0 = time.time()
     try:
         import httpx
@@ -74,14 +82,21 @@ async def _check_ollama(base_url: str = "http://localhost:11434") -> Dict[str, A
             if r.status_code == 200:
                 models = len(r.json().get("models", []))
                 return {"name": "ollama", "status": "GREEN",
-                        "msg": f"{models} models available",
+                        "msg": f"{models} models available at {base_url}",
                         "latency_ms": int((time.time()-t0)*1000)}
             return {"name": "ollama", "status": "YELLOW",
-                    "msg": f"HTTP {r.status_code}",
+                    "msg": f"HTTP {r.status_code} from {base_url}",
                     "latency_ms": int((time.time()-t0)*1000)}
     except Exception as e:
-        return {"name": "ollama", "status": "RED",
-                "msg": f"unreachable: {type(e).__name__}",
+        # DEGRADED, not broken. RED is reserved for "the House itself is faulty";
+        # an absent local model runtime is an environment the House supports —
+        # the operator may be running against an API provider instead, or may not
+        # have started Ollama yet. Reporting it as RED made ok=false on every
+        # clean machine, which is what a fresh CI runner and a first-time user
+        # both look like.
+        return {"name": "ollama", "status": "YELLOW",
+                "msg": f"no local model runtime at {base_url} ({type(e).__name__}) — "
+                       f"start Ollama or configure an API connection",
                 "latency_ms": int((time.time()-t0)*1000)}
 
 
@@ -119,7 +134,9 @@ async def run_all() -> Dict[str, Any]:
                        "msg":"neither THE_CONTINENTAL_DIVISION.html nor agent_room.html found",
                        "latency_ms":0})
     checks.append(_check_file("bridge_console.html", _ROOT / "bridge_console.html", 10000))
-    checks.append(_check_file("SELF.md", _BASE / "SELF.md", 500))
+    # SELF.md is written by ecosystem_manifest at boot and is git-ignored, so a
+    # clean clone legitimately has none until the backend has run once.
+    checks.append(_check_file("SELF.md", _BASE / "SELF.md", 500, generated=True))
 
     # L1 — backend modules
     for mod in ["ecosystem_manifest", "continental_relay", "bridge_protocol",

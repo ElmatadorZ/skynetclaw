@@ -28,7 +28,7 @@ from typing import Any, Dict, Optional
 
 _URL = os.getenv("STEALTH_BRIDGE_URL", "http://127.0.0.1:8781").rstrip("/")
 _TOKEN_FILE = Path(os.getenv("STEALTH_BRIDGE_TOKEN_FILE",
-                             r"D:\GenesisMind\stealth-browser-mcp-master\.bridge_token"))
+                             str(Path.home() / "stealth-browser-mcp" / ".bridge_token")))
 
 
 def _token() -> str:
@@ -112,9 +112,9 @@ def dispatch(house_name: str, args: Dict[str, Any]) -> str:
     if not tool:
         return f"[stealth: unknown tool '{house_name}'. available: {', '.join(sorted(_MAP))}]"
     if not is_up():
-        return ("[stealth bridge offline] start it with "
-                "D:\\GenesisMind\\stealth-browser-mcp-master\\start_bridge.bat "
-                "(runs the browser server in its own Python 3.13 venv).")
+        return ("[stealth bridge offline] start it with the start_bridge script "
+                "in your stealth-browser-mcp checkout "
+                "(it runs the browser server in its own virtualenv).")
     args = dict(args or {})
 
     # ── instance auto-management ────────────────────────────────────────────

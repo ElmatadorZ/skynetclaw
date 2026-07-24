@@ -34,7 +34,7 @@ progressing — classic agent-loop failure mode caused by:
   ```
   ## PLAN (from step 1): ...
   ## COMPLETED_ACTIONS (do NOT repeat):
-    1. ✅ create_folder(path=D:\Skynet_Bridge)
+    1. ✅ create_folder(path=C:\repo\Skynet_Bridge)
     2. ✅ write_file(content=...|path=...\requirements.txt)
   ```
 - The previous ledger is removed first, so we never accumulate
@@ -86,7 +86,7 @@ Restart backend (`restart_backend.bat`), then send the same task that
 previously looped:
 
 ```
-สร้าง Telegram Bot ที่ D:\Skynet_Bridge ทำให้เสร็จทั้งหมด
+สร้าง Telegram Bot ที่ C:\repo\Skynet_Bridge ทำให้เสร็จทั้งหมด
 ```
 
 Expected on screen:

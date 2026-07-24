@@ -697,6 +697,11 @@ except Exception as _e:
 DB_PATH       = Path(__file__).parent / "skynerclaw.db"
 SETTINGS_PATH = Path(__file__).parent / "settings.json"
 
+# Where the local model runtime lives. "localhost" is right on a workstation and
+# wrong inside a container, where the runtime is a sibling service — so the
+# deployment gets to say. docker-compose sets OLLAMA_BASE_URL=http://ollama:11434.
+OLLAMA_DEFAULT_URL = (os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434").rstrip("/")
+
 # RELIABILITY: put the datastore in WAL once at startup (persistent property) so
 # readers never block the writer under concurrency. Verified by chaos_test EXP-3/EXP-5.
 try:
@@ -743,7 +748,7 @@ def init_db():
     c.execute("SELECT COUNT(*) FROM connections")
     if c.fetchone()[0] == 0:
         c.execute("INSERT INTO connections VALUES(?,?,?,?,?,?,?)",
-                  ("local","Local Ollama","http://localhost:11434","","ollama",1,time.time()))
+                  ("local","Local Ollama",OLLAMA_DEFAULT_URL,"","ollama",1,time.time()))
     conn.commit(); conn.close()
 init_db()
 
@@ -772,7 +777,7 @@ def get_active_base_url():
     conn = sqlite3.connect(DB_PATH); c = conn.cursor()
     c.execute("SELECT base_url FROM connections WHERE is_active=1 LIMIT 1")
     row = c.fetchone(); conn.close()
-    return (row[0] if row else "http://localhost:11434").rstrip("/")
+    return (row[0] if row else OLLAMA_DEFAULT_URL).rstrip("/")
 
 def get_active_api_key():
     conn = sqlite3.connect(DB_PATH); c = conn.cursor()
@@ -785,7 +790,7 @@ def get_active_conn():
     c.execute("SELECT id,name,base_url,api_key,api_type FROM connections WHERE is_active=1 LIMIT 1")
     row = c.fetchone(); conn.close()
     if row: return {"id":row[0],"name":row[1],"base_url":row[2],"api_key":row[3],"api_type":row[4]}
-    return {"id":"local","name":"Local","base_url":"http://localhost:11434","api_key":"","api_type":"ollama"}
+    return {"id":"local","name":"Local","base_url":OLLAMA_DEFAULT_URL,"api_key":"","api_type":"ollama"}
 
 def get_conn_by_name(name: str):
     """OX-EXECUTION-RECOVERY-FINAL: look up a connection row by id OR name (used to

@@ -9,7 +9,8 @@
 # Endpoint: http://127.0.0.1:8080/v1  (OpenAI-compatible, connection 'execution').
 
 $ErrorActionPreference = "Stop"
-$Root  = "C:\Users\judgm\llamacpp_test"
+# Defaults to <your home>\llamacpp_test; override with $env:LLAMACPP_ROOT
+$Root  = if ($env:LLAMACPP_ROOT) { $env:LLAMACPP_ROOT } else { Join-Path $HOME "llamacpp_test" }
 $Exe   = Join-Path $Root "llama-server.exe"
 $Model = Join-Path $Root "qwen25-14b.gguf"   # fallback to 7B if 14B missing
 if (-not (Test-Path $Model)) { $Model = Join-Path $Root "qwen25-7b.gguf" }

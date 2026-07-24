@@ -51,7 +51,7 @@ _Source Analysis: Google Cloud Report + Beam AI, Salesforce, Gartner/IDC Researc
 
 **รายละเอียด:**  
 - ไม่ใช้ general LLM สำหรับทุกงาน → ใช้โมเดลเฉพาะด้าน (medical, financial analysis, HR)  
-- SkynetClaw example: agent ใน D:\GenesisMind\SkynetClaw-Agent สามารถ deploy สำหรับธุรกิจเฉพาะอุตสาหกรรมได้ทันที  
+- SkynetClaw example: an agent running from the repository root can be deployed for a specific industry immediately  
 - ข้อมูลใน backend/memory/*.md มีโครงสร้างที่ปรับแต่งสำหรับ use cases จริง  
 
 ---
@@ -109,7 +109,7 @@ _Source Analysis: Google Cloud Report + Beam AI, Salesforce, Gartner/IDC Researc
 ### Strengths (จุดแข็ง):
 - ✅ **Autonomous by Design**: ทำงานต่อเนื่องจน TASK_COMPLETE  
 - ✅ **Live Data Integration**: ใช้ get_news, get_crypto_price, get_gold_price สำหรับ real-time analysis  
-- ✅ **Obsidian Vault Access**: เชื่อมต่อ private knowledge base D:\Genesis Obsidian  
+- ✅ **Obsidian Vault Access**: เชื่อมต่อ private knowledge base ที่กำหนดใน `settings.json`  
 - ✅ **12 Operative Council**: council deliberation ก่อนส่งมอบงาน → decision quality ↑  
 
 ### Gaps & Opportunities (ช่องว่างและพัฒนาได้):

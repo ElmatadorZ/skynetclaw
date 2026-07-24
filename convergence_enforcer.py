@@ -14,7 +14,9 @@ import os
 from pathlib import Path
 from datetime import datetime
 
-WORKSPACE = r"D:\GenesisMind\SkynetClaw-Agent"
+# The repository root this file lives in — portable across machines.
+# Override with SKYNETCLAW_WORKSPACE to point somewhere else.
+WORKSPACE = os.environ.get("SKYNETCLAW_WORKSPACE") or str(Path(__file__).resolve().parent)
 
 
 def scan_artifacts():

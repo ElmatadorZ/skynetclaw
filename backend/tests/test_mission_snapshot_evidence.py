@@ -35,9 +35,9 @@ LIST_TESTS = (
 )
 # a real find_files result: a JSON array of path strings (begins with "[")
 FIND_TESTS = (
-    '["D:\\\\GenesisMind\\\\SkynetClaw-Agent\\\\.pytest_cache", '
-    '"D:\\\\GenesisMind\\\\SkynetClaw-Agent\\\\_archive\\\\root\\\\test_import.py", '
-    '"D:\\\\GenesisMind\\\\SkynetClaw-Agent\\\\backend\\\\tests\\\\test_golden_behaviors.py"]'
+    '["C:\\\\repo\\\\skynetclaw\\\\.pytest_cache", '
+    '"C:\\\\repo\\\\skynetclaw\\\\_archive\\\\root\\\\test_import.py", '
+    '"C:\\\\repo\\\\skynetclaw\\\\backend\\\\tests\\\\test_golden_behaviors.py"]'
 )
 
 

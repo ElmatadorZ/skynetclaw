@@ -21,7 +21,7 @@ _WS = str(Path(__file__).resolve().parents[2])
 
 
 def _gaps(task):
-    return AQ.detect_gaps(task, available_tools=_TOOLS, workspace=_WS, vault="D:/vault")
+    return AQ.detect_gaps(task, available_tools=_TOOLS, workspace=_WS, vault="C:/repo/vault")
 
 
 def test_gap_schema_and_hierarchy():

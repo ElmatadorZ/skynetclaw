@@ -17,7 +17,7 @@ _TOOLS = ["list_files", "find_files", "read_file", "grep_search", "write_file",
           "shell_command", "recall_archive", "query_learning", "ask_user_options"]
 # Portable: the repository root, whatever machine this runs on.
 _WS = str(Path(__file__).resolve().parents[2])
-_VAULT = "D:/Genesis Obsidian"
+_VAULT = "C:/repo/vault"
 
 
 def _plan(task, **kw):

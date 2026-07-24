@@ -24,7 +24,7 @@ RESULTS = {}
 def t_catches_fabrication():
     print("== T1: catches fabricated file references (the example.txt failure) ==")
     cases_flag = [
-        "File content retrieved successfully from D:\\GenesisMind\\example.txt.",
+        "File content retrieved successfully from C:\\repo\\example.txt.",
         "The Obsidian note content retrieved from example_note.md has been observed.",
         "ผมอ่านไฟล์ secret_data.csv แล้วพบว่ามีราคาทอง",
     ]

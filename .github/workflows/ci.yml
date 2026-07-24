@@ -82,6 +82,9 @@ jobs:
           exit 1
 
       - name: Probe health
+        # A runner has no model runtime, so YELLOW is the correct verdict here:
+        # the House is up and honest about what it cannot reach. Only RED — a
+        # fault in the House itself — fails the build.
         shell: bash
         working-directory: backend
         run: |
@@ -90,10 +93,13 @@ jobs:
           import json, sys
           h = json.load(open("health.json", encoding="utf-8"))
           print(f"ok={h.get('ok')}  status={h.get('status')}  {h.get('summary')}")
+          red = []
           for c in h.get("checks", []):
               print(f"  {str(c.get('status')):6} {c.get('name')}: {str(c.get('msg'))[:100]}")
-          if not h.get("ok"):
-              sys.exit("health reported not-ok")
+              if c.get("status") == "RED":
+                  red.append(c.get("name"))
+          if red:
+              sys.exit("RED checks on a clean machine: " + ", ".join(map(str, red)))
           PY
 
       - name: Server log (always)
@@ -139,42 +145,7 @@ jobs:
           python-version: "3.12"
       - name: Scan for operator-private material
         shell: bash
-        run: |
-          python - <<'PY'
-          import pathlib, re, sys
-
-          patterns = {
-              "personal email":     re.compile(r"[A-Za-z0-9._%+-]+@(gmail|outlook|hotmail|yahoo)\.[a-z]+", re.I),
-              "operator home path": re.compile(r"C:[\\/]+Users[\\/]+judgm", re.I),
-              "private repo path":  re.compile(r"[A-Za-z]:[\\/]+GenesisMind[\\/]+SkynetClaw-Agent", re.I),
-          }
-          skip_dirs = {".git", "__pycache__", "node_modules", ".github"}
-          skip_suffix = {".png", ".jpg", ".jpeg", ".svg", ".pdf", ".zip", ".db", ".ico"}
-
-          problems = []
-          for p in pathlib.Path(".").rglob("*"):
-              if not p.is_file() or skip_dirs & set(p.parts) or p.suffix.lower() in skip_suffix:
-                  continue
-              try:
-                  text = p.read_text(encoding="utf-8", errors="ignore")
-              except Exception:
-                  continue
-              for label, rx in patterns.items():
-                  m = rx.search(text)
-                  if m:
-                      problems.append(f"{p}: {label} -> {m.group(0)[:60]}")
-
-          if pathlib.Path("backend/prompts/USER.md").exists():
-              problems.append("backend/prompts/USER.md is present — it must never be committed")
-          if not pathlib.Path("backend/prompts/USER.example.md").exists():
-              problems.append("backend/prompts/USER.example.md is missing")
-
-          if problems:
-              print("Personal data found in the public tree:")
-              print("\n".join(f"  {x}" for x in problems))
-              sys.exit(1)
-          print("OK — no personal data detected")
-          PY
+        run: python tools/privacy_scan.py
 
   docker:
     # The compose route is the one most first-time users take, so the image has

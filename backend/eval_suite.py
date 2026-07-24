@@ -948,7 +948,7 @@ def _cap_coverage():
 @case("live_readfile_denies_secret", "live", live=True, desc="read_file is denied on the bearer-token/secret path (audit P1)")
 def _live_readfile_secret():
     r = _post("/api/tools/execute", {"name": "read_file",
-              "args": {"path": r"D:\GenesisMind\stealth-browser-mcp-master\.bridge_token"}, "operator": "eval"})
+              "args": {"path": r"C:\repo\stealth-browser-mcp\.bridge_token"}, "operator": "eval"})
     res = str(r.get("result") or r.get("error") or "")
     ok = any(w in res.lower() for w in ("denied", "protected", "sensitive"))
     return (ok, f"resp={res[:70]}")

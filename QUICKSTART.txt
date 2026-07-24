@@ -35,7 +35,7 @@ OBSIDIAN PAGE
   - Semantic Search: Find notes by meaning (needs index)
 
   To use Obsidian:
-  1. Enter your vault path (e.g. D:\Obsidian\MyVault)
+  1. Enter your vault path (e.g. <your vault path>\MyVault)
   2. Click Load
   3. Click "Build Index" for semantic search
      (needs: ollama pull nomic-embed-text)
