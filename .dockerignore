@@ -19,10 +19,9 @@ backend/settings.json
 backend/sessions/
 backend/memory/
 
-# Not needed at runtime
+# Large, not needed at runtime. backend/**/*.md is KEPT — the prompt layer,
+# the skill registry and several subsystems read markdown at run time.
 docs/
 portraits/
 SkynetClaw-Vault/
-*.md
-!backend/prompts/*.md
-!backend/skills/**/*.md
+ui-debt/

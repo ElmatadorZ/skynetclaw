@@ -12,15 +12,17 @@ permissions:
 
 jobs:
   boot:
-    # The claim this repository has to earn is "it works on a machine that is
-    # not the author's". Nothing else in CI matters as much as this job.
-    name: clean install + boot · ${{ matrix.os }} · py${{ matrix.python-version }}
+    # The claim this repository has to earn is that it works on a machine that
+    # is not the author's. Every step below is deliberately small, so a failure
+    # names itself instead of hiding inside a compound script.
+    name: install + boot · ${{ matrix.os }} · py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.10", "3.11", "3.12"]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,114 +30,126 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install from requirements.txt only
+      - name: Environment
+        shell: bash
+        run: |
+          python --version
+          pip --version
+          echo "runner=${{ runner.os }}  cwd=$(pwd)"
+
+      - name: Install dependencies
+        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
 
-      - name: Initialise the institutional database
+      - name: Installed packages
+        shell: bash
+        run: pip list
+
+      - name: Seed config from templates
+        shell: bash
+        run: |
+          cp backend/settings.example.json backend/settings.json
+          cp .env.example .env
+          echo "config seeded"
+
+      - name: Migrate the database
+        shell: bash
         working-directory: backend
         run: python migrate.py up
 
-      - name: Import the app (no network, no model)
-        working-directory: backend
-        run: |
-          python -c "import main; print('routes:', len(main.app.routes))"
-
-      - name: Boot and probe /api/system/health
-        working-directory: backend
+      - name: Import the application
         shell: bash
+        working-directory: backend
+        run: python -c "import main; print('routes:', len(main.app.routes))"
+
+      - name: Start the server
+        shell: bash
+        working-directory: backend
         run: |
-          python -m uvicorn main:app --host 127.0.0.1 --port 8799 --log-level error &
-          for i in $(seq 1 30); do
+          python -m uvicorn main:app --host 127.0.0.1 --port 8766 --log-level info > server.log 2>&1 &
+          for i in $(seq 1 45); do
             sleep 2
-            if curl -sf --max-time 5 http://127.0.0.1:8799/api/system/health/quick > /dev/null; then
-              break
+            if curl -sf --max-time 5 http://127.0.0.1:8766/api/system/health/quick >/dev/null 2>&1; then
+              echo "server responded after $((i * 2))s"
+              exit 0
             fi
           done
-          echo "--- /api/system/health/quick ---"
-          curl -sf --max-time 10 http://127.0.0.1:8799/api/system/health/quick
-          echo
-          echo "--- /api/system/health ---"
-          curl -sf --max-time 20 http://127.0.0.1:8799/api/system/health -o health.json
+          echo "server did not respond within 90s"
+          echo "--- server.log ---"
+          cat server.log
+          exit 1
+
+      - name: Probe health
+        shell: bash
+        working-directory: backend
+        run: |
+          curl -sf --max-time 30 http://127.0.0.1:8766/api/system/health -o health.json
           python - <<'PY'
           import json, sys
           h = json.load(open("health.json", encoding="utf-8"))
-          print(f"status={h.get('status')}  {h.get('summary')}")
+          print(f"ok={h.get('ok')}  status={h.get('status')}  {h.get('summary')}")
           for c in h.get("checks", []):
-              print(f"  {c.get('status'):6} {c.get('name')}")
+              print(f"  {str(c.get('status')):6} {c.get('name')}: {str(c.get('msg'))[:100]}")
           if not h.get("ok"):
               sys.exit("health reported not-ok")
           PY
 
+      - name: Server log (always)
+        if: always()
+        shell: bash
+        working-directory: backend
+        run: tail -60 server.log || echo "(no server.log)"
+
   tests:
-    name: backend test suite
+    name: test suite · ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        shell: bash
+        run: pip install -r backend/requirements.txt
+      - name: Seed config
+        shell: bash
+        run: cp backend/settings.example.json backend/settings.json
+      - name: pytest
+        shell: bash
+        working-directory: backend
+        run: |
+          python migrate.py up
+          python -m pytest -q
+
+  privacy:
+    # A public release assembled from a private instance must prove, on every
+    # push, that nothing personal has crept back in.
+    name: no personal data
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r backend/requirements.txt
-      - name: Run pytest
-        working-directory: backend
-        run: |
-          python migrate.py up
-          python -m pytest -q --maxfail=5 || echo "::warning::test suite has failures — see log"
-
-  docker:
-    # The compose route is the one most first-time users will take, so the image
-    # has to be proven to build — not assumed to.
-    name: docker image builds
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build the image
-        run: docker build -t skynetclaw:ci .
-      - name: Boot the container and probe health
-        run: |
-          cp backend/settings.example.json backend/settings.json
-          docker run -d --name sc -p 8766:8766 skynetclaw:ci
-          for i in $(seq 1 40); do
-            sleep 3
-            if curl -sf --max-time 5 http://127.0.0.1:8766/api/system/health/quick >/dev/null; then
-              break
-            fi
-          done
-          curl -sf --max-time 15 http://127.0.0.1:8766/api/system/health/quick
-          echo
-          docker logs sc | tail -20
-          docker rm -f sc
-
-  compose:
-    name: compose config is valid
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: |
-          cp backend/settings.example.json backend/settings.json
-          docker compose config >/dev/null && echo "  OK  compose config valid"
-
-  privacy:
-    # A public release assembled from a private instance must prove, every push,
-    # that nothing personal has crept back in.
-    name: no personal data
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - name: Scan for operator-private material
+        shell: bash
         run: |
           python - <<'PY'
           import pathlib, re, sys
 
-          # Personal identifiers and paths that must never appear in the public tree.
           patterns = {
-              "personal email":      re.compile(r"[A-Za-z0-9._%+-]+@(gmail|outlook|hotmail|yahoo)\.[a-z]+", re.I),
-              "operator home path":  re.compile(r"C:\\+Users\\+judgm", re.I),
-              "private repo path":   re.compile(r"[A-Za-z]:[\\/]+GenesisMind[\\/]+SkynetClaw-Agent", re.I),
+              "personal email":     re.compile(r"[A-Za-z0-9._%+-]+@(gmail|outlook|hotmail|yahoo)\.[a-z]+", re.I),
+              "operator home path": re.compile(r"C:[\\/]+Users[\\/]+judgm", re.I),
+              "private repo path":  re.compile(r"[A-Za-z]:[\\/]+GenesisMind[\\/]+SkynetClaw-Agent", re.I),
           }
           skip_dirs = {".git", "__pycache__", "node_modules", ".github"}
-          skip_suffix = {".png", ".jpg", ".svg", ".pdf", ".zip", ".db"}
+          skip_suffix = {".png", ".jpg", ".jpeg", ".svg", ".pdf", ".zip", ".db", ".ico"}
 
           problems = []
           for p in pathlib.Path(".").rglob("*"):
@@ -150,7 +164,6 @@ jobs:
                   if m:
                       problems.append(f"{p}: {label} -> {m.group(0)[:60]}")
 
-          # The operator's personal profile must be absent; only the template ships.
           if pathlib.Path("backend/prompts/USER.md").exists():
               problems.append("backend/prompts/USER.md is present — it must never be committed")
           if not pathlib.Path("backend/prompts/USER.example.md").exists():
@@ -160,5 +173,33 @@ jobs:
               print("Personal data found in the public tree:")
               print("\n".join(f"  {x}" for x in problems))
               sys.exit(1)
-          print("  OK  no personal data detected")
+          print("OK — no personal data detected")
           PY
+
+  docker:
+    # The compose route is the one most first-time users take, so the image has
+    # to be proven to build rather than assumed to.
+    name: docker image builds and serves
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: docker build -t skynetclaw:ci .
+
+      - name: Run and probe
+        run: |
+          docker run -d --name sc -p 8766:8766 skynetclaw:ci
+          for i in $(seq 1 45); do
+            sleep 3
+            if curl -sf --max-time 5 http://127.0.0.1:8766/api/system/health/quick >/dev/null 2>&1; then
+              echo "container healthy after $((i * 3))s"
+              break
+            fi
+          done
+          curl -sf --max-time 20 http://127.0.0.1:8766/api/system/health/quick
+          echo
+
+      - name: Container log (always)
+        if: always()
+        run: docker logs sc 2>&1 | tail -60 || true

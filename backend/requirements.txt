@@ -1,13 +1,38 @@
 # SkynetClaw / THE HOUSE — Python dependencies (Python 3.10+)
+#
+#   pip install -r requirements.txt
+#
+# Everything below CORE is optional: each entry unlocks a capability, and its
+# absence degrades that capability gracefully rather than stopping the system.
+# Installing only CORE gives a working backend with fewer routes.
+
+# ── CORE — required ───────────────────────────────────────────────────────────
 fastapi>=0.115.0
 uvicorn>=0.30.6
 httpx>=0.27.2
 pydantic>=2.10.0
 python-multipart>=0.0.9
 
-# Optional: MCP bridge (backend/mcp_server.py). Remove if you don't use MCP.
+# ── RUNTIME — strongly recommended ────────────────────────────────────────────
+# Without these the system starts, but several subsystems stay unloaded.
+psutil>=5.9.0            # process/system metrics for the OS and monitoring routes
+tiktoken>=0.7.0          # token accounting — the context budget guard
+PyYAML>=6.0              # workflow IR parsing
+requests>=2.31.0         # used by the security regression suite
+
+# ── DOCUMENTS — optional, for doc_reader ──────────────────────────────────────
+# Reading PDFs, Office files, images and HTML. Without them doc_reader reports
+# the format as unsupported instead of failing.
+pypdf>=4.0.0             # PDF text
+python-docx>=1.1.0       # .docx
+openpyxl>=3.1.0          # .xlsx
+beautifulsoup4>=4.12.0   # HTML
+Pillow>=10.0.0           # images
+pytesseract>=0.3.10      # OCR — also needs the tesseract binary on PATH
+
+# ── MCP bridge — optional ─────────────────────────────────────────────────────
 mcp>=1.0.0 ; python_version >= "3.10"
 
-# Dev / tests
+# ── Dev / tests ───────────────────────────────────────────────────────────────
 pytest>=8.0.0
 pytest-cov>=5.0.0
