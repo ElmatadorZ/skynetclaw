@@ -1,0 +1,55 @@
+=====================================
+  SkynetClaw - Quick Start Guide
+=====================================
+
+FIRST TIME SETUP:
+1. Double-click: install.bat
+   (installs Python packages)
+
+2. Install Ollama: https://ollama.com/download
+
+3. Pull recommended models (open cmd):
+   ollama pull qwen2.5:7b         <- best for tool calling
+   ollama pull nomic-embed-text   <- for Obsidian search
+
+LAUNCH:
+- Double-click: start.bat
+
+=====================================
+  FEATURES
+=====================================
+
+COMMAND CHAT PAGE
+  - Chat with any Ollama model
+  - Tools: File system, Shell, Python runner, Web search
+  - Skills: Apply saved system prompts
+  - Ctrl+Enter to send messages
+
+SKILLS PAGE
+  - Prompt Skills: Save system prompts / personas
+  - Custom Tools: Add your own Python tools
+
+OBSIDIAN PAGE
+  - Browse: Navigate and edit .md notes
+  - Chat: Ask AI questions about your vault (RAG)
+  - Semantic Search: Find notes by meaning (needs index)
+
+  To use Obsidian:
+  1. Enter your vault path (e.g. D:\Obsidian\MyVault)
+  2. Click Load
+  3. Click "Build Index" for semantic search
+     (needs: ollama pull nomic-embed-text)
+
+=====================================
+  TIPS
+=====================================
+
+Best models for tool calling:
+  qwen2.5:7b    - Best overall
+  llama3.2:3b   - Fastest/lightest
+  mistral:7b    - Good balance
+
+Backend API: http://localhost:8765/docs
+  (FastAPI auto-docs when backend is running)
+
+=====================================

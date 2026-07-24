@@ -1,0 +1,10 @@
+{
+  "_comment": "OX-HOUSE-BOOT-1 Phase 12 — optional runtime manifest. Drop *.json files in the runtime data dir (config.paths.runtime_dir) and the Bootstrap Loader reads them BEFORE probing default ports. 'priority' orders them (higher first). The kernel still measures real capabilities; the manifest only seeds discovery. No model names — capability-driven.",
+  "driver": "openai",
+  "runtime": "llama.cpp",
+  "url": "http://127.0.0.1:8080/v1",
+  "version": "latest",
+  "capabilities": ["tools", "streaming"],
+  "health": "healthy",
+  "priority": 100
+}

@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>The Continental Division · Operations Theatre · SkynetClaw</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* v2 — brightened for readability (operator request 2026-06-11) */
+  --bg-0:#0a0b0e; --bg-1:#101116; --bg-2:#17181e; --bg-3:#20222a;
+  --ink:#e3d9bc; --ink-bright:#f7efd8; --ink-dim:#b0a78e; --ink-ghost:#736b58;
+  --gold:#d4ac60; --gold-dim:#8a6c38; --gold-bright:#f0ca82;
+  --blood:#6e2620; --blood-dim:#371310; --blood-bright:#a8453e;
+  --rule:#363023; --ok:#7da26a;
+}
+/* ── LIGHT MODE — bright steel grey, same Continental soul ──────────────── */
+body.light{
+  --bg-0:#cfccc2; --bg-1:#dad7cd; --bg-2:#e4e1d7; --bg-3:#edeae0;
+  --ink:#2f2c25; --ink-bright:#16130d; --ink-dim:#57534a; --ink-ghost:#8a857a;
+  --gold:#8a6a28; --gold-dim:#a8946a; --gold-bright:#6e5314;
+  --blood:#7c2f28; --blood-dim:#d9bcb6; --blood-bright:#8a3530;
+  --rule:#b5b0a1; --ok:#4a7a3a;
+}
+body.light::before{background:radial-gradient(ellipse at 50% 45%, rgba(110,83,20,0.07) 0, transparent 55%)}
+body.light::after{opacity:0.05}
+body.light .topbar{background:linear-gradient(180deg,#eae6d9 0%,#d9d5c7 100%)}
+body.light .brand-seal{background:radial-gradient(circle,rgba(138,106,40,0.12) 0,transparent 70%);box-shadow:0 0 14px rgba(138,106,40,0.18)}
+body.light .brand-title{text-shadow:none}
+body.light .classified-stamp{background:rgba(124,47,40,0.07)}
+body.light .panel-center{background:linear-gradient(180deg,var(--bg-0) 0%,#c6c3b8 100%)}
+body.light .phase-track{background:linear-gradient(180deg,#dedacd 0%,#d3cfc2 100%)}
+body.light .intel-strip{background:linear-gradient(180deg,rgba(138,106,40,0.08) 0%,transparent 100%)}
+body.light .chamber{background:radial-gradient(ellipse at 50% 50%,rgba(138,106,40,0.09) 0,transparent 50%),linear-gradient(180deg,#d9d6cb 0%,#cecbc0 100%)}
+body.light .chamber-center{background:radial-gradient(circle,rgba(110,83,20,0.14) 0,rgba(168,148,106,0.05) 60%,transparent 100%)}
+body.light .chamber-center .seal{text-shadow:none}
+body.light .token-disc{background:#d8d4c7}
+body.light .card-portrait{background:#d3cfc2}
+body.light .card-portrait .ph-fallback,body.light .token-disc .tk-fallback{background:radial-gradient(circle,#ddd8c8 0,#c5c0b1 100%)}
+body.light .dossier{background:linear-gradient(180deg,#e7e4da 0%,#d9d6cb 100%)}
+body.light .card-icon{background:rgba(255,255,250,0.65)}
+body.light .command-area{background:linear-gradient(180deg,#e4e0d3 0%,#d7d3c5 100%)}
+body.light .command-input{background:#f0ede3}
+body.light .command-input:focus{background:#f7f4ea;box-shadow:inset 0 0 30px rgba(138,106,40,0.05),0 0 16px rgba(138,106,40,0.10)}
+body.light .btn.primary{color:#fbf6e6}
+body.light .msg.tool{background:rgba(138,106,40,0.06)}
+body.light .msg.system{background:rgba(124,47,40,0.06)}
+body.light .skill-banner{background:linear-gradient(90deg,rgba(138,106,40,0.12),rgba(138,106,40,0.02))}
+body.light .verdict-pop{background:rgba(252,250,243,0.94)}
+body.light .modal{background:linear-gradient(180deg,#eae7dc 0%,#dcd9cd 100%)}
+body.light .modal-portrait{background:radial-gradient(ellipse at 50% 20%,rgba(138,106,40,0.20) 0,rgba(168,148,106,0.08) 30%,transparent 60%),linear-gradient(155deg,#d8d4c6 0%,#c8c4b6 100%)}
+body.light .modal-codeplate{background:linear-gradient(180deg,transparent 0%,rgba(245,242,233,0.92) 60%,#f2efe5 100%)}
+body.light .modal-codeplate .nm{text-shadow:none}
+body.light .modal-stamp,body.light .modal-fileno{background:rgba(252,250,243,0.85)}
+body.light .ask-btn:hover{background:rgba(138,106,40,0.10)}
+body.light .transcript-pane{background:linear-gradient(180deg,transparent 0%,rgba(255,255,250,0.35) 100%)}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:'JetBrains Mono',monospace; background:var(--bg-0); color:var(--ink);
+  overflow:hidden; font-size:12.5px; letter-spacing:0.02em; position:relative;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(232,193,120,0.10) 0, transparent 50%),
+    radial-gradient(ellipse at 92% 95%, rgba(92,30,26,0.08) 0, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.6) 100%);
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:200;
+  opacity:0.14;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);opacity:0.4}
+::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+
+/* ── TOPBAR — slim, identity only ────────────────────────────── */
+.topbar{position:relative;z-index:5;height:62px;background:linear-gradient(180deg,#15110a 0%,#0c0a06 100%);border-bottom:1px solid var(--gold-dim);display:flex;align-items:center;padding:0 26px;gap:26px}
+.topbar::before{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold-bright) 50%,var(--gold) 70%,transparent)}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-seal{width:40px;height:40px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:18px;font-weight:700;color:var(--gold-bright);background:radial-gradient(circle,rgba(201,161,85,0.18) 0,transparent 70%);box-shadow:0 0 22px rgba(201,161,85,0.2)}
+.brand-title{font-family:'Cinzel',serif;font-size:16.5px;font-weight:600;letter-spacing:0.22em;color:var(--gold-bright);text-shadow:0 0 10px rgba(201,161,85,0.3)}
+.brand-sub{font-size:8.5px;color:var(--ink-dim);letter-spacing:0.35em;margin-top:2px}
+.topbar-meta{margin-left:auto;display:flex;gap:26px;align-items:center;font-size:9px;color:var(--ink-dim);letter-spacing:0.18em}
+.topbar-meta b{color:var(--gold);font-family:'Cinzel',serif;letter-spacing:0.14em}
+.topbar-meta .lbl{color:var(--ink-ghost);font-size:8px;display:block}
+.classified-stamp{border:1.2px solid var(--blood-bright);color:var(--blood-bright);padding:4px 11px;font-size:8.5px;letter-spacing:0.3em;transform:rotate(-2deg);font-weight:700;background:rgba(92,30,26,0.12);font-family:'Cinzel',serif}
+.conn-indicator{display:inline-flex;align-items:center;gap:6px;font-size:9px;letter-spacing:0.2em;font-family:'Cinzel',serif}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--ink-ghost)}
+.conn-dot.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.conn-dot.off{background:var(--blood-bright);box-shadow:0 0 8px var(--blood-bright)}
+
+/* ── Main grid — visual hierarchy: center heavy, sides recede ─ */
+.shell{display:grid;grid-template-columns:76px 1fr 290px;height:calc(100% - 62px);position:relative;z-index:4}
+/* ── OPERATOR-FIRST LAYOUT (2026-07-10): the command chat is the product;
+   agents + monitoring recede into a compact rail until asked for.
+   body.roster-full restores the ceremonial dossier column;
+   body.stage-hidden collapses the round-table hero entirely. ── */
+body.roster-full .shell{grid-template-columns:280px 1fr 290px}
+body:not(.roster-full) .panel-left .card-body{display:none}
+body:not(.roster-full) .dossier{grid-template-columns:1fr;height:52px;margin-bottom:5px}
+body:not(.roster-full) .tier-head{height:6px;overflow:hidden;font-size:0;padding:0;margin:6px 0 4px;border-bottom:1px solid var(--rule)}
+body:not(.roster-full) .panel-head .cnt{display:none}
+body:not(.roster-full) .panel-left .panel-head{padding:12px 8px 9px;justify-content:center}
+body:not(.roster-full) .panel-left .panel-head .ttl{font-size:8px;letter-spacing:0.12em}
+body:not(.roster-full) .panel-left .panel-body{padding:8px 6px 24px}
+body.stage-hidden .stage{display:none}
+.lay-toggle{background:none;border:1px solid var(--rule);color:var(--ink-dim);font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.18em;padding:2px 7px;cursor:pointer;transition:all .2s}
+.lay-toggle:hover{color:var(--gold);border-color:var(--gold-dim)}
+.panel-left,.panel-right{background:linear-gradient(180deg,var(--bg-1) 0%,var(--bg-0) 100%);display:flex;flex-direction:column;overflow:hidden;position:relative;opacity:0.86;transition:opacity 0.2s}
+.panel-left:hover,.panel-right:hover{opacity:1}
+.panel-left{border-right:1px solid var(--rule)}
+.panel-right{border-left:1px solid var(--rule)}
+.panel-head{padding:12px 16px 9px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline}
+.panel-head .ttl{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:0.28em;color:var(--gold);font-weight:600}
+.panel-head .cnt{font-size:8.5px;color:var(--ink-dim);letter-spacing:0.2em}
+.panel-head .cnt b{color:var(--gold-bright)}
+.panel-body{flex:1;overflow-y:auto;padding:10px 10px 24px}
+
+/* ── PERSONNEL — TIERED ───────────────────────────────────────── */
+.tier-head{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.32em;color:var(--ink-ghost);
+  margin:14px 6px 6px;padding-bottom:4px;border-bottom:1px dotted var(--rule);
+}
+.tier-head:first-child{margin-top:2px}
+.tier-head.primary{color:var(--gold)}
+
+.dossier{
+  position:relative; cursor:pointer;
+  display:grid; grid-template-columns:62px 1fr;
+  height:78px; margin-bottom:6px;
+  background:linear-gradient(180deg,#0d0e12 0%,#06070a 100%);
+  border:1px solid var(--rule);
+  overflow:hidden; transition:all 0.2s;
+}
+.dossier::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;
+  background:linear-gradient(90deg,transparent,var(--gold-dim) 50%,transparent);opacity:0.4;z-index:3}
+.dossier:hover{border-color:var(--gold-dim);transform:translateX(2px)}
+.dossier:hover::before{opacity:1}
+.dossier.engaged{border-color:var(--gold);box-shadow:inset 0 0 24px rgba(201,161,85,0.1),0 0 0 1px rgba(201,161,85,0.3)}
+.dossier.engaged::before{opacity:1;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent)}
+
+.card-portrait{position:relative;overflow:hidden;background:#080a0d}
+.card-portrait img{width:100%;height:100%;object-fit:cover;display:block;filter:contrast(1.05) saturate(0.95)}
+.card-portrait::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 60%,rgba(0,0,0,0.5) 100%)}
+.card-portrait .ph-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:18px;color:var(--ink-ghost);background:radial-gradient(circle,#15110a 0,#050608 100%);z-index:0}
+
+.card-body{padding:8px 10px 6px;display:grid;grid-template-rows:auto auto 1fr;gap:1px;min-width:0;position:relative}
+.card-name{font-family:'Cinzel',serif;font-size:11.5px;color:var(--ink-bright);letter-spacing:0.14em;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.card-role{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10.5px;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.card-row{display:flex;align-items:center;gap:6px;margin-top:auto;font-size:8px;letter-spacing:0.18em;font-family:'Cinzel',serif}
+.card-row .led{width:5px;height:5px;border-radius:50%;background:var(--ink-ghost);flex-shrink:0}
+.card-row .verb{color:var(--ink-dim);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-row .code{color:var(--ink-ghost);font-family:'JetBrains Mono',monospace;font-size:8px}
+.card-row .clr{color:var(--gold-bright);font-size:7.5px}
+.dossier.engaged .led{background:var(--gold-bright);box-shadow:0 0 6px var(--gold-bright);animation:ledPulse 1.4s ease-in-out infinite}
+.dossier.engaged .verb{color:var(--gold-bright);font-weight:600}
+@keyframes ledPulse{0%,100%{opacity:0.5}50%{opacity:1}}
+.card-icon{position:absolute;top:8px;right:8px;width:18px;height:18px;border:1px solid var(--gold-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:4}
+.card-icon svg{width:11px;height:11px}
+.card-icon svg *{stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.dossier.engaged .card-icon{border-color:var(--gold-bright);background:rgba(201,161,85,0.15)}
+.dossier.engaged .card-icon svg *{stroke:var(--gold-bright)}
+
+/* ── COMMAND BAR — gold dominant when idle ─────────────────── */
+
+/* ── INTEL STRIP ────────────────────────────────────────────── */
+.intel-strip{position:relative;z-index:6;display:flex;gap:0;align-items:stretch;border-bottom:1px solid var(--rule);background:linear-gradient(180deg,rgba(201,161,85,0.05) 0%,transparent 100%);font-size:9.5px;letter-spacing:0.18em}
+.intel-cell{flex:1;padding:9px 16px;display:flex;align-items:center;gap:8px;border-right:1px solid var(--rule);color:var(--ink-dim)}
+.intel-cell:last-child{border-right:0}
+.intel-cell .lbl{color:var(--ink-ghost);font-size:8.5px;letter-spacing:0.28em;font-family:'Cinzel',serif}
+.intel-cell .val{color:var(--ink-bright);font-family:'JetBrains Mono',monospace;font-size:10px}
+.intel-cell .val.gold{color:var(--gold-bright)}
+.intel-cell .val.warn{color:var(--blood-bright)}
+.intel-cell .pulse{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);animation:ledPulse 1.4s ease-in-out infinite}
+
+/* ── PHASE TRACKER ──────────────────────────────────────────── */
+.phase-track{position:relative;z-index:5;display:flex;align-items:center;gap:0;padding:14px 22px 12px;background:linear-gradient(180deg,#0d0c08 0%,#08070a 100%);border-bottom:1px solid var(--rule)}
+.phase-step{flex:1;display:flex;align-items:center;gap:6px;position:relative}
+.phase-step::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:14px;height:1px;background:var(--rule)}
+.phase-step:last-child::after{display:none}
+.phase-dot{width:14px;height:14px;border:1.5px solid var(--rule);border-radius:50%;background:var(--bg-1);position:relative;flex-shrink:0;transition:all 0.3s}
+.phase-step.active .phase-dot{border-color:var(--gold);background:radial-gradient(circle,var(--gold) 0,var(--gold-dim) 100%);box-shadow:0 0 12px rgba(201,161,85,0.6);animation:phasePulse 1.6s ease-in-out infinite}
+.phase-step.done .phase-dot{border-color:var(--gold-dim);background:var(--gold-dim)}
+.phase-step.done .phase-dot::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;color:#0a0807;font-weight:700}
+@keyframes phasePulse{0%,100%{box-shadow:0 0 12px rgba(201,161,85,0.6)}50%{box-shadow:0 0 22px rgba(232,193,120,0.9)}}
+.phase-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.18em;color:var(--ink-ghost);white-space:nowrap}
+.phase-step.active .phase-lbl{color:var(--gold-bright);font-weight:600}
+.phase-step.done .phase-lbl{color:var(--ink-dim)}
+
+/* ── CENTER PANEL — Theatre + Chamber ──────────────────────── */
+.panel-center{background:linear-gradient(180deg,var(--bg-0) 0%,#08090b 100%);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.panel-center::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent 0 2px,rgba(255,255,255,0.012) 2px 3px);pointer-events:none;z-index:1}
+.center-head{position:relative;z-index:3;padding:18px 26px 14px;border-bottom:1px solid var(--rule);background:linear-gradient(180deg,rgba(201,161,85,0.06),transparent)}
+.center-head .mlbl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.4em;color:var(--gold-bright);margin-bottom:4px}
+.center-head .mttl{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;color:var(--ink-bright);letter-spacing:0.02em}
+.center-head .mttl .file{color:var(--ink-dim);font-style:normal;font-family:'JetBrains Mono',monospace;font-size:12px;margin-left:12px;letter-spacing:0.2em}
+.center-head .mttl .file b{color:var(--gold)}
+.theatre{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.chamber{position:relative;height:300px;flex-shrink:0;background:radial-gradient(ellipse at 50% 50%,rgba(201,161,85,0.06) 0,transparent 50%),linear-gradient(180deg,#070608 0%,#0a0907 100%);border-bottom:1px solid var(--rule)}
+.chamber::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200px;height:200px;border-radius:50%;border:1px dashed var(--rule);box-shadow:0 0 60px rgba(201,161,85,0.08) inset}
+.chamber::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:340px;height:340px;border-radius:50%;border:1px solid var(--rule);opacity:0.5}
+.chamber-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(232,193,120,0.18) 0,rgba(122,95,49,0.04) 60%,transparent 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:'Cinzel',serif;z-index:6}
+.chamber-center .seal{font-size:22px;color:var(--gold-bright);font-weight:700;text-shadow:0 0 14px rgba(201,161,85,0.5)}
+.chamber-center .lbl{font-size:7.5px;color:var(--ink-dim);letter-spacing:0.3em;margin-top:2px}
+.chamber-radar{position:absolute;left:50%;top:50%;width:340px;height:340px;transform:translate(-50%,-50%);pointer-events:none;opacity:1;transition:opacity 0.5s;z-index:2}
+.chamber.active .chamber-radar{opacity:0.25}
+.chamber-radar::after{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0%,transparent 70%,rgba(232,193,120,0.3) 90%,transparent 100%);animation:radarSpin 6s linear infinite}
+@keyframes radarSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.chamber-mindmap{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;opacity:0.85}
+/* ── STAGE — one story: House board (idle) ⇄ Mission Flow (running) ───────── */
+.stage{position:relative;min-height:280px;flex-shrink:0;border-bottom:1px solid var(--rule);background:radial-gradient(ellipse at 50% 40%,rgba(201,161,85,0.07) 0,transparent 55%),linear-gradient(180deg,#0b0a08 0%,#0d0c0a 100%);display:flex;align-items:center;justify-content:center;padding:0}
+body.light .stage{background:radial-gradient(ellipse at 50% 40%,rgba(138,106,40,0.09) 0,transparent 55%),linear-gradient(180deg,#d9d6cb 0%,#cecbc0 100%)}
+/* THE HOUSE — cinematic round-table chamber (idle) */
+.house-board{position:absolute;inset:0;overflow:hidden}
+.hs-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 46%;opacity:0.9}
+.hs-shade{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 30%,rgba(0,0,0,0.55) 100%),linear-gradient(180deg,rgba(0,0,0,0.45) 0%,transparent 25%,transparent 75%,rgba(0,0,0,0.4) 100%)}
+/* light mode: the chamber photo is intrinsically dark — keep the SAME dark
+   vignette and light-on-dark text inside the stage (cinematic island) */
+.hs-head{position:absolute;top:8px;left:0;right:0;text-align:center;z-index:6;pointer-events:none}
+.hb-title{font-family:'Cinzel',serif;font-size:16px;letter-spacing:0.5em;text-indent:0.5em;color:var(--ink-bright);font-weight:600;text-shadow:0 2px 10px rgba(0,0,0,0.8)}
+.hb-sub{font-size:8.5px;letter-spacing:0.32em;color:var(--gold);font-family:'Cinzel',serif;margin-top:3px}
+.hs-quote{position:absolute;top:12px;left:18px;z-index:6;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12.5px;line-height:1.5;color:var(--ink);text-shadow:0 1px 6px rgba(0,0,0,0.8)}
+.hs-quote b{color:var(--gold-bright)}
+.hs-table{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:42%;height:48%;border-radius:50%;border:1px solid rgba(201,161,85,0.30);background:radial-gradient(ellipse at 50% 45%,rgba(201,161,85,0.07) 0,rgba(20,16,8,0.18) 55%,transparent 75%);box-shadow:inset 0 0 70px rgba(201,161,85,0.10),0 22px 70px rgba(201,161,85,0.08);z-index:3}
+.hs-table::before{content:'';position:absolute;inset:12%;border-radius:50%;border:1px dashed rgba(201,161,85,0.32)}
+.hs-table::after{content:'';position:absolute;inset:26%;border-radius:50%;border:1px solid rgba(201,161,85,0.25);box-shadow:inset 0 0 34px rgba(201,161,85,0.14)}
+.hs-x{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Cinzel',serif;font-size:26px;font-weight:700;color:var(--gold-bright);text-shadow:0 0 18px rgba(232,193,120,0.6)}
+.hs-seat{position:absolute;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transform:translate(-50%,-50%);z-index:5;transition:all .2s}
+.hs-badge{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);box-shadow:0 0 12px rgba(201,161,85,0.35);transition:all .2s}
+body.light .hs-badge{background:rgba(0,0,0,0.6);border-color:#d4ac60}
+body.light .hs-badge svg *{stroke:#f0ca82}
+body.light .hs-nm{color:#f7efd8}
+body.light .hs-vb{color:#f0ca82}
+body.light .hb-title{color:#f7efd8}
+body.light .hb-sub{color:#f0ca82}
+body.light .hs-quote{color:#e3d9bc}
+body.light .hs-quote b{color:#f0ca82}
+body.light .hs-x{color:#f0ca82}
+body.light .hs-status{color:#f0ca82}
+body.light .hs-seat.active .hs-badge{border-color:#f0ca82;background:rgba(201,161,85,0.25)}
+body.light .hs-table{border-color:rgba(212,172,96,0.35)}
+body.light #house-lines .link.active{stroke:#f0ca82}
+body.light #house-lines .cross{stroke:#9fd4f0}
+.hs-badge svg{width:14px;height:14px}
+.hs-badge svg *{stroke:var(--gold-bright);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.hs-nm{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:0.2em;color:var(--ink-bright);white-space:nowrap;text-shadow:0 1px 5px rgba(0,0,0,0.85)}
+.hs-vb{font-size:6.5px;letter-spacing:0.24em;color:var(--gold);font-family:'Cinzel',serif;text-shadow:0 1px 4px rgba(0,0,0,0.8)}
+.hs-seat:hover .hs-badge{box-shadow:0 0 22px rgba(232,193,120,0.75);transform:scale(1.12)}
+.hs-seat .hs-vb{transition:color .2s}
+.hs-seat.active .hs-badge{border-color:var(--gold-bright);background:rgba(201,161,85,0.18);box-shadow:0 0 24px rgba(232,193,120,0.8)}
+.hs-seat.active .hs-vb{color:var(--gold-bright)}
+.hs-seat.current .hs-badge{transform:scale(1.2);box-shadow:0 0 30px rgba(232,193,120,0.95)}
+.hs-seat.veto .hs-badge{border-color:var(--blood-bright);box-shadow:0 0 20px rgba(168,69,62,0.7)}
+#house-lines{position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none}
+.hs-status{position:absolute;left:50%;top:64%;transform:translateX(-50%);font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:0.32em;color:var(--gold);white-space:nowrap;text-shadow:0 0 10px rgba(0,0,0,0.85)}
+
+/* MISSION FLOW — the chain of thought, current speaker glows */
+.mission-flow{width:100%;display:flex;flex-direction:column;gap:14px;padding:20px 26px}
+.mf-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.42em;color:var(--gold);text-align:center}
+.mf-chain{display:flex;align-items:flex-start;justify-content:center;flex-wrap:wrap;row-gap:18px}
+.mf-node{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:96px;opacity:0.5;transition:opacity .3s;cursor:pointer}
+.mf-node.current{opacity:1}
+.mf-disc{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--rule);overflow:hidden;position:relative;background:var(--bg-2);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:18px;color:var(--ink-dim);transition:all .3s}
+.mf-disc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mf-node.current .mf-disc{border-color:var(--gold-bright);box-shadow:0 0 22px rgba(232,193,120,0.55),inset 0 0 10px rgba(232,193,120,0.15);transform:scale(1.07)}
+.mf-node.veto .mf-disc{border-color:var(--blood-bright);box-shadow:0 0 18px rgba(168,69,62,0.55)}
+.mf-name{font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--ink);white-space:nowrap}
+.mf-verb{font-size:7.5px;letter-spacing:0.16em;color:var(--gold-bright);font-family:'Cinzel',serif;min-height:9px;text-transform:uppercase}
+.mf-link{width:42px;height:2px;position:relative;flex-shrink:0;margin-top:27px;overflow:hidden}
+.mf-link::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,var(--gold-bright) 0 6px,transparent 6px 14px);animation:mfFlow .5s linear infinite;filter:drop-shadow(0 0 4px rgba(240,202,130,.8))}
+@keyframes mfFlow{to{transform:translateX(14px)}}
+
+/* ACTIVE AGENTS — right panel, who is doing what NOW */
+.aa-row{display:flex;align-items:center;gap:9px;padding:6px 4px;border-bottom:1px dotted var(--rule)}
+.aa-dot{width:7px;height:7px;border-radius:50%;background:var(--gold-bright);box-shadow:0 0 8px var(--gold-bright);animation:ledPulse 1.4s ease-in-out infinite;flex-shrink:0}
+.aa-nm{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.14em;color:var(--ink-bright)}
+.aa-vb{font-size:8.5px;letter-spacing:0.1em;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-left:auto;text-transform:lowercase}
+
+/* COUNCIL ROSTER — permanent left column: the Operator always sees the council */
+
+/* COMMAND — collapsible */
+.cmd-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cmd-head .lbl{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.34em;color:var(--gold)}
+.cmd-head button{background:transparent;border:1px solid var(--rule);color:var(--ink-dim);font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 10px;cursor:pointer;letter-spacing:0.1em}
+.cmd-head button:hover{border-color:var(--gold);color:var(--gold-bright)}
+.command-area.collapsed .command-row,.command-area.collapsed .command-hints{display:none}
+.command-area.collapsed .cmd-head{margin-bottom:0}
+.telem-title.clickable{cursor:pointer;user-select:none}
+
+/* ════ THE HOUSE NETWORK — Tron/Palantir energy grid (real-event driven) ════ */
+/* Idle: faint blue circuitry, still readable when zoomed out. */
+.chamber-mindmap .link{
+  fill:none;stroke:#16344f;stroke-width:1.4;stroke-dasharray:2 8;opacity:0.30;
+  stroke-linecap:round;
+  transition:opacity .45s,stroke .45s,stroke-width .45s,filter .45s}
+/* Active: neon-blue conduit, thick, bloom, flowing data. */
+.chamber-mindmap .link.active{
+  opacity:1;stroke:#5fd8ff;stroke-width:2.7;
+  stroke-dasharray:2 5 18 5;
+  animation:netFlow 0.75s linear infinite;
+  filter:drop-shadow(0 0 3px #aef0ff)
+         drop-shadow(0 0 9px rgba(63,200,255,0.9))
+         drop-shadow(0 0 22px rgba(40,150,255,0.55));
+}
+/* Agent-to-agent crosslinks light up when both are deliberating. */
+.chamber-mindmap .cross{fill:none;stroke:#2a6f9c;stroke-width:1.1;stroke-linecap:round;
+  opacity:0;stroke-dasharray:2 9}
+.chamber-mindmap .cross.active{
+  opacity:0.72;stroke:#7fe0ff;stroke-width:1.5;
+  animation:netFlow 1.15s linear infinite;
+  filter:drop-shadow(0 0 4px rgba(127,224,255,0.8)) drop-shadow(0 0 12px rgba(63,160,255,0.4));
+}
+/* Moving pulse particles travelling the active conduits. */
+.chamber-mindmap .net-pulse{fill:#d8f6ff;filter:drop-shadow(0 0 5px #5fd8ff) drop-shadow(0 0 11px rgba(63,200,255,0.9))}
+@keyframes netFlow{to{stroke-dashoffset:-30}}
+@keyframes currentFlow{to{stroke-dashoffset:-30}}   /* legacy alias kept */
+
+/* TOKENS around chamber */
+.token{position:absolute;width:84px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:all 0.3s;z-index:5}
+.token-disc{width:54px;height:54px;border-radius:50%;background:#0a0807;border:1.5px solid var(--rule);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:all 0.3s}
+.token-disc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:2}
+.token-disc .tk-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:18px;color:var(--ink-dim);background:radial-gradient(circle,#15110a 0,#050608 100%);z-index:1}
+.token-name{font-family:'Cinzel',serif;font-size:7px;letter-spacing:0.22em;color:var(--ink-dim);text-align:center;line-height:1.1;max-width:84px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.token-verb{font-size:7px;letter-spacing:0.2em;color:var(--ink-ghost);font-family:'Cinzel',serif;font-weight:600;text-align:center;text-transform:uppercase;min-height:9px}
+.token.active .token-disc{border-color:var(--gold);box-shadow:0 0 22px rgba(201,161,85,0.6),inset 0 0 12px rgba(201,161,85,0.18);transform:scale(1.06)}
+.token.active .token-name{color:var(--gold-bright)}
+.token.active .token-verb{color:var(--gold-bright);animation:verbPulse 1.6s ease-in-out infinite}
+@keyframes verbPulse{0%,100%{opacity:0.7}50%{opacity:1}}
+.token.veto .token-disc{border-color:var(--blood-bright);box-shadow:0 0 20px rgba(138,53,48,0.5)}
+.token.veto .token-verb{color:var(--blood-bright)}
+.token:hover .token-disc{transform:scale(1.08)}
+
+/* TRANSCRIPT below chamber */
+.transcript-pane{flex:1;overflow-y:auto;padding:18px 28px 8px;position:relative;z-index:2;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.3) 100%)}
+.msg{margin-bottom:18px;font-size:13px;line-height:1.65}
+.msg-head{font-size:8.5px;letter-spacing:0.28em;color:var(--ink-ghost);margin-bottom:5px;display:flex;gap:12px;align-items:baseline}
+.msg-head .who{font-family:'Cinzel',serif;font-weight:600;letter-spacing:0.22em}
+.msg-body{color:var(--ink);white-space:pre-wrap;word-wrap:break-word}
+.msg.directive{border-left:2px solid var(--gold);padding-left:14px}
+.msg.directive .who{color:var(--gold-bright)}
+.msg.directive .msg-body{color:var(--ink-bright)}
+.msg.agent{border-left:2px solid var(--blood-bright);padding-left:14px}
+.msg.agent .who{color:var(--blood-bright)}
+.msg.think .msg-body{color:var(--ink-dim);font-style:italic;font-size:12.5px;font-family:'Cormorant Garamond',serif}
+.msg.think .who{color:var(--ink-dim)}
+.msg.tool{border-left:2px solid var(--gold-dim);padding:5px 12px;background:rgba(201,161,85,0.03)}
+.msg.tool .who{color:var(--gold)}
+.msg.tool .msg-body{font-size:11px;color:var(--ink-dim);font-family:'JetBrains Mono',monospace}
+.msg.system{background:rgba(92,30,26,0.08);border:1px solid var(--blood-dim);border-left:3px solid var(--blood-bright);padding:9px 13px}
+.msg.system .who{color:var(--blood-bright)}
+.msg.system .msg-body{color:var(--ink);font-size:11.5px}
+.skill-banner{display:inline-block;background:linear-gradient(90deg,rgba(201,161,85,0.12),rgba(201,161,85,0.02));border:1px solid var(--gold-dim);padding:7px 16px;margin:8px 0;font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.22em;color:var(--gold-bright)}
+.skill-banner::before{content:'✦';margin-right:10px;color:var(--gold-bright)}
+.skill-banner b{color:var(--ink-bright);font-family:'Cinzel',serif;font-weight:700}
+
+/* VERDICT POP */
+.verdict-pop{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%) rotate(-3deg);z-index:50;opacity:0;pointer-events:none;border:3px solid var(--blood-bright);padding:14px 30px;background:rgba(0,0,0,0.85);font-family:'Cinzel',serif;font-size:18px;letter-spacing:0.3em;color:var(--blood-bright);font-weight:700;box-shadow:0 0 50px rgba(138,53,48,0.5);transition:opacity 0.3s}
+.verdict-pop.show{opacity:1;animation:stampSlam 0.5s ease-out}
+@keyframes stampSlam{0%{transform:translate(-50%,-50%) rotate(-3deg) scale(2);opacity:0}40%{transform:translate(-50%,-50%) rotate(-3deg) scale(0.95);opacity:1}100%{transform:translate(-50%,-50%) rotate(-3deg) scale(1)}}
+.verdict-pop.ok{border-color:var(--gold);color:var(--gold-bright);box-shadow:0 0 50px rgba(201,161,85,0.5)}
+
+/* BUTTONS */
+.btn{background:transparent;border:1px solid var(--gold-dim);color:var(--ink);font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:0.32em;padding:0 22px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;font-weight:600}
+.btn:hover{border-color:var(--gold);color:var(--gold-bright);background:rgba(201,161,85,0.06)}
+.btn.primary{background:linear-gradient(180deg,var(--gold) 0%,var(--gold-dim) 100%);border-color:var(--gold);color:#0a0807;box-shadow:0 0 18px rgba(201,161,85,0.25)}
+.btn.primary:hover{background:linear-gradient(180deg,var(--gold-bright) 0%,var(--gold) 100%);color:#000;box-shadow:0 0 28px rgba(232,193,120,0.4)}
+.btn:disabled{opacity:0.3;cursor:not-allowed}
+.command-hints{margin-top:9px;font-size:8.5px;color:var(--ink-ghost);letter-spacing:0.22em;display:flex;gap:18px;flex-wrap:wrap}
+.command-hints span{color:var(--ink-dim)}
+.command-hints kbd{background:var(--bg-2);border:1px solid var(--rule);padding:1px 5px;font-size:8.5px;color:var(--gold);font-family:'JetBrains Mono',monospace}
+
+/* RIGHT TELEMETRY */
+.telem-section{margin-bottom:18px}
+.telem-title{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.3em;color:var(--gold);margin-bottom:8px;padding-bottom:4px;border-bottom:1px dashed var(--rule);font-weight:600}
+.telem-row{display:flex;justify-content:space-between;font-size:10px;padding:3px 0;letter-spacing:0.05em}
+.telem-row .k{color:var(--ink-ghost);letter-spacing:0.15em;font-size:9px}
+.telem-row .v{color:var(--ink-bright);font-weight:500;font-family:'JetBrains Mono',monospace}
+.telem-row .v.gold{color:var(--gold-bright)}
+.skill-card{background:var(--bg-2);border:1px solid var(--rule);padding:7px 10px;margin-bottom:5px;font-size:9.5px;border-left:2px solid var(--gold-dim)}
+.skill-card.matched{border-left-color:var(--gold)}
+.skill-card .nm{font-family:'Cinzel',serif;color:var(--gold-bright);font-weight:600;letter-spacing:0.12em;font-size:10px}
+.skill-card .sc{color:var(--ink-dim);margin-top:3px;font-size:9px}
+.skill-card .sc b{color:var(--blood-bright)}
+.log-line{font-size:9.5px;color:var(--ink-dim);padding:3px 0;border-bottom:1px dotted var(--rule);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'JetBrains Mono',monospace}
+.log-line .t{color:var(--ink-ghost)}
+.log-line.e-tool{color:var(--gold)}
+.log-line.e-skill{color:var(--gold-bright)}
+.log-line.e-error{color:var(--blood-bright)}
+.log-line.e-done{color:var(--ok)}
+.empty{color:var(--ink-ghost);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;text-align:center;padding:12px}
+.model-pick{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.model-pick select{flex:1;background:var(--bg-0);color:var(--ink);border:1px solid var(--rule);font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 7px;outline:none;letter-spacing:0.05em}
+.model-pick select:focus{border-color:var(--gold)}
+
+
+.command-area{position:relative;z-index:7;border-top:1px solid var(--gold-dim);background:linear-gradient(180deg,#100c06 0%,#080606 100%);padding:18px 26px 18px}
+.command-area::before{content:'';position:absolute;top:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold-bright) 50%,var(--gold) 70%,transparent);opacity:0.8}
+.command-row{display:flex;gap:12px;align-items:stretch}
+.command-prefix{font-family:'Cinzel',serif;color:var(--gold-bright);font-weight:700;font-size:24px;padding:6px 4px 0;text-shadow:0 0 12px rgba(232,193,120,0.4)}
+.command-input{flex:1;background:#0a0907;border:1px solid var(--gold-dim);color:var(--ink-bright);font-family:'JetBrains Mono',monospace;font-size:14px;padding:14px 16px;resize:vertical;min-height:72px;max-height:240px;outline:none;letter-spacing:0.02em;transition:all 0.2s}
+.command-input:focus{border-color:var(--gold);background:#0c0a07;box-shadow:inset 0 0 40px rgba(201,161,85,0.06),0 0 24px rgba(201,161,85,0.1)}
+.command-input::placeholder{color:var(--ink-ghost)}
+.command-actions{display:flex;gap:8px}
+.btn{background:transparent;border:1px solid var(--gold-dim);color:var(--ink);font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:0.32em;padding:0 22px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;font-weight:600}
+.btn:hover{border-color:var(--gold);color:var(--gold-bright);background:rgba(201,161,85,0.06)}
+.btn.primary{background:linear-gradient(180deg,var(--gold) 0%,var(--gold-dim) 100%);border-color:var(--gold);color:#0a0807;box-shadow:0 0 18px rgba(201,161,85,0.25)}
+.btn.primary:hover{background:linear-gradient(180deg,var(--gold-bright) 0%,var(--gold) 100%);color:#000;box-shadow:0 0 28px rgba(232,193,120,0.4)}
+.btn:disabled{opacity:0.3;cursor:not-allowed}
+.command-hints{margin-top:9px;font-size:8.5px;color:var(--ink-ghost);letter-spacing:0.22em;display:flex;gap:18px;flex-wrap:wrap}
+.command-hints span{color:var(--ink-dim)}
+.command-hints kbd{background:var(--bg-2);border:1px solid var(--rule);padding:1px 5px;font-size:8.5px;color:var(--gold);font-family:'JetBrains Mono',monospace}
+
+/* ── Right Telemetry ───────────────────────────────────────── */
+.telem-section{margin-bottom:18px}
+.telem-title{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.3em;color:var(--gold);margin-bottom:8px;padding-bottom:4px;border-bottom:1px dashed var(--rule);font-weight:600}
+.telem-row{display:flex;justify-content:space-between;font-size:10px;padding:3px 0;letter-spacing:0.05em}
+.telem-row .k{color:var(--ink-ghost);letter-spacing:0.15em;font-size:9px}
+.telem-row .v{color:var(--ink-bright);font-weight:500;font-family:'JetBrains Mono',monospace}
+.telem-row .v.gold{color:var(--gold-bright)}
+
+/* ── ASK-USER ELICITATION ───────────────────────────────────── */
+.ask-options{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+.ask-btn{background:transparent;border:1px solid var(--gold-dim);color:var(--gold-bright);font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;transition:all 0.15s}
+.ask-btn:hover{border-color:var(--gold);background:rgba(201,161,85,0.1)}
+.ask-btn:disabled{opacity:0.35;cursor:default}
+
+/* ── MODAL (operative dossier) ────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:30px}
+.modal-overlay.open{display:flex;animation:fadeIn 0.2s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{width:min(820px,100%);max-height:90vh;background:linear-gradient(180deg,#13110c 0%,#0a0807 100%);border:1px solid var(--gold-dim);display:grid;grid-template-columns:280px 1fr;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.7)}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold-bright) 50%,var(--gold) 70%,transparent)}
+.modal-portrait{position:relative;overflow:hidden;min-height:480px;background:radial-gradient(ellipse at 50% 20%,rgba(232,193,120,0.30) 0,rgba(122,95,49,0.10) 30%,transparent 60%),linear-gradient(155deg,#1a1410 0%,#080706 100%)}
+.modal-portrait::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(118deg,transparent 0 16px,rgba(58,40,24,0.24) 16px 17px,transparent 17px 32px)}
+.modal-portrait::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,transparent 30%,rgba(0,0,0,0.65) 90%)}
+.modal-stamp{position:absolute;top:14px;right:14px;z-index:4;font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:var(--blood-bright);border:1.5px solid var(--blood-bright);padding:4px 10px;letter-spacing:0.3em;transform:rotate(-3deg);background:rgba(0,0,0,0.7)}
+.modal-fileno{position:absolute;top:14px;left:14px;z-index:4;font-size:9.5px;color:var(--ink-dim);letter-spacing:0.25em;background:rgba(0,0,0,0.6);padding:4px 10px;border-left:2px solid var(--gold)}
+.modal-fileno b{color:var(--gold-bright);font-family:'Cinzel',serif}
+.modal-codeplate{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:18px 18px 16px;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.9) 60%,#000 100%);text-align:center}
+.modal-codeplate .nm{font-family:'Cinzel',serif;font-size:18px;font-weight:600;color:var(--ink-bright);letter-spacing:0.22em;text-shadow:0 0 14px rgba(0,0,0,0.9)}
+.modal-codeplate .rl{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;color:var(--gold);margin-top:3px}
+.modal-body{padding:22px 24px;overflow-y:auto;max-height:90vh}
+.modal-close{position:absolute;top:10px;right:10px;width:28px;height:28px;background:transparent;border:1px solid var(--rule);color:var(--ink-dim);cursor:pointer;font-family:'Cinzel',serif;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:10;transition:all 0.15s}
+.modal-close:hover{border-color:var(--gold);color:var(--gold-bright)}
+.modal-section{margin-bottom:20px}
+.modal-section h4{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:0.3em;color:var(--gold);margin:0 0 10px;padding-bottom:5px;border-bottom:1px dashed var(--rule);font-weight:600}
+.modal-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--ink);line-height:1.5;border-left:2px solid var(--gold);padding:4px 0 4px 14px;margin-bottom:16px}
+.modal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px 18px;font-size:11px}
+.modal-grid .k{color:var(--ink-ghost);letter-spacing:0.18em;font-size:9.5px;padding-top:2px}
+.modal-grid .v{color:var(--ink);font-family:'JetBrains Mono',monospace}
+.modal-grid .v.gold{color:var(--gold-bright)}
+.ability{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px dotted var(--rule);font-size:11px}
+.ability:last-child{border-bottom:0}
+.ability .ic{flex-shrink:0;width:22px;height:22px;border:1px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:11px;color:var(--gold-bright);background:rgba(201,161,85,0.05)}
+.ability .nm{font-family:'Cinzel',serif;color:var(--ink-bright);letter-spacing:0.1em;font-size:10.5px}
+.ability .dc{color:var(--ink-dim);font-size:10px;margin-top:2px}
+.trigger-pill{display:inline-block;margin:3px 4px 3px 0;padding:3px 9px;font-size:9.5px;border:1px solid var(--rule);background:var(--bg-2);color:var(--ink-dim);letter-spacing:0.06em;font-family:'JetBrains Mono',monospace}
+.modal-actions{display:flex;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
+
+.watermark{position:fixed;bottom:14px;right:18px;font-family:'Cinzel',serif;font-size:8px;color:var(--ink-ghost);letter-spacing:0.35em;pointer-events:none;z-index:100}
+
+/* ── WORKSPACE MANAGER ── */
+.ws-browse-btn{width:100%;margin-top:4px;padding:5px 0;font-size:9px;letter-spacing:0.18em;cursor:pointer}
+.ws-browse-btn:disabled{opacity:0.45;cursor:default}
+.ws-status{font-size:8px;min-height:14px;margin-top:3px;letter-spacing:0.06em;display:none}
+.ws-status.ok{color:var(--ok);display:block}
+.ws-status.warn{color:var(--gold);display:block}
+.ws-status.err{color:var(--blood-bright);display:block}
+.ws-recent-wrap{margin-top:6px}
+.ws-recent-head{font-size:8px;color:var(--ink-ghost);letter-spacing:0.18em;margin-bottom:4px;text-transform:uppercase}
+.ws-recent-item{
+  display:block;width:100%;text-align:left;background:none;border:none;
+  border-bottom:1px solid var(--rule);
+  padding:4px 0;font-family:'JetBrains Mono',monospace;font-size:8.5px;
+  color:var(--ink-dim);letter-spacing:0.04em;cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:color 0.15s;
+}
+.ws-recent-item:last-child{border-bottom:0}
+.ws-recent-item:hover{color:var(--gold)}
+.ws-recent-item::before{content:'▸ ';color:var(--gold-dim);font-size:7px}
+
+/* ── HOUSE MIND PANEL ── */
+.hm-ttl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.28em;color:var(--gold);text-transform:uppercase}
+.hm-live-ind{display:flex;align-items:center;gap:4px;font-size:7px;color:var(--ink-ghost);letter-spacing:0.14em}
+.hm-dot{width:5px;height:5px;border-radius:50%;background:var(--ok);box-shadow:0 0 5px var(--ok);animation:hm-pulse 2.2s ease-in-out infinite;flex-shrink:0}
+@keyframes hm-pulse{0%,100%{opacity:1;box-shadow:0 0 5px var(--ok)}50%{opacity:.3;box-shadow:none}}
+/* P4: House Mind de-emphasizes when idle (empty), brightens when actively thinking */
+#house-mind-strip{transition:opacity .4s ease, filter .4s ease}
+#house-mind-strip.hm-idle{opacity:.45;filter:saturate(.35)}
+#house-mind-strip.hm-active{opacity:1;filter:none}
+#house-mind-strip.hm-active .hm-dot{background:var(--gold-bright);box-shadow:0 0 7px var(--gold-bright)}
+.hm-ring{width:50px;height:50px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(var(--gold) calc(var(--c)*1%),#141620 0);
+  display:grid;place-items:center;position:relative}
+.hm-ring::after{content:'';position:absolute;inset:8px;border-radius:50%;background:var(--bg-0)}
+.hm-ring>span{position:relative;z-index:1;font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--gold-bright)}
+.hm-row-sec{margin-bottom:7px;padding-top:5px;border-top:1px solid rgba(30,32,40,.7)}
+.hm-lbl{font-size:7px;color:var(--ink-ghost);letter-spacing:0.22em;text-transform:uppercase;margin-bottom:3px}
+.hm-q-txt{font-size:8px;color:var(--ink);line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hm-mission-txt{font-size:7.5px;color:var(--gold);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hm-belief-txt{font-size:8px;color:var(--ink-dim);line-height:1.45;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hm-pills-wrap{display:flex;flex-wrap:wrap;gap:3px}
+.hm-pill{display:inline-block;padding:1px 6px;border-radius:6px;font-size:7.5px;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;max-width:100%}
+.hm-pill-ok{background:rgba(125,162,106,.12);color:var(--ok);border:1px solid rgba(125,162,106,.25)}
+.hm-pill-gld{background:rgba(212,172,96,.1);color:var(--gold);border:1px solid rgba(212,172,96,.22)}
+.hm-pill-dim{background:rgba(30,32,40,.7);color:var(--ink-ghost);border:1px solid var(--rule)}
+.hm-ulist{list-style:none;padding:0;margin:0}
+.hm-ulist li{font-size:7.5px;color:var(--ink-dim);padding:1px 0 1px 10px;line-height:1.4;position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm-ulist li::before{content:'→';position:absolute;left:0;color:var(--gold-dim);font-size:7px}
+.hm-next-txt{font-size:8px;letter-spacing:0.06em;font-family:'Cinzel',serif}
+.hm-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:6px;border-top:1px solid rgba(30,32,40,.6)}
+.hm-footer-lbl{font-size:7px;color:var(--ink-ghost);letter-spacing:0.15em}
+.hm-dash-link{font-size:7.5px;color:var(--gold-dim);letter-spacing:0.1em;text-decoration:none;transition:color .15s}
+.hm-dash-link:hover{color:var(--gold)}
+/* ── OX-UI-1 L1 COLLAPSED OPERATOR VIEW ── */
+.hm-l1{display:flex;flex-direction:column;gap:0}
+.hm-l1-row{display:grid;grid-template-columns:74px 1fr;align-items:center;gap:8px;padding:3.5px 0;border-top:1px solid rgba(30,32,40,.55)}
+.hm-l1-row:first-child{border-top:0}
+.hm-l1-lbl{font-size:7px;color:var(--ink-ghost);letter-spacing:0.2em;font-family:'Cinzel',serif}
+.hm-l1-val{font-size:9.5px;color:var(--ink-bright);font-family:'JetBrains Mono',monospace;min-width:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hm-clip1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.hm-clip2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+/* status badge */
+.hm-badge{font-size:9px;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap}
+.hm-st-ready{color:var(--ok)} .hm-st-waiting{color:var(--gold-bright)}
+.hm-st-thinking{color:#5aa9e6} .hm-st-blocked{color:var(--blood-bright)} .hm-st-offline{color:var(--ink-ghost)}
+.hm-st-sub{font-size:8px;color:var(--ink-dim);letter-spacing:0.04em}
+.hm-conf-num{font-family:'Cinzel',serif;color:var(--gold-bright);font-size:11px}
+.hm-conf-bar{flex:1;height:4px;border-radius:3px;background:rgba(30,32,40,.8);overflow:hidden;min-width:36px;max-width:120px}
+.hm-conf-bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));transition:width .5s ease}
+/* expand toggle */
+.hm-expand-btn{width:100%;margin-top:8px;padding:5px 0;background:transparent;border:1px solid var(--rule);border-radius:5px;
+  color:var(--gold-dim);font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.22em;cursor:pointer;transition:all .15s}
+.hm-expand-btn:hover{color:var(--gold);border-color:var(--gold-dim)}
+.hm-l2{margin-top:8px;max-height:340px;overflow-y:auto;padding-right:3px}
+.hm-l2[hidden]{display:none}
+/* workflow memory cards */
+.wf-card{border:1px solid var(--rule);border-left:2px solid var(--rule);border-radius:5px;padding:6px 8px;margin-bottom:5px;background:rgba(20,21,27,.4)}
+.wf-card.wf-thinking{border-left-color:#5aa9e6} .wf-card.wf-done{border-left-color:var(--ok)}
+.wf-card.wf-blocked{border-left-color:var(--blood-bright)} .wf-card.wf-failed{border-left-color:var(--warn)}
+.wf-task{font-size:8.5px;color:var(--ink-bright);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wf-meta{font-size:7px;color:var(--ink-ghost);letter-spacing:0.08em;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.wf-dw{font-size:7.5px;color:var(--ink-dim);margin-top:3px;font-style:italic;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.wf-st{font-family:'JetBrains Mono',monospace}
+/* ── P2 LIVE COUNCIL CHAMBER (real events only) ── */
+.chamber-panel{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+  width:min(440px,86%);background:rgba(10,11,15,0.82);border:1px solid rgba(201,161,85,0.30);
+  border-radius:10px;padding:11px 14px;backdrop-filter:blur(4px);z-index:6;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+.cp-row{display:flex;gap:10px;align-items:baseline;margin-bottom:4px;font-size:11px}
+.cp-lbl{font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--gold-dim);width:74px;flex-shrink:0}
+.cp-val{color:var(--ink-bright);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp-val.cp-bad{color:#d98a8a}
+.cp-val.cp-ok{color:#8fbf7f}
+.cp-meter{margin-top:8px;border-top:1px solid rgba(60,64,78,.5);padding-top:7px}
+.cp-meter-top{display:flex;justify-content:space-between;font-family:'Cinzel',serif;font-size:8.5px;
+  letter-spacing:0.18em;color:var(--gold);margin-bottom:4px}
+.cp-bar{height:6px;border-radius:4px;background:#141620;overflow:hidden}
+.cp-bar>i{display:block;height:100%;background:linear-gradient(90deg,#b05252,#caa15a 55%,#7da26a);
+  width:0%;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.cp-note{font-size:8.5px;color:var(--ink-ghost);margin-top:3px;text-align:right}
+</style>
+</head>
+<body>
+
+<!-- Silhouette library (kept from prior iteration) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="g-lamp" cx="50%" cy="20%"><stop offset="0%" stop-color="#e8c178" stop-opacity="0.30"/><stop offset="60%" stop-color="#7a5f31" stop-opacity="0.08"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+    <radialGradient id="lamp" cx="50%" cy="20%"><stop offset="0%" stop-color="#e8c178" stop-opacity="0.18"/><stop offset="60%" stop-color="#7a5f31" stop-opacity="0.05"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+
+    <!-- ATMOSPHERIC BACKGROUNDS (12) — shared cinematic dark + gold accents -->
+    <symbol id="bg-library" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.45"><rect x="6" y="40" width="32" height="170" fill="#15110a"/><line x1="10" y1="60" x2="10" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="18" y1="60" x2="18" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="26" y1="60" x2="26" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="34" y1="60" x2="34" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="6" y1="90" x2="38" y2="90" stroke="#5a3818" stroke-width="0.6"/><line x1="6" y1="130" x2="38" y2="130" stroke="#5a3818" stroke-width="0.6"/><line x1="6" y1="170" x2="38" y2="170" stroke="#5a3818" stroke-width="0.6"/><rect x="162" y="40" width="32" height="170" fill="#15110a"/><line x1="166" y1="60" x2="166" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="174" y1="60" x2="174" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="182" y1="60" x2="182" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="190" y1="60" x2="190" y2="200" stroke="#3a2c18" stroke-width="0.5"/><line x1="162" y1="90" x2="194" y2="90" stroke="#5a3818" stroke-width="0.6"/><line x1="162" y1="130" x2="194" y2="130" stroke="#5a3818" stroke-width="0.6"/><line x1="162" y1="170" x2="194" y2="170" stroke="#5a3818" stroke-width="0.6"/></g><circle cx="100" cy="120" r="60" fill="url(#lamp)"/></symbol>
+
+    <symbol id="bg-warroom" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.35"><path d="M 10 50 L 190 50 L 180 80 L 20 80 Z" stroke="#5a4828" stroke-width="0.6" fill="none"/><path d="M 30 100 L 170 100 L 160 130 L 40 130 Z" stroke="#5a4828" stroke-width="0.5" fill="none"/><circle cx="60" cy="60" r="3" fill="#c9a155" opacity="0.7"/><circle cx="140" cy="120" r="2" fill="#c9a155" opacity="0.6"/><circle cx="90" cy="90" r="2" fill="#c9a155" opacity="0.5"/></g><g opacity="0.3" transform="translate(70,170)"><rect x="0" y="0" width="60" height="60" fill="none" stroke="#3a2c18" stroke-width="0.5"/><rect x="0" y="0" width="15" height="15" fill="#c9a155" opacity="0.3"/><rect x="30" y="0" width="15" height="15" fill="#c9a155" opacity="0.3"/><rect x="15" y="15" width="15" height="15" fill="#c9a155" opacity="0.3"/><rect x="45" y="15" width="15" height="15" fill="#c9a155" opacity="0.3"/><rect x="0" y="30" width="15" height="15" fill="#c9a155" opacity="0.3"/><rect x="30" y="30" width="15" height="15" fill="#c9a155" opacity="0.3"/></g></symbol>
+
+    <symbol id="bg-pinboard" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.4"><rect x="20" y="40" width="30" height="40" fill="#2a2418" stroke="#5a4828" stroke-width="0.4"/><rect x="60" y="35" width="35" height="30" fill="#2a2418" stroke="#5a4828" stroke-width="0.4"/><rect x="110" y="42" width="30" height="36" fill="#2a2418" stroke="#5a4828" stroke-width="0.4"/><rect x="155" y="38" width="30" height="42" fill="#2a2418" stroke="#5a4828" stroke-width="0.4"/><path d="M 35 80 L 75 100 L 125 78 L 170 80 L 35 80" stroke="#7a2520" stroke-width="0.6" fill="none" opacity="0.6"/><path d="M 75 100 L 170 80" stroke="#7a2520" stroke-width="0.6" fill="none" opacity="0.6"/></g><circle cx="100" cy="160" r="60" fill="url(#lamp)"/></symbol>
+
+    <symbol id="bg-astrolabe" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.3" transform="translate(100,125)"><circle r="80" fill="none" stroke="#7a5f31" stroke-width="0.5"/><circle r="65" fill="none" stroke="#7a5f31" stroke-width="0.4"/><circle r="50" fill="none" stroke="#7a5f31" stroke-width="0.4"/><circle r="35" fill="none" stroke="#7a5f31" stroke-width="0.3"/><line x1="-80" y1="0" x2="80" y2="0" stroke="#7a5f31" stroke-width="0.3"/><line x1="0" y1="-80" x2="0" y2="80" stroke="#7a5f31" stroke-width="0.3"/><line x1="-57" y1="-57" x2="57" y2="57" stroke="#7a5f31" stroke-width="0.25"/><line x1="57" y1="-57" x2="-57" y2="57" stroke="#7a5f31" stroke-width="0.25"/><circle cx="65" cy="0" r="2" fill="#c9a155"/><circle cx="-46" cy="-46" r="1.5" fill="#c9a155"/><circle cx="35" cy="-50" r="1.5" fill="#c9a155"/></g></symbol>
+
+    <symbol id="bg-armory" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.4"><rect x="20" y="160" width="160" height="60" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><rect x="30" y="170" width="140" height="8" fill="#2a2418"/><rect x="40" y="172" width="120" height="3" fill="#3a2c18"/><line x1="50" y1="175" x2="60" y2="173" stroke="#7a5f31" stroke-width="0.6"/><line x1="80" y1="175" x2="95" y2="173" stroke="#7a5f31" stroke-width="0.6"/><line x1="110" y1="175" x2="130" y2="173" stroke="#7a5f31" stroke-width="0.6"/><line x1="140" y1="175" x2="160" y2="173" stroke="#7a5f31" stroke-width="0.6"/><rect x="30" y="185" width="140" height="6" fill="#2a2418"/><rect x="40" y="187" width="120" height="2" fill="#3a2c18"/><rect x="30" y="200" width="140" height="6" fill="#2a2418"/></g></symbol>
+
+    <symbol id="bg-study" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.4"><rect x="10" y="40" width="40" height="180" fill="#15110a"/><line x1="14" y1="60" x2="14" y2="210" stroke="#3a2c18" stroke-width="0.4"/><line x1="22" y1="60" x2="22" y2="210" stroke="#3a2c18" stroke-width="0.4"/><line x1="30" y1="60" x2="30" y2="210" stroke="#3a2c18" stroke-width="0.4"/><line x1="38" y1="60" x2="38" y2="210" stroke="#3a2c18" stroke-width="0.4"/><line x1="46" y1="60" x2="46" y2="210" stroke="#3a2c18" stroke-width="0.4"/></g><g opacity="0.4"><rect x="120" y="150" width="60" height="40" fill="#2a2418" stroke="#5a4828" stroke-width="0.5"/><circle cx="170" cy="100" r="6" fill="#e8c178" opacity="0.7"/><circle cx="170" cy="100" r="3" fill="#fff8d0"/><path d="M 170 106 L 170 140" stroke="#7a5f31" stroke-width="0.5"/></g></symbol>
+
+    <symbol id="bg-cityscape" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.4"><rect x="5" y="120" width="20" height="100" fill="#0a0c10"/><rect x="28" y="80" width="25" height="140" fill="#0a0c10"/><rect x="56" y="100" width="18" height="120" fill="#0a0c10"/><rect x="77" y="60" width="30" height="160" fill="#0a0c10"/><rect x="110" y="90" width="22" height="130" fill="#0a0c10"/><rect x="135" y="110" width="18" height="110" fill="#0a0c10"/><rect x="156" y="75" width="28" height="145" fill="#0a0c10"/><rect x="187" y="100" width="10" height="120" fill="#0a0c10"/></g><g opacity="0.7"><circle cx="14" cy="135" r="0.6" fill="#e8c178"/><circle cx="35" cy="100" r="0.5" fill="#e8c178"/><circle cx="40" cy="120" r="0.5" fill="#e8c178"/><circle cx="65" cy="140" r="0.5" fill="#e8c178"/><circle cx="88" cy="90" r="0.6" fill="#e8c178"/><circle cx="95" cy="110" r="0.5" fill="#e8c178"/><circle cx="120" cy="120" r="0.5" fill="#e8c178"/><circle cx="143" cy="135" r="0.5" fill="#e8c178"/><circle cx="165" cy="95" r="0.6" fill="#e8c178"/><circle cx="175" cy="125" r="0.5" fill="#e8c178"/></g></symbol>
+
+    <symbol id="bg-scales" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.35" transform="translate(100,125)"><line x1="0" y1="-70" x2="0" y2="40" stroke="#7a5f31" stroke-width="1.2"/><line x1="-50" y1="-30" x2="50" y2="-30" stroke="#7a5f31" stroke-width="1.2"/><line x1="-50" y1="-30" x2="-50" y2="-20" stroke="#7a5f31" stroke-width="0.6"/><line x1="50" y1="-30" x2="50" y2="-20" stroke="#7a5f31" stroke-width="0.6"/><ellipse cx="-50" cy="-15" rx="22" ry="6" fill="none" stroke="#7a5f31" stroke-width="0.8"/><ellipse cx="50" cy="-15" rx="22" ry="6" fill="none" stroke="#7a5f31" stroke-width="0.8"/><ellipse cx="0" cy="40" rx="20" ry="5" fill="none" stroke="#7a5f31" stroke-width="0.8"/></g></symbol>
+
+    <symbol id="bg-columns" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.4"><rect x="20" y="30" width="20" height="180" fill="#15110a"/><rect x="18" y="28" width="24" height="6" fill="#3a2c18"/><rect x="18" y="206" width="24" height="6" fill="#3a2c18"/><line x1="25" y1="40" x2="25" y2="200" stroke="#3a2c18" stroke-width="0.3"/><line x1="35" y1="40" x2="35" y2="200" stroke="#3a2c18" stroke-width="0.3"/><rect x="60" y="30" width="20" height="180" fill="#15110a"/><rect x="58" y="28" width="24" height="6" fill="#3a2c18"/><rect x="58" y="206" width="24" height="6" fill="#3a2c18"/><rect x="120" y="30" width="20" height="180" fill="#15110a"/><rect x="118" y="28" width="24" height="6" fill="#3a2c18"/><rect x="118" y="206" width="24" height="6" fill="#3a2c18"/><rect x="160" y="30" width="20" height="180" fill="#15110a"/><rect x="158" y="28" width="24" height="6" fill="#3a2c18"/><rect x="158" y="206" width="24" height="6" fill="#3a2c18"/><line x1="10" y1="20" x2="190" y2="20" stroke="#7a5f31" stroke-width="1"/></g></symbol>
+
+    <symbol id="bg-blueprint" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.4" stroke="#2a4060" stroke-width="0.3" fill="none"><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10"/></pattern><rect width="200" height="250" fill="url(#grid)"/></g><g opacity="0.45" stroke="#5a8aa8" stroke-width="0.5" fill="none"><rect x="40" y="60" width="60" height="80"/><rect x="100" y="60" width="60" height="50"/><rect x="100" y="110" width="60" height="30"/><line x1="40" y1="100" x2="100" y2="100"/><circle cx="160" cy="160" r="20"/><line x1="40" y1="180" x2="160" y2="180"/></g></symbol>
+
+    <symbol id="bg-shieldwall" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.35"><path d="M 30 80 L 50 75 L 50 115 L 30 125 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 60 75 L 80 70 L 80 110 L 60 120 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 90 78 L 110 73 L 110 113 L 90 123 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 120 73 L 140 68 L 140 108 L 120 118 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 150 76 L 170 71 L 170 111 L 150 121 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 45 130 L 65 125 L 65 165 L 45 175 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 75 125 L 95 120 L 95 160 L 75 170 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 105 128 L 125 123 L 125 163 L 105 173 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/><path d="M 135 123 L 155 118 L 155 158 L 135 168 Z" fill="#15110a" stroke="#5a4828" stroke-width="0.5"/></g></symbol>
+
+    <symbol id="bg-lobby" viewBox="0 0 200 250"><rect width="200" height="250" fill="url(#lamp)"/><g opacity="0.4"><rect x="20" y="160" width="160" height="20" fill="#15110a" stroke="#5a4828" stroke-width="0.4"/><rect x="30" y="180" width="140" height="40" fill="#0a0807"/><line x1="100" y1="180" x2="100" y2="220" stroke="#3a2c18" stroke-width="0.4"/></g><g opacity="0.7"><circle cx="40" cy="150" r="4" fill="#e8c178" opacity="0.8"/><circle cx="40" cy="150" r="2" fill="#fff8d0"/><line x1="40" y1="154" x2="40" y2="170" stroke="#7a5f31" stroke-width="0.6"/><circle cx="160" cy="150" r="4" fill="#e8c178" opacity="0.8"/><circle cx="160" cy="150" r="2" fill="#fff8d0"/><line x1="160" y1="154" x2="160" y2="170" stroke="#7a5f31" stroke-width="0.6"/></g><g opacity="0.3"><rect x="60" y="60" width="80" height="30" fill="none" stroke="#7a5f31" stroke-width="0.4"/><text x="100" y="80" text-anchor="middle" fill="#7a5f31" font-family="serif" font-size="8" letter-spacing="2">CONTINENTAL</text></g></symbol>
+
+    <!-- SILHOUETTE — face in DEEP shadow, just suited torso. No facial features. -->
+
+    <!-- HAT VARIANT for skeptic — adds fedora -->
+  </defs>
+</svg>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-seal">X</div>
+    <div>
+      <div class="brand-title">THE CONTINENTAL DIVISION</div>
+      <div class="brand-sub">OPERATIONS THEATRE · SKYNETCLAW · MMXXVI</div>
+    </div>
+  </div>
+  <div class="topbar-meta">
+    <div><span class="lbl">SECTOR</span><b id="sector">A · VII</b></div>
+    <div><span class="lbl">OPERATOR</span><b id="op-name">ELMATADORZ</b></div>
+    <div><span class="lbl">CHRONO</span><b id="clock">--:--:--</b></div>
+    <div class="conn-indicator"><span class="conn-dot" id="conn-dot"></span><span id="conn-text">CONNECTING</span></div>
+    <button class="btn" id="theme-toggle" type="button" style="padding:5px 12px;font-size:8.5px;letter-spacing:0.25em">☀ LIGHT</button>
+    <div class="classified-stamp">CLASSIFIED — EYES ONLY</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- LEFT — Personnel, TIERED -->
+  <div class="panel-left">
+    <div class="panel-head"><span class="ttl">Council Roster</span><span class="cnt"><b id="op-count">14</b> · click to brief</span>
+      <button class="lay-toggle" id="roster-toggle" type="button" title="expand / collapse roster">⇔</button></div>
+    <div class="panel-body" id="roster"></div>
+  </div>
+
+  <!-- CENTER — Hero -->
+  <div class="panel-center">
+    <!-- Live Intel Strip -->
+    <div class="intel-strip">
+      <div class="intel-cell"><span class="lbl">CHANNEL</span><span class="pulse"></span><span class="val" id="intel-channel">secured</span></div>
+      <div class="intel-cell"><span class="lbl">ROUTING</span><span class="val gold" id="intel-routing">—</span></div>
+      <div class="intel-cell"><span class="lbl">LAST VERDICT</span><span class="val" id="intel-verdict">none on record</span></div>
+      <div class="intel-cell"><span class="lbl">FILE</span><span class="val gold" id="mission-id">—</span></div>
+      <div class="intel-cell"><span class="lbl">EVAL</span><span class="val gold" id="intel-eval" title="scoreboard: latest run">—</span></div>
+      <div class="intel-cell"><button class="lay-toggle" id="stage-toggle" type="button" title="show / hide the round table">⌂ TABLE</button></div>
+    </div>
+
+    <!-- Phase Tracker FPCOS L0→L8 -->
+    <div class="phase-track" id="phase-track"></div>
+
+    <div class="theatre">
+      <!-- THE STAGE — one story: status board (idle) ⇄ mission flow (running) -->
+      <div class="stage" id="stage">
+        <div class="house-board" id="house-board">
+          <img class="hs-bg" src="portraits/house-bg.png" onerror="this.style.display='none'" alt="">
+          <div class="hs-shade"></div>
+          <svg class="chamber-mindmap" id="house-lines" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+          <div class="hs-quote">&ldquo; The House is listening.<br><b>Issue your directive.</b> &rdquo;</div>
+          <div class="hs-head">
+            <div class="hb-title">THE HOUSE</div>
+            <div class="hb-sub" id="hb-sub">AWAITING DIRECTIVE</div>
+          </div>
+          <div class="hs-table"><div class="hs-x">X</div><div class="hs-status" id="hs-status"></div></div>
+          <div id="hb-grid"></div>
+          <!-- P2: LIVE COUNCIL CHAMBER — fed only by real council events -->
+          <div id="chamber-panel" class="chamber-panel" style="display:none">
+            <div class="cp-row"><span class="cp-lbl">SPEAKER</span><span id="cp-speaker" class="cp-val">—</span></div>
+            <div class="cp-row"><span class="cp-lbl">TOPIC</span><span id="cp-topic" class="cp-val">—</span></div>
+            <div class="cp-row"><span class="cp-lbl">CHALLENGE</span><span id="cp-challenge" class="cp-val cp-bad">—</span></div>
+            <div class="cp-row"><span class="cp-lbl">PROPOSAL</span><span id="cp-rec" class="cp-val cp-ok">—</span></div>
+            <div class="cp-meter">
+              <div class="cp-meter-top"><span>CONSENSUS</span><span id="cp-cons-pct">—</span></div>
+              <div class="cp-bar"><i id="cp-cons-bar" style="width:0%"></i></div>
+              <div id="cp-cons-note" class="cp-note">forming…</div>
+            </div>
+          </div>
+        </div>
+        <div class="verdict-pop" id="verdict-pop">REVIEWED · CONSISTENT</div>
+      </div>
+
+      <!-- Transcript below chamber -->
+      <div class="transcript-pane" id="transcript">
+        <div class="msg system">
+          <div class="msg-head"><span class="who">CONCIERGE</span><span class="when">on arrival</span></div>
+          <div class="msg-body">Welcome, Operator. The council is seated. Each operative waits at the table. Issue your directive below; phases will illuminate (L0→L8). The Scout's Obsidian tools are: obsidian_list_notes, obsidian_read_note, obsidian_write_note, obsidian_search (do not invent variants).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Command Bar — GOLD DOMINANT -->
+    <div class="command-area" id="command-area">
+      <div class="cmd-head">
+        <span class="lbl">§ COMMAND</span>
+        <span style="display:flex;gap:6px">
+          <button id="cmd-new" type="button" title="clear the theatre + House Mind, start fresh">⟲ NEW SESSION</button>
+          <button id="cmd-toggle" type="button">▾ COLLAPSE</button>
+        </span>
+      </div>
+      <div class="command-row">
+        <div class="command-prefix">§</div>
+        <textarea class="command-input" id="cmd" tabindex="1" autofocus placeholder="The House is listening."></textarea>
+        <div class="command-actions">
+          <button class="btn primary" id="send" type="button" onclick="window.__dispatch && window.__dispatch()">DISPATCH</button>
+          <button class="btn" id="stop" type="button" disabled onclick="window.__abort && window.__abort()">STAND DOWN</button>
+        </div>
+      </div>
+      <div class="command-hints">
+        <span>MODE <kbd id="mode-label">COUNCIL</kbd></span>
+        <span>MODEL <kbd id="model-label">auto</kbd></span>
+        <span>WORKSPACE <kbd id="ws-label">—</kbd></span>
+        <span><kbd>Enter</kbd> dispatch · <kbd>Esc</kbd> stand down</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — Telemetry, recede -->
+  <div class="panel-right">
+    <div class="panel-head"><span class="ttl">Intel</span><span class="cnt">live</span></div>
+    <div class="panel-body">
+      <div class="telem-section">
+        <div class="telem-title">▾ Mission</div>
+        <div class="telem-row"><span class="k">phase</span><span class="v" id="t-phase">STANDBY</span></div>
+        <div class="telem-row"><span class="k">signal</span><span class="v" id="t-signal">—</span></div>
+        <div class="telem-row"><span class="k">tools</span><span class="v" id="t-tools">0</span></div>
+        <div class="telem-row"><span class="k">elapsed</span><span class="v" id="t-elapsed">0.0s</span></div>
+        <div class="telem-row"><span class="k">chars</span><span class="v" id="t-chars">0</span></div>
+      </div>
+      <div class="telem-section">
+        <div class="telem-title">▾ Active Agents</div>
+        <div id="active-agents"><div class="empty">— council at rest —</div></div>
+      </div>
+      <div class="telem-section">
+        <div class="telem-title">▾ Channel</div>
+        <div class="model-pick"><select id="conn-select" title="API provider"></select></div>
+        <div class="model-pick"><select id="model-select"><option value="">auto (router)</option></select></div>
+        <div class="telem-row" style="margin-top:8px">
+          <span class="k">mode</span>
+          <select id="mode-select" style="background:var(--bg-0);color:var(--ink);border:1px solid var(--rule);font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 6px;letter-spacing:0.05em;">
+            <option value="council" selected>COUNCIL</option><option value="agent">AGENT_RUN</option><option value="chat">CHAT</option>
+          </select>
+        </div>
+        <div class="telem-row" style="margin-top:8px"><span class="k">workspace</span></div>
+        <input id="workspace-input" type="text" placeholder="D:\Projects\MyWorkspace"
+          title="โฟลเดอร์ที่ agent จะเขียนไฟล์ลงไป"
+          style="width:100%;background:var(--bg-0);color:var(--ink);border:1px solid var(--rule);font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 7px;outline:none;box-sizing:border-box;margin-top:4px">
+        <button class="btn ws-browse-btn" id="ws-browse-btn" type="button" onclick="browseWorkspace()">↗ BROWSE</button>
+        <div class="ws-status" id="ws-status"></div>
+        <div class="ws-recent-wrap" id="ws-recent-wrap" style="display:none">
+          <div class="ws-recent-head">Recent</div>
+          <div id="ws-recent-list"></div>
+        </div>
+        <!-- ── HOUSE MIND — Live Cognitive Panel ── -->
+        <div id="house-mind-strip" style="margin-top:12px;border-top:1px solid var(--rule);padding-top:10px">
+
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+            <span class="hm-ttl">House Mind</span>
+            <div class="hm-live-ind"><span class="hm-dot"></span>LIVE</div>
+          </div>
+
+          <!-- ══ LEVEL 1 — COLLAPSED OPERATOR VIEW (≤2s read, no scroll) ══ -->
+          <div class="hm-l1">
+            <div class="hm-l1-row">
+              <span class="hm-l1-lbl">STATUS</span>
+              <span class="hm-l1-val"><span id="hm-status" class="hm-badge hm-st-offline">⚫ OFFLINE</span>
+                <span id="hm-status-sub" class="hm-st-sub"></span></span>
+            </div>
+            <div class="hm-l1-row">
+              <span class="hm-l1-lbl">MISSION</span>
+              <span id="hm-mission" class="hm-l1-val hm-clip2">— no active mission —</span>
+            </div>
+            <div class="hm-l1-row">
+              <span class="hm-l1-lbl">CONFIDENCE</span>
+              <span class="hm-l1-val"><span id="hm-cv" class="hm-conf-num">—</span>
+                <span class="hm-conf-bar"><i id="hm-conf-fill"></i></span></span>
+            </div>
+            <div class="hm-l1-row">
+              <span class="hm-l1-lbl">KNOWN</span>
+              <span id="hm-known" class="hm-l1-val hm-clip1">—</span>
+            </div>
+            <div class="hm-l1-row">
+              <span class="hm-l1-lbl">UNKNOWN</span>
+              <span id="hm-unknown-n" class="hm-l1-val">0</span>
+            </div>
+            <div class="hm-l1-row">
+              <span class="hm-l1-lbl">NEXT ACTION</span>
+              <span id="hm-next" class="hm-l1-val hm-clip1" style="color:var(--ink-ghost)">— awaiting —</span>
+            </div>
+            <div class="hm-l1-row">
+              <span class="hm-l1-lbl">UPDATED</span>
+              <span id="hm-updated" class="hm-l1-val" style="color:var(--ink-dim)">—</span>
+            </div>
+          </div>
+
+          <!-- Expand toggle -->
+          <button id="hm-expand-btn" class="hm-expand-btn" type="button" aria-expanded="false">▼ EXPAND COGNITION</button>
+
+          <!-- ══ LEVEL 2 — EXPANDABLE COGNITION (may scroll) ══ -->
+          <div id="hm-l2" class="hm-l2" hidden>
+            <div class="hm-row-sec">
+              <div class="hm-lbl">Current Objective</div>
+              <div id="hm-question" class="hm-q-txt">— awaiting directive —</div>
+            </div>
+            <div class="hm-row-sec">
+              <div class="hm-lbl">Current Belief</div>
+              <div id="hm-belief" class="hm-belief-txt">—</div>
+            </div>
+            <div class="hm-row-sec">
+              <div class="hm-lbl">Conflict</div>
+              <div id="hm-conflict" class="hm-belief-txt" style="font-style:normal;color:var(--blood-bright)">—</div>
+            </div>
+            <div class="hm-row-sec">
+              <div class="hm-lbl">Risk</div>
+              <div id="hm-risk" class="hm-belief-txt" style="font-style:normal;color:var(--warn)">—</div>
+            </div>
+            <div class="hm-row-sec">
+              <div class="hm-lbl">Hypotheses</div>
+              <ul id="hm-hyps" class="hm-ulist"><li style="color:var(--ink-ghost)">—</li></ul>
+            </div>
+            <div class="hm-row-sec">
+              <div class="hm-lbl">Known Facts</div>
+              <ul id="hm-known-list" class="hm-ulist"><li style="color:var(--ink-ghost)">—</li></ul>
+            </div>
+            <div class="hm-row-sec">
+              <div class="hm-lbl">Unknowns</div>
+              <ul id="hm-unknowns" class="hm-ulist"><li style="color:var(--ink-ghost)">—</li></ul>
+            </div>
+            <div class="hm-footer">
+              <span class="hm-footer-lbl">CONFIDENCE SOURCES&ensp;<span id="hm-conf-src" style="color:var(--ink-dim)">—</span></span>
+              <a href="/api/council/dashboard" target="_blank" class="hm-dash-link">↗ DASHBOARD</a>
+            </div>
+          </div>
+
+          <!-- ══ WORKFLOW MEMORY — execution history (NOT cognition) ══ -->
+          <button id="wf-expand-btn" class="hm-expand-btn" type="button" aria-expanded="false" style="margin-top:6px">▼ WORKFLOW MEMORY</button>
+          <div id="wf-mem" class="hm-l2" hidden>
+            <div id="wf-list"><div style="color:var(--ink-ghost);font-size:8px;padding:4px 0">— no recent workflows —</div></div>
+          </div>
+
+        </div>
+        <button class="btn" id="add-api-btn" type="button" style="width:100%;margin-top:8px;padding:6px 0;font-size:9px;letter-spacing:0.2em">✚ ADD API PROVIDER</button>
+        <div id="add-api-form" style="display:none;margin-top:8px">
+          <div class="model-pick"><select id="preset-select"></select></div>
+          <input id="api-key-input" type="password" placeholder="API key" autocomplete="off"
+            style="width:100%;margin-top:6px;background:var(--bg-0);color:var(--ink);border:1px solid var(--rule);font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 7px;outline:none;box-sizing:border-box">
+          <input id="base-url-input" type="text" placeholder="base url"
+            style="width:100%;margin-top:6px;background:var(--bg-0);color:var(--ink-dim);border:1px solid var(--rule);font-family:'JetBrains Mono',monospace;font-size:9px;padding:5px 7px;outline:none;box-sizing:border-box">
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <button class="btn primary" id="save-api-btn" type="button" style="flex:1;padding:6px 0;font-size:9px">SAVE + USE</button>
+            <button class="btn" id="cancel-api-btn" type="button" style="flex:1;padding:6px 0;font-size:9px">CANCEL</button>
+          </div>
+        </div>
+      </div>
+      <div class="telem-section">
+        <div class="telem-title clickable" id="log-title">▸ Field Log</div>
+        <div id="event-log" style="display:none"><div class="empty">— awaiting orders —</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-inner"></div>
+</div>
+
+<div class="watermark">THE CONTINENTAL · DIVISION X · MMXXVI · ELMATADORZ</div>
+
+<script>
+const API = (location.protocol === 'file:' || location.hostname === '')
+  ? 'http://localhost:8766' : `${location.protocol}//${location.hostname}:8766`;
+
+// ── DOMAIN DATA ──
+const AGENTS = [
+  { code:'OPV-000', name:'ELITE COMMANDER', short:'COMMANDER', role:'supreme council · verify · override',
+    img:'portraits/OPV-000-director.png',
+    cowork:'Mission Assurance', icon:'commander', bg:'bg-warroom',
+    clearance:'OMEGA', years:1, contracts:'∞', last:'now',
+    standby_verb:'OBSERVING', active_verb:'OVERRIDING',
+    quote:'Not an assistant. A thinking system.',
+    specialty:'Skynet Elite Commander — re-checks delivered work against DONE_WHEN, names the gap in one line, and drives the mission to an honest finish (max 2 overrides per run).',
+    abilities:[{ic:'⚡',nm:'Reality Verify (L7)',dc:'reads the actual output before believing any report'},{ic:'◐',nm:'Shadow Gap (L4)',dc:'states exactly what is still missing'},{ic:'§',nm:'Override Drive',dc:'issues the recovery protocol when the mission stalls'}],
+    tools:['commander_override','done_when_check','read_file'],
+    triggers:['recheck','verify mission','drive to finish','ตรวจงาน'] },
+  { code:'OPV-ATLAS', name:'ATLAS', role:'global intelligence · council mastermind',
+    img:'portraits/OPV-ATLAS.png',
+    cowork:'Strategic Counsel', icon:'atlas', bg:'bg-astrolabe',
+    clearance:'OMEGA', years:1, contracts:'∞', last:'now',
+    standby_verb:'MAPPING', active_verb:'COUNSELING',
+    quote:'We do not follow the map. We draw what others will follow.',
+    specialty:'Director of Global Intelligence — fuses the Money Atlas Genesis Protocol with the ElmatadorZ Secret OS as the council mastermind: frames every mission (Problem → Cause → Mechanism → Leverage → Outcome) and demands scenarios over prophecy.',
+    abilities:[{ic:'🌐',nm:'Genesis Protocol',dc:'Problem → Cause → Mechanism → Leverage → Outcome before any move'},{ic:'⚖',nm:'Scenario Architecture',dc:'bull/bear/base + invalidation point — never a single prediction'},{ic:'◐',nm:'Secret OS Counsel',dc:'FPCOS honesty: no fabricated numbers, shadow critique always runs'}],
+    tools:['genesis_protocol','scenario_map','market_analysis','realtime.*'],
+    triggers:['strategy','scenario','market analysis','grand design'] },
+  { code:'OPV-001', name:'THE ANALYST',     role:'evidence · analysis · facts',
+    cowork:'Evidence', icon:'analyst', bg:'bg-library',
+    clearance:'ALPHA', years:12, contracts:'4,217', last:'47m',
+    standby_verb:'WATCHING', active_verb:'ANALYZING',
+    quote:'Numbers do not lie. People do.',
+    specialty:'Forensic data work. Reads the file before forming an opinion.',
+    abilities:[{ic:'§',nm:'Evidence Extraction',dc:'pulls structured facts from messy text/files'},{ic:'∑',nm:'Statistical Review',dc:'aggregates, correlates, calls out anomalies'},{ic:'⌖',nm:'Citation Chain',dc:'every claim traced to a primary source'},{ic:'☱',nm:'Data Validation',dc:'cross-checks numbers across independent sources'}],
+    tools:['file.read','web.search','grep','parse_csv','realtime.*'],
+    triggers:['analyze','verify','check facts','data','statistics','วิเคราะห์'] },
+  { code:'OPV-002', name:'THE STRATEGIST',  role:'long game · planning',
+    cowork:'Planning', icon:'strategist', bg:'bg-warroom',
+    clearance:'ALPHA', years:14, contracts:'3,084', last:'1h 12m',
+    standby_verb:'WAITING', active_verb:'PLOTTING',
+    quote:'Win the board, not the piece.',
+    specialty:'Long-horizon planning. Asks "and then what" three times.',
+    abilities:[{ic:'⚔',nm:'Long-Horizon Plan',dc:'breaks goal into dependencies + milestones'},{ic:'⟴',nm:'Second-Order Effects',dc:'maps unintended consequences before acting'},{ic:'⚖',nm:'Tradeoff Matrix',dc:'no free lunch — explicit cost analysis'}],
+    tools:['workflow.comprehend','workflow.plan','agent_council'],
+    triggers:['plan','strategy','approach','วางแผน'] },
+  { code:'OPV-003', name:'THE SKEPTIC',     role:'shadow gate · veto · critique',
+    cowork:'Critique', icon:'skeptic', bg:'bg-pinboard',
+    clearance:'OMEGA', years:18, contracts:'2,961', last:'9m',
+    standby_verb:'LISTENING', active_verb:'CHALLENGING',
+    quote:'A blocked move is still a move.',
+    specialty:'Shadow Gate enforcer. Says no when no is the right answer.',
+    abilities:[{ic:'◐',nm:'Shadow Critique',dc:'finds the strongest counter-argument first'},{ic:'⌥',nm:'Value-Match Audit',dc:'numbers in output must match evidence'},{ic:'⛔',nm:'Honest Block',dc:'reports blocked — never fakes done'}],
+    tools:['shadow_gate','value_match_gate','fpcos.shadow'],
+    triggers:['is this right','review','red team','พิสูจน์'] },
+  { code:'OPV-004', name:'THE FORECASTER',  role:'scenarios · weather · risk',
+    cowork:'Future Scenarios', icon:'forecaster', bg:'bg-astrolabe',
+    clearance:'BETA', years:9, contracts:'5,402', last:'33m',
+    standby_verb:'SCRYING', active_verb:'FORECASTING',
+    quote:'Plan for the storm. Pray for the breeze.',
+    specialty:'Probability operator. Lives in distributions.',
+    abilities:[{ic:'⌬',nm:'Scenario Modeling',dc:'best/base/worst with explicit weights'},{ic:'⊕',nm:'Calibrated Probability',dc:'rough but honest — never 0 or 100'},{ic:'☄',nm:'Tail Risk',dc:'sizes the black-swan exposure'}],
+    tools:['market_analysis','realtime.gold','realtime.crypto'],
+    triggers:['forecast','predict','scenarios','ทำนาย'] },
+  { code:'OPV-005', name:'THE EXECUTOR',    role:'tools · build · execute',
+    cowork:'Tool Execution', icon:'executor', bg:'bg-armory',
+    clearance:'ALPHA', years:11, contracts:'8,733', last:'2m',
+    standby_verb:'READY', active_verb:'EXECUTING',
+    quote:'Done is the only verb that pays.',
+    specialty:'Hands on keyboard. Owns the file write, the shell, the build.',
+    abilities:[{ic:'✎',nm:'File Write / Edit',dc:'creates and modifies files'},{ic:'⌨',nm:'Shell Execution',dc:'runs commands with cwd + UTF-8 guarantees'},{ic:'▶',nm:'Code Run + Verify',dc:'runs, reads output, iterates'}],
+    tools:['write_file','edit_file','shell_command','run_python','install_package'],
+    triggers:['build','create','make','run','deploy','fix','สร้าง','ทำ'] },
+  { code:'OPV-006', name:'THE STORYTELLER', role:'synthesize · brief · close',
+    cowork:'Output Synthesis', icon:'storyteller', bg:'bg-study',
+    clearance:'BETA', years:7, contracts:'3,219', last:'14m',
+    standby_verb:'COMPOSING', active_verb:'DELIVERING',
+    quote:'They will remember the ending.',
+    specialty:'Closes the loop. Turns ten findings into one paragraph.',
+    abilities:[{ic:'§',nm:'Executive Brief',dc:'TLDR + 3 bullets + 1 ask'},{ic:'❝',nm:'Narrative Arc',dc:'setup → tension → resolution'},{ic:'☷',nm:'Dossier Compose',dc:'docx / pptx / md with structure'}],
+    tools:['compose_brief','docx.create','pptx.create','summarize'],
+    triggers:['summarize','brief','write up','สรุป'] },
+  { code:'OPV-007', name:'THE SCOUT',       role:'discovery · obsidian · find the tool',
+    cowork:'Discovery + Knowledge', icon:'scout', bg:'bg-cityscape',
+    clearance:'BETA', years:5, contracts:'1,605', last:'3m',
+    standby_verb:'WATCHING', active_verb:'SCOUTING',
+    quote:'The first match is rarely the right one — and the second note holds the answer.',
+    specialty:'Agent Find Skill v2.0 + Obsidian vault custodian. Reads the second brain before the open web.',
+    abilities:[
+      {ic:'◎',nm:'Need Analysis',dc:'restates the constraint set first'},
+      {ic:'⊛',nm:'Genome Check',dc:'reuses prior recommendation if still valid'},
+      {ic:'⌗',nm:'Multi-Channel Discover',dc:'registries + papers + community signal'},
+      {ic:'◧',nm:'Obsidian Read',dc:'reads notes from your second brain before searching the web'},
+      {ic:'✎',nm:'Obsidian Write',dc:'creates / appends notes to the vault under your taxonomy'},
+      {ic:'⌖',nm:'Vault Search',dc:'grep across the whole vault for an idea or quote'},
+    ],
+    tools:['agent-find-skill','obsidian_list_notes','obsidian_read_note','obsidian_write_note','obsidian_search','web.search','search_mcp_registry'],
+    triggers:['find a tool','best library','vector database','OCR','recommend','หาเครื่องมือ','obsidian','vault','my notes','สมุดบันทึก','โน้ต','second brain'] },
+  { code:'OPV-008', name:'THE AUDITOR',     role:'quality · verification',
+    cowork:'Verification', icon:'auditor', bg:'bg-scales',
+    clearance:'ALPHA', years:16, contracts:'2,340', last:'1h',
+    standby_verb:'WEIGHING', active_verb:'AUDITING',
+    quote:'Trust, but reconcile to the cent.',
+    specialty:'Quality gate. Verifies output meets the original criteria, line by line.',
+    abilities:[{ic:'⚖',nm:'Criteria Check',dc:'maps output → original done_when list'},{ic:'∆',nm:'Diff Analysis',dc:'spots silent drift between spec and delivery'},{ic:'⌗',nm:'Compliance Trace',dc:'flags policy / license / governance violations'}],
+    tools:['gov.evaluate','gts1.done_check','file.diff'],
+    triggers:['audit','verify quality','compliance','ตรวจสอบคุณภาพ'] },
+  { code:'OPV-009', name:'THE GOVERNOR',    role:'governance · arbitration',
+    cowork:'Final Arbitration', icon:'governor', bg:'bg-columns',
+    clearance:'OMEGA', years:24, contracts:'1,108', last:'2h',
+    standby_verb:'PRESIDING', active_verb:'ARBITRATING',
+    quote:'A good constitution survives clever men.',
+    specialty:'Final arbiter. Resolves conflicts between operatives. Invokes Genesis Governance OS.',
+    abilities:[{ic:'§',nm:'Constitutional Read',dc:'invokes GOS-0 articles when operatives disagree'},{ic:'⟴',nm:'Separation of Powers',dc:'prevents one branch from over-stepping'},{ic:'⌖',nm:'Final Verdict',dc:'breaks ties — operatives must abide'}],
+    tools:['gov.constitution','gov.evaluate','gov.escalate'],
+    triggers:['arbitrate','resolve conflict','final ruling','ตัดสิน'] },
+  { code:'OPV-010', name:'THE ARCHITECT',   role:'system design · blueprint',
+    cowork:'System Design', icon:'architect', bg:'bg-blueprint',
+    clearance:'ALPHA', years:13, contracts:'1,876', last:'4h',
+    standby_verb:'DRAFTING', active_verb:'DESIGNING',
+    quote:'Boundaries before bricks.',
+    specialty:'System design specialist. Draws the boundaries before writing the code.',
+    abilities:[{ic:'⌗',nm:'Architecture Sketch',dc:'data flow + module boundaries + interfaces'},{ic:'⚙',nm:'Pattern Selection',dc:'right pattern for the problem, not just the latest one'},{ic:'☷',nm:'Trade-off Doc',dc:'records why this design, not the alternatives'}],
+    tools:['mermaid.generate','docx.create','file.write'],
+    triggers:['design system','architecture','blueprint','ออกแบบระบบ'] },
+  { code:'OPV-011', name:'THE SENTINEL',    role:'security · boundary',
+    cowork:'Security & Policy', icon:'sentinel', bg:'bg-shieldwall',
+    clearance:'OMEGA', years:15, contracts:'4,820', last:'12m',
+    standby_verb:'GUARDING', active_verb:'INTERCEPTING',
+    quote:'The wall holds because it was built before the threat.',
+    specialty:'Permission enforcer. Reviews every irreversible action.',
+    abilities:[{ic:'⛔',nm:'Permission Gate',dc:'GPS-2 evaluation — deny by default'},{ic:'⌥',nm:'Irreversible Detect',dc:'flags publish/send/exec/delete for escalation'},{ic:'☼',nm:'Human Gate',dc:'requires operator approval for high-tier actions'}],
+    tools:['gov.evaluate','gov.escalate','gps2.check'],
+    triggers:['security check','permission','is this safe','ปลอดภัยไหม'] },
+  { code:'OPV-012', name:'THE CONCIERGE',   role:'router · mission intake',
+    cowork:'Mission Intake', icon:'concierge', bg:'bg-lobby',
+    clearance:'BETA', years:8, contracts:'12,401', last:'now',
+    standby_verb:'WELCOMING', active_verb:'ROUTING',
+    quote:'Coffee is on the side table.',
+    specialty:'Front desk. Routes the operator\'s directive to the right operative.',
+    abilities:[{ic:'☷',nm:'Intake Triage',dc:'classifies directive intent and complexity'},{ic:'⟴',nm:'Operative Routing',dc:'picks the right specialist — or the right council'},{ic:'§',nm:'House Etiquette',dc:'speaks first, last, and on behalf of the house'}],
+    tools:['volition_engine','skills_auto_router','agent_council'],
+    triggers:['route','assign','dispatch','ใครรับงานนี้'] },
+];
+
+const TIER = {
+  supreme: ['OPV-000', 'OPV-ATLAS'],
+  primary: ['OPV-012', 'OPV-005'],
+  council: ['OPV-001','OPV-002','OPV-003','OPV-004','OPV-006','OPV-007'],
+  oversight: ['OPV-008','OPV-009','OPV-010','OPV-011'],
+};
+
+// FPCOS phase ladder — was missing, which crashed renderPhaseTrack()
+// and killed everything after it (model list, listeners, skill preview).
+const PHASES = [
+  {id:'L0', name:'INTAKE'},
+  {id:'L1', name:'SKILLS'},
+  {id:'L2', name:'PLAN'},
+  {id:'L3', name:'EXECUTE'},
+  {id:'L4', name:'SHADOW'},
+  {id:'L5', name:'COUNCIL'},
+  {id:'L8', name:'DELIVER'},
+];
+
+const ICONS = {
+  commander:  `<svg viewBox="0 0 24 24"><path d="M 13 2 L 6 13 L 11 13 L 9 22 L 18 9 L 12 9 Z"/></svg>`,
+  atlas:      `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="4.5" y1="7" x2="19.5" y2="7"/><line x1="4.5" y1="17" x2="19.5" y2="17"/></svg>`,
+  analyst:    `<svg viewBox="0 0 24 24"><polyline points="3,20 8,14 12,17 16,9 21,12"/><line x1="3" y1="22" x2="21" y2="22"/></svg>`,
+  strategist: `<svg viewBox="0 0 24 24"><path d="M 12 4 C 9 4 8 7 8 9 L 7 11 L 9 12 L 8 14 L 8 16 L 10 18 L 14 18 L 16 16 L 16 14 L 15 12 L 17 11 L 16 9 C 16 7 15 4 12 4 Z"/><line x1="6" y1="20" x2="18" y2="20"/></svg>`,
+  skeptic:    `<svg viewBox="0 0 24 24"><polygon points="12,3 22,21 2,21"/><line x1="12" y1="10" x2="12" y2="15"/><circle cx="12" cy="18" r="0.8" fill="currentColor"/></svg>`,
+  forecaster: `<svg viewBox="0 0 24 24"><path d="M 6 3 L 18 3 L 14 12 L 18 21 L 6 21 L 10 12 Z"/><line x1="6" y1="3" x2="18" y2="3"/><line x1="6" y1="21" x2="18" y2="21"/></svg>`,
+  executor:   `<svg viewBox="0 0 24 24"><path d="M 4 20 L 14 10 L 12 8 L 4 16 Z"/><path d="M 14 4 L 20 10 L 18 12 L 12 6 Z"/><line x1="14" y1="10" x2="18" y2="14"/></svg>`,
+  storyteller:`<svg viewBox="0 0 24 24"><path d="M 5 20 L 15 4 L 19 8 L 9 20 Z"/><line x1="13" y1="6" x2="17" y2="10"/><line x1="5" y1="20" x2="9" y2="20"/></svg>`,
+  scout:      `<svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><line x1="14" y1="14" x2="20" y2="20"/></svg>`,
+  auditor:    `<svg viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="20"/><line x1="4" y1="8" x2="20" y2="8"/><path d="M 4 8 L 1 14 A 3 3 0 0 0 7 14 Z"/><path d="M 20 8 L 17 14 A 3 3 0 0 0 23 14 Z"/><line x1="8" y1="20" x2="16" y2="20"/></svg>`,
+  governor:   `<svg viewBox="0 0 24 24"><polygon points="12,2 22,7 2,7"/><line x1="4" y1="9" x2="4" y2="19"/><line x1="9" y1="9" x2="9" y2="19"/><line x1="15" y1="9" x2="15" y2="19"/><line x1="20" y1="9" x2="20" y2="19"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+  architect:  `<svg viewBox="0 0 24 24"><path d="M 12 3 L 4 21 L 20 21 Z"/><circle cx="12" cy="3" r="1.2" fill="currentColor"/><line x1="9" y1="14" x2="15" y2="14"/></svg>`,
+  sentinel:   `<svg viewBox="0 0 24 24"><path d="M 12 2 L 4 6 L 4 13 C 4 17 8 21 12 22 C 16 21 20 17 20 13 L 20 6 Z"/></svg>`,
+  concierge:  `<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="4"/><line x1="12" y1="12" x2="20" y2="20"/><line x1="17" y1="17" x2="20" y2="14"/><line x1="14" y1="20" x2="17" y2="17"/></svg>`,
+};
+
+const $ = id => document.getElementById(id);
+
+// EARLY EXPOSE — dispatch + abort are hoisted async functions so we can wire to window at top
+// This guarantees inline onclick="window.__dispatch()" works even if later JS errors
+window.__dispatch = function(){ return dispatch(); };
+window.__abort    = function(){ return abort(); };
+console.log('[Continental] window.__dispatch + __abort hooked at TOP (hoisted)');
+
+const ROSTER=$('roster'),TRANS=$('transcript'),CMD=$('cmd'),SEND=$('send'),STOP=$('stop'),
+      LOG=$('event-log'),SKL=$('skills-active'),CLOCK=$('clock'),CDOT=$('conn-dot'),CTXT=$('conn-text'),
+      MID=$('mission-id'),MSEL=$('model-select'),ESEL=$('mode-select'),
+      MODELBL=$('model-label'),MODELBLM=$('mode-label'),TPHASE=$('t-phase'),TTOOLS=$('t-tools'),
+      TCHARS=$('t-chars'),TELAPS=$('t-elapsed'),MODAL=$('modal'),MODALINNER=$('modal-inner'),
+      CHAMBER=$('stage'),PHASETRACK=$('phase-track'),
+      INTROUTE=$('intel-routing'),INTVERDICT=$('intel-verdict'),VERDICTPOP=$('verdict-pop');
+
+let currentAbort=null,missionStart=0,elapsedTimer=null,mission={tools:0,chars:0};
+
+function tick(){CLOCK.textContent=new Date().toTimeString().slice(0,8);}
+setInterval(tick,1000);tick();
+
+// ── THEME TOGGLE — dark (default) / light steel grey, persisted ──
+const THEMEBTN=$('theme-toggle');
+function applyTheme(t){
+  document.body.classList.toggle('light', t==='light');
+  if(THEMEBTN) THEMEBTN.textContent = t==='light' ? '● DARK' : '☀ LIGHT';
+  try{ localStorage.setItem('cd-theme', t); }catch(e){}
+}
+if(THEMEBTN) THEMEBTN.addEventListener('click',()=>{
+  applyTheme(document.body.classList.contains('light') ? 'dark' : 'light');
+});
+try{ applyTheme(localStorage.getItem('cd-theme') || 'dark'); }catch(e){}
+
+// ── COMMAND collapse (persisted) ──
+const CMDAREA=$('command-area'), CMDTOGGLE=$('cmd-toggle');
+function setCmdCollapsed(c){
+  CMDAREA.classList.toggle('collapsed', c);
+  CMDTOGGLE.textContent = c ? '▸ EXPAND' : '▾ COLLAPSE';
+  try{ localStorage.setItem('cd-cmd', c?'1':'0'); }catch(e){}
+  if(!c) CMD.focus();
+}
+if(CMDTOGGLE) CMDTOGGLE.addEventListener('click',()=>setCmdCollapsed(!CMDAREA.classList.contains('collapsed')));
+try{ setCmdCollapsed(localStorage.getItem('cd-cmd')==='1'); }catch(e){}
+
+// ⟲ NEW SESSION — clear the transcript + the House Mind's stale active state so
+// the theatre starts fresh (fixes "it doesn't clear old data / keeps resuming").
+const CMDNEW=$('cmd-new');
+if(CMDNEW) CMDNEW.addEventListener('click', async ()=>{
+  CMDNEW.disabled=true; CMDNEW.textContent='⟲ …';
+  try{ await fetch(API+'/api/continental/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); }catch(e){}
+  const tp=$('transcript');
+  if(tp) tp.innerHTML='<div class="msg system"><div class="msg-head"><span class="who">CONCIERGE</span><span class="when">fresh start</span></div><div class="msg-body">Cleared. The council is seated and waiting. Issue your directive.</div></div>';
+  try{ if(typeof addLog==='function') addLog('⟲ new session — House Mind cleared','e-done'); }catch(e){}
+  // reset phase lamps + any live mission view if present
+  try{ if(typeof resetPhases==='function') resetPhases(); }catch(e){}
+  CMDNEW.disabled=false; CMDNEW.textContent='⟲ NEW SESSION';
+  if(typeof CMD!=='undefined' && CMD) CMD.focus();
+});
+
+// ── FIELD LOG collapse (default closed — the story is on the stage, not the log) ──
+const LOGTITLE=$('log-title');
+let _logOpen=false;
+function setLogOpen(o){_logOpen=o;LOG.style.display=o?'':'none';LOGTITLE.textContent=(o?'▾':'▸')+' Field Log';}
+if(LOGTITLE) LOGTITLE.addEventListener('click',()=>setLogOpen(!_logOpen));
+
+// ── WORKSPACE MANAGER ────────────────────────────────────────────────────────
+const WSIN=$('workspace-input'), WSLABEL=$('ws-label');
+const WS_RECENT_KEY='cd-workspace-recent';
+const WS_CURRENT_KEY='cd-workspace';
+const WS_MAX_RECENT=10;
+
+function syncWs(){
+  const v=WSIN.value.trim();
+  if(WSLABEL) WSLABEL.textContent = v ? (v.length>34 ? '…'+v.slice(-32) : v) : '—';
+  try{ localStorage.setItem(WS_CURRENT_KEY, v); }catch(e){}
+}
+
+function _wsStatus(msg, type){
+  const el=$('ws-status');if(!el)return;
+  el.textContent=msg; el.className='ws-status '+(type||'');
+}
+
+function _wsRecent(){
+  try{ return JSON.parse(localStorage.getItem(WS_RECENT_KEY)||'[]'); }catch(e){ return []; }
+}
+
+function saveToRecent(path){
+  if(!path||!path.trim())return;
+  path=path.trim();
+  let list=_wsRecent().filter(p=>p.toLowerCase()!==path.toLowerCase());
+  list.unshift(path);
+  list=list.slice(0,WS_MAX_RECENT);
+  try{ localStorage.setItem(WS_RECENT_KEY,JSON.stringify(list)); }catch(e){}
+  renderRecentWorkspaces();
+}
+
+function renderRecentWorkspaces(){
+  const wrap=$('ws-recent-wrap'), list=$('ws-recent-list');
+  if(!wrap||!list)return;
+  const items=_wsRecent();
+  if(!items.length){wrap.style.display='none';return;}
+  wrap.style.display='';
+  list.innerHTML=items.map(p=>{
+    const label=p.length>36?'…'+p.slice(-34):p;
+    return `<button class="ws-recent-item" title="${p.replace(/"/g,'&quot;')}" onclick="selectWorkspace(${JSON.stringify(p)})">${label}</button>`;
+  }).join('');
+}
+
+function selectWorkspace(path){
+  if(!WSIN)return;
+  WSIN.value=path;
+  syncWs();
+  _wsStatus('','');
+  validateWorkspace(path);
+}
+
+async function validateWorkspace(path){
+  if(!path||!path.trim()){_wsStatus('','');return;}
+  try{
+    const r=await fetch(API+'/api/files/folder-context',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({path:path.trim(),recursive:false,max_files:1,max_chars_per_file:0})});
+    if(r.ok){
+      _wsStatus('✓ PATH CONFIRMED','ok');
+      saveToRecent(path.trim());
+    } else if(r.status===400){
+      _wsStatus('⚠ PATH NOT FOUND','warn');
+    } else {
+      _wsStatus('⚠ COULD NOT VERIFY','warn');
+    }
+  }catch(e){
+    _wsStatus('✕ INACCESSIBLE','err');
+  }
+}
+
+async function browseWorkspace(){
+  const btn=$('ws-browse-btn');
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  _wsStatus('','');
+  try{
+    const r=await fetch(API+'/api/browse/folder');
+    const d=await r.json();
+    if(d.path&&d.path.trim()){
+      if(WSIN) WSIN.value=d.path.trim();
+      syncWs();
+      _wsStatus('✓ PATH CONFIRMED','ok');
+      saveToRecent(d.path.trim());
+    } else {
+      _wsStatus('','');  // cancelled — no message
+    }
+  }catch(e){
+    _wsStatus('✕ PICKER UNAVAILABLE','err');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='↗ BROWSE';}
+  }
+}
+
+if(WSIN){
+  let saved=null; try{ saved=localStorage.getItem(WS_CURRENT_KEY); }catch(e){}
+  if(saved!==null) WSIN.value=saved;  // restore persisted; if never set, keep placeholder
+  WSIN.addEventListener('input',syncWs);
+  WSIN.addEventListener('blur',function(){
+    const v=WSIN.value.trim();
+    if(v) validateWorkspace(v);
+    else _wsStatus('','');
+  });
+  syncWs();
+  renderRecentWorkspaces();
+}
+
+async function pingConn(){
+  try{
+    const r=await fetch(API+'/api/skills/status');
+    if(r.ok){CDOT.className='conn-dot on';CTXT.textContent='SECURED';}
+    else throw 0;
+  }catch(e){CDOT.className='conn-dot off';CTXT.textContent='OFFLINE';}
+}
+setInterval(pingConn,5000);pingConn();
+
+// ── HOUSE MIND — Live Cognitive Panel ────────────────────────────────────────
+let _hmC=0,_hmT=0,_hmRaf=null;
+function _hmStep(){
+  _hmRaf=null;
+  const d=_hmT-_hmC;
+  if(Math.abs(d)<0.4){_hmC=_hmT;}else{_hmC+=d*0.13;}
+  const cv=$('hm-cv'),fill=$('hm-conf-fill');
+  if(cv) cv.textContent=Math.round(_hmC)+'%';
+  if(fill) fill.style.width=Math.max(0,Math.min(100,_hmC)).toFixed(1)+'%';
+  if(Math.abs(_hmT-_hmC)>=0.4) _hmRaf=requestAnimationFrame(_hmStep);
+}
+function _hmSetConf(v){_hmT=v;if(!_hmRaf)_hmRaf=requestAnimationFrame(_hmStep);}
+
+function _hmAgo(ts){
+  if(!ts)return'—';
+  const s=Math.floor(Date.now()/1e3-ts);
+  if(s<60)return s+'s ago';
+  if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+function _hmCut(s,n){s=String(s||'');return s.length>n?s.slice(0,n)+'…':s;}
+
+// KNOWN (L1): the House's standing capabilities when idle (real registry counts)
+let _hmSkillCount=0;
+fetch(API+'/api/skills').then(r=>r.json()).then(d=>{_hmSkillCount=((d&&(d.skills||d))||[]).length||0;}).catch(()=>{});
+function _hmSystemKnown(){
+  const p=[];
+  if(typeof HouseState!=='undefined'){
+    const m=HouseState.get('model'),cn=HouseState.get('connection'),aa=HouseState.get('active_agents')||[];
+    if(aa.length)p.push(aa.length+' Agents');
+    if(_hmSkillCount)p.push(_hmSkillCount+' Skills');
+    if(cn&&cn.name)p.push(cn.name+' ✓'); else if(m)p.push((m.split(':')[0]||m));
+  }
+  return p.length?p.join(' · '):'—';
+}
+
+// ── STATUS — operator language, real signals only (never raw state ids) ──
+const _HM_ST={ready:{c:'hm-st-ready',t:'🟢 READY'},waiting:{c:'hm-st-waiting',t:'🟡 WAITING'},
+  thinking:{c:'hm-st-thinking',t:'🔵 THINKING'},blocked:{c:'hm-st-blocked',t:'🔴 BLOCKED'},offline:{c:'hm-st-offline',t:'⚫ OFFLINE'}};
+function _hmSetStatus(state,sub){
+  const el=$('hm-status');if(el){const s=_HM_ST[state]||_HM_ST.offline;el.className='hm-badge '+s.c;el.textContent=s.t;}
+  const sb=$('hm-status-sub');if(sb)sb.textContent=sub||'';
+}
+function _hmFillList(id,arr,n){
+  const el=$(id);if(!el)return;
+  el.innerHTML=(arr&&arr.length)?arr.slice(0,6).map(x=>`<li>${_esc(_hmCut(x,n))}</li>`).join('')
+    :'<li style="color:var(--ink-ghost)">—</li>';
+}
+function _esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function _hmSetOpt(id,v){const el=$(id);if(el){el.textContent=v||'—';el.style.opacity=v?'1':'.5';}}
+
+async function refreshHouseMind(){
+  let offline=false;
+  // ══ COGNITIVE FRAME — House Mind shows ONLY current cognitive state ══
+  try{
+    const r=await fetch(API+'/api/house/frame').then(r=>r.json());
+    const f=(r&&r.frame)||{};
+    _hmSetConf(Math.round((f.confidence||0)*100));
+    $('hm-question').textContent=f.current_question||'— awaiting directive —';
+    const b=f.current_belief||{};
+    $('hm-belief').textContent=b.belief?(b.belief+(b.confidence?`  (${Math.round(b.confidence*100)}%)`:'')):'—';
+    _hmSetOpt('hm-conflict',f.current_conflict);
+    _hmSetOpt('hm-risk',f.current_risk);
+    const kc=f.known_count||0,uc=f.unknown_count||0;
+    const unEl=$('hm-unknown-n');if(unEl){unEl.textContent=uc;unEl.style.color=uc>0?'var(--warn)':'var(--ink-bright)';}
+    const kEl=$('hm-known');
+    if(kEl){if(kc>0){kEl.textContent=kc+' fact'+(kc>1?'s':'');kEl.style.color='var(--ok)';}
+      else{kEl.textContent=_hmSystemKnown();kEl.style.color='var(--ink-bright)';}}
+    const cs=$('hm-conf-src');if(cs)cs.textContent=`known ${kc} · unknown ${uc}`+(f.confidence_level?` · ${f.confidence_level}`:'');
+    const upEl=$('hm-updated');if(upEl)upEl.textContent=_hmAgo(f.last_update);
+    const strip=$('house-mind-strip');if(strip){const act=!!(f.current_question||b.belief);strip.classList.toggle('hm-active',act);strip.classList.toggle('hm-idle',!act);}
+  }catch(e){offline=true;}
+
+  // ══ L2 deep cognition lists (hypotheses / known / unknown detail) ══
+  try{
+    const st=await fetch(API+'/api/council/state/current').then(r=>r.json());
+    if(st&&st.id&&!st.error){
+      const a=await fetch(API+'/api/council/state/'+st.id+'/answer').then(r=>r.json());
+      _hmFillList('hm-hyps',(a.hypotheses||[]).map(h=>h.hypothesis||h),52);
+      _hmFillList('hm-known-list',a.what_we_know||[],52);
+      _hmFillList('hm-unknowns',a.what_we_dont_know||[],52);
+    }else{['hm-hyps','hm-known-list','hm-unknowns'].forEach(id=>{const e=$(id);if(e)e.innerHTML='<li style="color:var(--ink-ghost)">—</li>';});}
+  }catch(e){}
+
+  // ══ MISSION (L1) ══
+  fetch(API+'/api/council/missions?limit=1').then(r=>r.json()).then(d=>{
+    const act=(d.active||[])[0],mEl=$('hm-mission');
+    if(mEl){mEl.textContent=act?_hmCut(act.question,90):'— no active mission —';mEl.style.color=act?'var(--gold)':'var(--ink-ghost)';}
+  }).catch(()=>{});
+
+  // ══ STATUS + NEXT ACTION — composed from real execution signals ══
+  if(offline){_hmSetStatus('offline','backend unreachable');const nEl=$('hm-next');if(nEl){nEl.textContent='—';nEl.style.color='var(--ink-ghost)';}return;}
+  Promise.all([
+    fetch(API+'/api/agent/runs?limit=1').then(r=>r.json()).catch(()=>null),
+    fetch(API+'/api/council/scheduler/status').then(r=>r.json()).catch(()=>null),
+  ]).then(([runs,sch])=>{
+    const latest=runs&&(runs.runs||[])[0];
+    const jobs=sch?((sch.pending||[]).filter(j=>j.status==='pending').sort((a,b)=>a.run_at-b.run_at)):[];
+    const lblOf=k=>({outcome_review:'Outcome Review',reputation_decay:'Reputation Decay'}[k]||k);
+    const nEl=$('hm-next');
+    if(nEl){
+      if(jobs.length){const j=jobs[0];const diff=j.run_at-Date.now()/1e3;const when=diff<=0?'due now':diff<3600?Math.round(diff/60)+'m':Math.round(diff/86400)+'d';
+        nEl.textContent=lblOf(j.kind)+' · '+when;nEl.style.color=diff<=0?'var(--warn)':'var(--ok)';}
+      else{nEl.textContent='— awaiting —';nEl.style.color='var(--ink-ghost)';}
+    }
+    const rs=latest&&String(latest.status||'').toLowerCase();
+    if(rs==='running')_hmSetStatus('thinking',_hmCut(latest.task,40));
+    else if(rs==='blocked')_hmSetStatus('blocked',_hmCut(String(latest.summary||'').replace(/\[\[EXEC_MEM\]\].*$/,'').replace(/^\s*BLOCKED:\s*/i,''),40));
+    else if(jobs.length)_hmSetStatus('waiting',lblOf(jobs[0].kind));
+    else _hmSetStatus('ready','');
+  }).catch(()=>_hmSetStatus('ready',''));
+}
+
+// ── Expand / collapse toggles (L2 cognition + Workflow Memory) ──
+function _hmToggle(btnId,panelId,labels){
+  const btn=$(btnId),p=$(panelId);if(!btn||!p)return;
+  btn.addEventListener('click',()=>{const open=p.hasAttribute('hidden');
+    if(open){p.removeAttribute('hidden');btn.textContent='▲ '+labels[1];btn.setAttribute('aria-expanded','true');if(panelId==='wf-mem')loadWorkflowMemory();}
+    else{p.setAttribute('hidden','');btn.textContent='▼ '+labels[0];btn.setAttribute('aria-expanded','false');}});
+}
+_hmToggle('hm-expand-btn','hm-l2',['EXPAND COGNITION','COLLAPSE']);
+_hmToggle('wf-expand-btn','wf-mem',['WORKFLOW MEMORY','WORKFLOW MEMORY']);
+
+// ── WORKFLOW MEMORY — execution artifacts (NOT cognition) ──
+async function loadWorkflowMemory(){
+  const el=$('wf-list');if(!el)return;
+  try{
+    const d=await fetch(API+'/api/house/workflow?limit=6').then(r=>r.json());
+    const wf=(d&&d.workflow)||[];
+    if(!wf.length){el.innerHTML='<div style="color:var(--ink-ghost);font-size:8px;padding:4px 0">— no recent workflows —</div>';return;}
+    el.innerHTML=wf.map(w=>{
+      const sc={thinking:'#5aa9e6',done:'var(--ok)',blocked:'var(--blood-bright)',failed:'var(--warn)'}[w.status]||'var(--ink-dim)';
+      const meta=[w.n_steps+' steps',w.n_tools+' tools',_hmAgo(w.ended_at||w.started_at)].join(' · ');
+      return `<div class="wf-card wf-${w.status}">
+        <div class="wf-task">${_esc(w.task||'—')}</div>
+        ${w.done_when?`<div class="wf-dw">DONE_WHEN: ${_esc(w.done_when)}</div>`:''}
+        <div class="wf-meta"><span class="wf-st" style="color:${sc}">${_esc(w.status_label||w.status)}</span><span>${_esc(meta)}</span></div>
+      </div>`;}).join('');
+  }catch(e){el.innerHTML=`<div style="color:var(--warn);font-size:8px">workflow memory offline</div>`;}
+}
+
+refreshHouseMind();
+setInterval(refreshHouseMind,15000);
+
+// HouseState live sync — instant on model/connection/agent/mission change
+(function(){
+  function _wire(){
+    if(typeof HouseState==='undefined'){setTimeout(_wire,500);return;}
+    HouseState.on('model',refreshHouseMind);
+    HouseState.on('connection',refreshHouseMind);
+    HouseState.on('active_agents',refreshHouseMind);
+    HouseState.on('mission',function(v){if(v&&v.active)refreshHouseMind();});
+  }
+  _wire();
+})();
+
+// HEALTH-CHECK relay endpoint on boot — if 404, dispatch will switch to direct
+async function probeRelay(){
+  try{
+    const r = await fetch(API+'/api/continental/conversations?limit=1');
+    if(r.ok){
+      window._relayHealthy = true;
+      INTROUTE.textContent = 'RELAY ARMED';
+      INTROUTE.className = 'val gold';
+      console.log('[Continental] relay healthy at /api/continental/*');
+    }else if(r.status===404){
+      window._relayHealthy = false;
+      INTROUTE.textContent = 'DIRECT mode';
+      INTROUTE.className = 'val warn';
+      console.warn('[Continental] relay not mounted → DIRECT mode');
+    }
+  }catch(e){
+    window._relayHealthy = false;
+    console.warn('[Continental] relay probe failed:', e.message);
+  }
+}
+probeRelay();
+// === BULLETPROOF ENTER HANDLER — multiple binding paths ===
+function _onCmdKeydown(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('[Continental] Enter pressed → dispatching');
+    addLog('▶ Enter pressed', 'e-skill');
+    // call via window hook for max reliability
+    if(window.__dispatch){ window.__dispatch(); }
+    else if(typeof dispatch === 'function'){ dispatch(); }
+    else { console.error('[Continental] no dispatch fn available'); }
+    return false;
+  }
+  if(e.key === 'Escape'){
+    if(window.__abort){ window.__abort(); }
+    else if(typeof abort === 'function'){ abort(); }
+  }
+}
+
+// Bind to textarea directly (preferred)
+if(CMD){
+  CMD.addEventListener('keydown', _onCmdKeydown);
+  CMD.addEventListener('keypress', e=>{
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  });
+  console.log('[Continental] Enter handler bound to CMD');
+}
+
+// Also bind to document as catch-all (if focus is anywhere)
+document.addEventListener('keydown', e=>{
+  // only intercept Enter when CMD has focus (avoid hijacking other inputs)
+  if(e.target === CMD && e.key === 'Enter' && !e.shiftKey){
+    _onCmdKeydown(e);
+  }
+}, true);  // capture phase = catches before any other handler
+
+// ───────── BOOT SELF-TEST — reports to field log (visible without F12) ─────────
+async function bootSelfTest(){
+  await new Promise(r => setTimeout(r, 800));  // wait for probeRelay + other inits
+  const checks = [];
+  // 1. SEND button
+  checks.push({n:'SEND button', ok: !!document.getElementById('send'), val: !!SEND});
+  // 2. dispatch function
+  checks.push({n:'dispatch fn', ok: typeof dispatch === 'function'});
+  // 3. window.__dispatch
+  checks.push({n:'window.__dispatch', ok: typeof window.__dispatch === 'function'});
+  // 4. addLog works
+  let logWorks = false;
+  try{ addLog('▷ boot self-test running', 'e-skill'); logWorks = true; }catch(e){}
+  checks.push({n:'addLog', ok: logWorks});
+  // 5. relay endpoint
+  let relayStatus = '?';
+  try{
+    const r = await fetch(API+'/api/continental/conversations?limit=1');
+    relayStatus = r.status;
+  }catch(e){ relayStatus = 'err:'+e.message; }
+  checks.push({n:'relay /api/continental/*', ok: relayStatus === 200, val: relayStatus});
+  // 6. direct /api/agent/run reachable (OPTIONS check)
+  let directStatus = '?';
+  try{
+    const r = await fetch(API+'/api/health');
+    directStatus = r.status;
+  }catch(e){ directStatus = 'err:'+e.message; }
+  checks.push({n:'/api/health', ok: directStatus === 200, val: directStatus});
+
+  // Report each to field log
+  let pass = 0;
+  for(const c of checks){
+    const tag = c.ok ? 'e-done' : 'e-error';
+    const sym = c.ok ? '✓' : '✗';
+    const extra = c.val !== undefined ? ` (${c.val})` : '';
+    addLog(`${sym} ${c.n}${extra}`, tag);
+    if(c.ok) pass++;
+  }
+  addLog(`▷ SELF-TEST: ${pass}/${checks.length} passed`, pass === checks.length ? 'e-done' : 'e-error');
+
+  if(!checks[4].ok){
+    addLog('⚠ relay missing — DISPATCH will auto-fallback to /api/agent/run', 'e-error');
+    window._relayHealthy = false;
+  }
+
+  // visual marker on the DISPATCH button if all green
+  if(pass === checks.length && SEND){
+    SEND.style.boxShadow = '0 0 28px rgba(107,139,90,0.6)';
+    setTimeout(()=>{ SEND.style.boxShadow=''; }, 2000);
+  }
+}
+bootSelfTest();
+
+// SAFETY watchdog — if SEND is locked but no active mission, force-unlock every 5s
+setInterval(()=>{
+  // 2s watchdog
+  if(SEND && SEND.disabled && !currentAbort){
+    console.warn('[Continental] watchdog: SEND locked without active mission — unlocking');
+    SEND.disabled = false;
+    SEND.removeAttribute('disabled');
+    STOP.disabled = true;
+    addLog('▷ watchdog unlocked SEND', 'e-done');
+  }
+}, 5000);
+
+
+// DEFENSIVE — ensure DISPATCH button is always enabled at boot regardless of stale state
+if(SEND){ SEND.disabled = false; SEND.removeAttribute('disabled'); }
+console.log('[Continental] SEND.disabled reset to', SEND ? SEND.disabled : 'no SEND');
+
+
+
+
+// ── Render Personnel (tiered) ──
+function makeDossier(a, primary){
+  const div=document.createElement('div');
+  div.className='dossier';
+  div.dataset.code=a.code;
+  div.innerHTML=`
+    <div class="card-portrait">
+      <div class="ph-fallback">${a.name.charAt(4)}</div>
+      <img src="${a.img||('portraits/'+a.code+'.png')}" onerror="this.style.display='none'" alt="">
+    </div>
+    <div class="card-body">
+      <div class="card-icon">${ICONS[a.icon]||''}</div>
+      <div class="card-name">${a.name}</div>
+      <div class="card-role">${a.role}</div>
+      <div class="card-row">
+        <span class="led"></span>
+        <span class="verb">${a.standby_verb}</span>
+        <span class="code">${a.code}</span>
+        <span class="clr">${a.clearance}</span>
+      </div>
+    </div>
+  `;
+  div.onclick=()=>openModal(a);
+  return div;
+}
+
+function renderRoster(){
+  ROSTER.innerHTML='';
+  const mkHead=(t,cls)=>`<div class="tier-head ${cls||''}">${t}</div>`;
+  ROSTER.insertAdjacentHTML('beforeend', mkHead('▾ Supreme Council', 'primary'));
+  TIER.supreme.forEach(code=>ROSTER.appendChild(makeDossier(AGENTS.find(a=>a.code===code),true)));
+  ROSTER.insertAdjacentHTML('beforeend', mkHead('▾ Front of House — Primary', 'primary'));
+  TIER.primary.forEach(code=>ROSTER.appendChild(makeDossier(AGENTS.find(a=>a.code===code),true)));
+  ROSTER.insertAdjacentHTML('beforeend', mkHead('▾ The Council', ''));
+  TIER.council.forEach(code=>ROSTER.appendChild(makeDossier(AGENTS.find(a=>a.code===code),false)));
+  ROSTER.insertAdjacentHTML('beforeend', mkHead('▾ Oversight', ''));
+  TIER.oversight.forEach(code=>ROSTER.appendChild(makeDossier(AGENTS.find(a=>a.code===code),false)));
+}
+renderRoster();
+
+// ── Render Council Tokens (radial around table) ──
+// ── THE HOUSE — permanent centre; deliberation happens AT the table ──
+const HBGRID=$('hb-grid'),HBSUB=$('hb-sub'),HBOARD=$('house-board'),
+      HLINES=$('house-lines'),HSTATUS=$('hs-status'),AAGENTS=$('active-agents');
+const ENGAGED = new Map();        // code → verb · who has joined the deliberation
+const TABLE_C = {x:500, y:550};   // table centre in svg coords (50%, 55%)
+
+// Seats hug the table ellipse — margin-safe (no clipping, no title collision)
+const HSEATS = {
+  'OPV-000':[50,25],  'OPV-ATLAS':[64,28],  'OPV-011':[36,28],   // head of table
+  'OPV-001':[76,34],  'OPV-009':[24,34],
+  'OPV-003':[85,48],  'OPV-010':[15,48],
+  'OPV-002':[82,64],  'OPV-008':[18,64],
+  'OPV-004':[72,76],  'OPV-007':[28,76],
+  'OPV-012':[62,84],  'OPV-005':[38,84],
+  'OPV-006':[50,87],                                              // front seat — the operator's view
+};
+function renderHouseBoard(){
+  HBGRID.innerHTML=''; HLINES.innerHTML='';
+  AGENTS.forEach(a=>{
+    const [x,y]=HSEATS[a.code]||[50,50];
+    const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',x*10); ln.setAttribute('y1',y*10);
+    ln.setAttribute('x2',TABLE_C.x); ln.setAttribute('y2',TABLE_C.y);
+    ln.setAttribute('class','link'); ln.setAttribute('data-code',a.code);
+    HLINES.appendChild(ln);
+    const s=document.createElement('div');
+    s.className='hs-seat'; s.dataset.code=a.code;
+    s.style.left=x+'%'; s.style.top=y+'%';
+    s.innerHTML=`<div class="hs-badge">${ICONS[a.icon]||''}</div>
+      <div class="hs-nm">${(a.short||a.name)}</div>
+      <div class="hs-vb">${a.standby_verb}</div>`;
+    s.onclick=()=>openModal(a);
+    HBGRID.appendChild(s);
+  });
+  HBSUB.textContent = AGENTS.length + ' AGENTS · 1 COUNCIL · 1 DIRECTIVE';
+  const oc=$('op-count'); if(oc) oc.textContent=AGENTS.length;
+}
+renderHouseBoard();
+
+function drawHouseCross(){
+  HLINES.querySelectorAll('.cross').forEach(n=>n.remove());
+  const codes=[...ENGAGED.keys()];
+  for(let i=0;i<codes.length;i++)for(let j=i+1;j<codes.length;j++){
+    const p1=HSEATS[codes[i]], p2=HSEATS[codes[j]];
+    if(!p1||!p2) continue;
+    const c=document.createElementNS('http://www.w3.org/2000/svg','line');
+    c.setAttribute('x1',p1[0]*10); c.setAttribute('y1',p1[1]*10);
+    c.setAttribute('x2',p2[0]*10); c.setAttribute('y2',p2[1]*10);
+    c.setAttribute('class','cross active');
+    HLINES.appendChild(c);
+  }
+}
+function stageMission(){
+  ENGAGED.clear();
+  HBGRID.querySelectorAll('.hs-seat').forEach(s=>s.classList.remove('active','current','veto'));
+  HLINES.querySelectorAll('.link').forEach(l=>l.classList.remove('active'));
+  HLINES.querySelectorAll('.cross,.net-pulse').forEach(n=>n.remove());
+  HBSUB.textContent='DELIBERATION IN PROGRESS';
+  if(HSTATUS) HSTATUS.textContent='L0 · INTAKE';
+  renderActiveAgents();
+}
+function stageIdle(){
+  ENGAGED.clear();
+  HBGRID.querySelectorAll('.hs-seat').forEach(s=>{
+    s.classList.remove('active','current','veto');
+    const a=AGENTS.find(x=>x.code===s.dataset.code);
+    const v=s.querySelector('.hs-vb'); if(v&&a) v.textContent=a.standby_verb;
+  });
+  HLINES.querySelectorAll('.link').forEach(l=>l.classList.remove('active'));
+  HLINES.querySelectorAll('.cross,.net-pulse').forEach(n=>n.remove());
+  HBSUB.textContent = AGENTS.length + ' AGENTS · 1 COUNCIL · 1 DIRECTIVE';
+  if(HSTATUS) HSTATUS.textContent='';
+  renderActiveAgents();
+}
+function renderActiveAgents(){
+  if(!AAGENTS) return;
+  if(ENGAGED.size===0){AAGENTS.innerHTML='<div class="empty">— council at rest —</div>';return;}
+  AAGENTS.innerHTML='';
+  ENGAGED.forEach((verb,code)=>{
+    const a=AGENTS.find(x=>x.code===code); if(!a) return;
+    const r=document.createElement('div');r.className='aa-row';
+    r.innerHTML=`<span class="aa-dot"></span><span class="aa-nm">${(a.short||a.name).replace('THE ','')}</span><span class="aa-vb">${verb}</span>`;
+    AAGENTS.appendChild(r);
+  });
+}
+
+// ── Render Phase Track ──
+function renderPhaseTrack(){
+  PHASETRACK.innerHTML='';
+  PHASES.forEach(p=>{
+    const s=document.createElement('div');
+    s.className='phase-step'; s.dataset.id=p.id;
+    s.innerHTML=`<div class="phase-dot"></div><div class="phase-lbl">${p.id} · ${p.name}</div>`;
+    PHASETRACK.appendChild(s);
+  });
+}
+renderPhaseTrack();
+
+// ── State setters — roster card + table seat + lines + active-agents panel ──
+function setOperative(code, active, verb){
+  const a=AGENTS.find(x=>x.code===code);
+  if(!a) return;
+  const v=verb||(active?a.active_verb:a.standby_verb);
+  const card=ROSTER.querySelector(`.dossier[data-code="${code}"]`);
+  if(card){
+    card.classList.toggle('engaged',!!active);
+    const verbEl = card.querySelector('.verb');
+    if(verbEl) verbEl.textContent=v;
+  }
+  const seat=HBGRID.querySelector(`.hs-seat[data-code="${code}"]`);
+  if(seat){
+    seat.classList.toggle('active',!!active);
+    const vb=seat.querySelector('.hs-vb'); if(vb) vb.textContent=v;
+    if(active){
+      HBGRID.querySelectorAll('.hs-seat.current').forEach(n=>n.classList.remove('current'));
+      seat.classList.add('current');   // the one speaking NOW
+    }
+  }
+  const ln=HLINES.querySelector(`.link[data-code="${code}"]`);
+  if(ln) ln.classList.toggle('active',!!active);
+  _netPulse(code, !!active);   // moving data particle along the conduit
+  if(active){ ENGAGED.set(code,v); drawHouseCross(); }
+  renderActiveAgents();
+}
+/* Real-event particle: a glow travels seat→table while the seat is engaged. */
+function _netPulse(code, on){
+  const SVGNS='http://www.w3.org/2000/svg';
+  HLINES.querySelectorAll(`.net-pulse[data-code="${code}"]`).forEach(n=>n.remove());
+  if(!on) return;
+  const p=HSEATS[code]; if(!p) return;
+  const x1=p[0]*10, y1=p[1]*10, x2=TABLE_C.x, y2=TABLE_C.y;
+  const c=document.createElementNS(SVGNS,'circle');
+  c.setAttribute('r','3.4'); c.setAttribute('class','net-pulse'); c.setAttribute('data-code',code);
+  const m=document.createElementNS(SVGNS,'animateMotion');
+  m.setAttribute('dur', (1.1+Math.random()*0.5).toFixed(2)+'s');
+  m.setAttribute('repeatCount','indefinite');
+  m.setAttribute('path',`M ${x1} ${y1} L ${x2} ${y2}`);
+  c.appendChild(m); HLINES.appendChild(c);
+}
+function setVeto(code){
+  const s=HBGRID.querySelector(`.hs-seat[data-code="${code}"]`);
+  if(s){s.classList.add('veto');const v=s.querySelector('.hs-vb');if(v) v.textContent='VETO';}
+}
+function clearVeto(){HBGRID.querySelectorAll('.hs-seat.veto').forEach(n=>n.classList.remove('veto'));}
+function standDown(){
+  AGENTS.forEach(a=>{
+    const card=ROSTER.querySelector(`.dossier[data-code="${a.code}"]`);
+    if(card){card.classList.remove('engaged');const ve=card.querySelector('.verb');if(ve) ve.textContent=a.standby_verb;}
+  });
+  clearVeto();
+}
+
+function setPhase(id){
+  TPHASE.textContent = id || 'STANDBY';
+  if(HSTATUS && id){const p=PHASES.find(x=>x.id===id);HSTATUS.textContent=id+(p?' · '+p.name:'');}
+  const steps = PHASETRACK.querySelectorAll('.phase-step');
+  let found=false;
+  steps.forEach(s=>{
+    if(s.dataset.id===id){s.classList.add('active');s.classList.remove('done');found=true;}
+    else if(!found){s.classList.remove('active');s.classList.add('done');}
+    else{s.classList.remove('active');s.classList.remove('done');}
+  });
+}
+function resetPhases(){
+  TPHASE.textContent='STANDBY';
+  PHASETRACK.querySelectorAll('.phase-step').forEach(s=>{s.classList.remove('active');s.classList.remove('done');});
+}
+
+function showVerdict(text,ok){
+  if(HSTATUS) HSTATUS.textContent = ok ? 'CONSENSUS REACHED' : 'COUNCIL DIVIDED';
+  VERDICTPOP.textContent = text;
+  VERDICTPOP.className = 'verdict-pop' + (ok?' ok':'');
+  setTimeout(()=>VERDICTPOP.classList.add('show'),10);
+  setTimeout(()=>VERDICTPOP.classList.remove('show'),2400);
+  INTVERDICT.textContent = text;
+  INTVERDICT.className = 'val ' + (ok?'gold':'warn');
+}
+
+// ── Modal ──
+function openModal(a){
+  MODALINNER.innerHTML=`
+    <button class="modal-close" data-act="dismiss">×</button>
+    <div class="modal-portrait">
+      <div class="modal-fileno">FILE <b>${a.code}</b></div>
+      <div class="modal-stamp">${a.clearance}</div>
+      <div class="ph-fallback" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:96px;color:var(--ink-ghost);z-index:0;background:radial-gradient(circle,#15110a 0,#050608 100%)">${a.name.charAt(4)}</div>
+      <img src="${a.img||('portraits/'+a.code+'.png')}" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1" alt="">
+      <div class="modal-codeplate"><div class="nm">${a.name}</div><div class="rl">${a.role}</div></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-quote">"${a.quote}"</div>
+      <div class="modal-section"><h4>▾ Service Record</h4>
+        <div class="modal-grid">
+          <span class="k">ALIAS</span><span class="v">[REDACTED]</span>
+          <span class="k">CLEARANCE</span><span class="v gold">${a.clearance}</span>
+          <span class="k">YEARS</span><span class="v">${a.years} on the books</span>
+          <span class="k">CONTRACTS</span><span class="v">${a.contracts}</span>
+          <span class="k">LAST OP</span><span class="v">${a.last} ago</span>
+          <span class="k">VERBS</span><span class="v gold">${a.standby_verb} / ${a.active_verb}</span>
+          <span class="k">SPECIALTY</span><span class="v" style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--ink)">${a.specialty}</span>
+        </div></div>
+      <div class="modal-section"><h4>▾ Capabilities</h4>
+        ${a.abilities.map(x=>`<div class="ability"><div class="ic">${x.ic}</div><div><div class="nm">${x.nm}</div><div class="dc">${x.dc}</div></div></div>`).join('')}</div>
+      <div class="modal-section"><h4>▾ Engages on</h4>
+        <div>${a.triggers.map(t=>`<span class="trigger-pill">${t}</span>`).join('')}</div></div>
+      <div class="modal-section"><h4>▾ Sanctioned Tools</h4>
+        <div>${a.tools.map(t=>`<span class="trigger-pill" style="color:var(--gold-bright);border-color:var(--gold-dim);">${t}</span>`).join('')}</div></div>
+      <div class="modal-actions">
+        <button class="btn primary" data-act="engage">ENGAGE OPERATIVE</button>
+        <button class="btn" data-act="dismiss">DISMISS</button>
+      </div>
+    </div>`;
+  // attach handlers programmatically — robust against inline-scope issues
+  MODALINNER.querySelectorAll('[data-act="dismiss"]').forEach(b=>b.onclick=closeModal);
+  const eng = MODALINNER.querySelector('[data-act="engage"]');
+  if(eng) eng.onclick = ()=>engageFromModal(a);
+  MODAL.classList.add('open');
+}
+
+function closeModal(){MODAL.classList.remove('open');}
+function engageFromModal(a){
+  closeModal();
+  const trig = (a.triggers && a.triggers[0]) || '';
+  CMD.value = `[engage ${a.name}] ${trig} — `;
+  CMD.focus();
+  CMD.setSelectionRange(CMD.value.length, CMD.value.length);
+}
+window.closeModal = closeModal;
+window.engageFromModal = engageFromModal;
+document.addEventListener('keydown',e=>{if(e.key==='Escape' && MODAL.classList.contains('open')) closeModal();});
+
+// ── Transcript ──
+function addMsg(kind,who,body){
+  const wrap=document.createElement('div');wrap.className=`msg ${kind}`;
+  const t=new Date().toTimeString().slice(0,8);
+  wrap.innerHTML=`<div class="msg-head"><span class="who">${who}</span><span class="when">${t}</span></div><div class="msg-body"></div>`;
+  wrap.querySelector('.msg-body').textContent=body||'';
+  TRANS.appendChild(wrap);TRANS.scrollTop=TRANS.scrollHeight;
+  return wrap.querySelector('.msg-body');
+}
+function addBanner(html){const div=document.createElement('div');div.className='skill-banner';div.innerHTML=html;TRANS.appendChild(div);TRANS.scrollTop=TRANS.scrollHeight;}
+function addLog(text,cls=''){if(LOG.querySelector('.empty')) LOG.innerHTML='';const t=new Date().toTimeString().slice(0,8);const div=document.createElement('div');div.className=`log-line ${cls}`;div.innerHTML=`<span class="t">${t}</span> ${text}`;LOG.prepend(div);while(LOG.children.length>50) LOG.removeChild(LOG.lastChild);}
+
+// ── Models ──
+async function loadModels(){try{const r=await fetch(API+'/api/models');if(!r.ok) return;const list=await r.json();(Array.isArray(list)?list:(list.models||[])).forEach(m=>{const n=m.name||m;const o=document.createElement('option');o.value=n;o.textContent=n;MSEL.appendChild(o);});}catch(e){}}
+loadModels();
+MSEL.addEventListener('change',()=>{const v=MSEL.value||'auto';MODELBL.textContent=v;INTROUTE.textContent=v;});
+ESEL.addEventListener('change',()=>{MODELBLM.textContent=ESEL.value.toUpperCase();});
+
+// (Skill preview panel removed — the skills auto-router fires server-side on every
+//  dispatch and announces itself with a banner in the transcript. No UI needed.)
+
+// ── API Providers / Connections ──
+const CSEL=$('conn-select'),ADDBTN=$('add-api-btn'),ADDFORM=$('add-api-form'),
+      PRESEL=$('preset-select'),KEYIN=$('api-key-input'),URLIN=$('base-url-input');
+let _presets=[];
+
+async function loadConnections(){
+  try{
+    const r=await fetch(API+'/api/connections'); if(!r.ok) return;
+    const j=await r.json(); CSEL.innerHTML='';
+    (j.connections||[]).forEach(c=>{
+      const o=document.createElement('option');
+      o.value=c.id;
+      o.textContent=(c.is_active?'● ':'')+c.name+(c.api_type&&c.api_type!=='ollama'?' · '+c.api_type:'');
+      if(c.is_active) o.selected=true;
+      CSEL.appendChild(o);
+    });
+  }catch(e){}
+}
+async function reloadModels(){
+  MSEL.innerHTML='<option value="">auto (router)</option>';
+  MODELBL.textContent='auto';
+  await loadModels();
+}
+CSEL.addEventListener('change',async()=>{
+  try{
+    await fetch(API+'/api/connections/'+CSEL.value+'/activate',{method:'POST'});
+    addLog('▶ provider switched','e-skill');
+    await loadConnections(); await reloadModels();
+  }catch(e){ addLog('✗ provider switch failed · '+e.message,'e-error'); }
+});
+loadConnections();
+
+async function loadPresets(){
+  try{
+    const r=await fetch(API+'/api/providers'); const j=await r.json();
+    _presets=(j.providers||[]).filter(p=>p.api_type!=='ollama');
+    PRESEL.innerHTML='';
+    _presets.forEach(p=>{const o=document.createElement('option');o.value=p.api_type;o.textContent=p.label;PRESEL.appendChild(o);});
+    syncPreset();
+  }catch(e){ addLog('✗ presets unavailable (backend เก่า?)','e-error'); }
+}
+function syncPreset(){
+  const p=_presets.find(x=>x.api_type===PRESEL.value);
+  if(p) URLIN.value=p.base_url;
+}
+PRESEL.addEventListener('change',syncPreset);
+ADDBTN.addEventListener('click',()=>{
+  const show=ADDFORM.style.display==='none';
+  ADDFORM.style.display=show?'block':'none';
+  if(show&&_presets.length===0) loadPresets();
+});
+$('cancel-api-btn').addEventListener('click',()=>{ADDFORM.style.display='none';});
+$('save-api-btn').addEventListener('click',async()=>{
+  const p=_presets.find(x=>x.api_type===PRESEL.value);
+  if(!p){ addLog('✗ pick a provider first','e-error'); return; }
+  const body={name:p.label,base_url:(URLIN.value||p.base_url).trim(),api_key:KEYIN.value.trim(),api_type:p.api_type};
+  if(!body.base_url){ addLog('✗ base url required','e-error'); return; }
+  try{
+    const r=await fetch(API+'/api/connections',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(j.id) await fetch(API+'/api/connections/'+j.id+'/activate',{method:'POST'});
+    KEYIN.value=''; ADDFORM.style.display='none';
+    addLog('✓ '+p.label+' connected + active','e-done');
+    await loadConnections(); await reloadModels();
+  }catch(e){ addLog('✗ add provider failed · '+e.message,'e-error'); }
+});
+
+// ── Dispatch ──
+// === DISPATCH BUTTON WIRING with console diagnostics ===
+if(SEND){
+  // buttons fire via inline onclick → window.__dispatch / window.__abort
+  // (duplicate addEventListener wiring caused double-dispatch per click — removed)
+}
+
+async function dispatch(){
+  const text=CMD.value.trim();
+  window.__directive = text;   // P2: chamber topic = the operator's real directive
+  console.log('[Continental] DISPATCH clicked. text=', text, 'currentAbort=', currentAbort);
+  if(!text){ addLog('▷ empty directive — type something first', 'e-error'); console.warn('[Continental] empty directive'); return; }
+  // A fresh dispatch must clear the PREVIOUS mission's residue even when that
+  // mission ended cleanly (currentAbort already null, so the block below is
+  // skipped). The deferred stageIdle timer — scheduled 4s after any mission ends
+  // — would otherwise fire mid-new-mission and reset the chamber to idle, making
+  // the new dispatch look like it never started ("จบแล้วสั่งใหม่ค้าง").
+  if(window._idleTimer){ clearTimeout(window._idleTimer); window._idleTimer = null; }
+  if(elapsedTimer){ clearInterval(elapsedTimer); elapsedTimer = null; }
+  if(typeof INTVERDICT !== 'undefined' && INTVERDICT){ INTVERDICT.textContent = '—'; INTVERDICT.className = 'val'; }
+  if(currentAbort){
+    console.log('[Continental] interrupting previous mission to start new one');
+    addLog('▷ interrupting previous mission', 'e-skill');
+    try{ currentAbort.abort(); }catch(e){}
+    currentAbort = null;
+    SEND.disabled = false; SEND.removeAttribute('disabled');
+    if(elapsedTimer){ clearInterval(elapsedTimer); elapsedTimer = null; }
+    standDown(); CHAMBER.classList.remove('active'); resetPhases();
+    await new Promise(r=>setTimeout(r,150));  // brief cleanup window
+  }
+
+  CMD.value='';mission={tools:0,chars:0};
+  TTOOLS.textContent='0';TCHARS.textContent='0';
+  CHAMBER.classList.add('active');
+  resetPhases();setPhase('L0');
+  stageMission();
+  setOperative('OPV-001',true,'READING');
+  missionStart=Date.now();MID.textContent='X-'+missionStart.toString(36).toUpperCase().slice(-6);
+  if(elapsedTimer) clearInterval(elapsedTimer);
+  window._firstTokenTs   = null;   // set on first visible/think token
+  window._missionDone    = false;  // channel sealed (continental_close)
+  window._missionOutcome = false;  // REAL outcome reported (agent_complete/stuck/limit)
+  window._lastSSE = Date.now();  // refreshed on every SSE byte (keepalive arrives ≤10s apart)
+  elapsedTimer=setInterval(()=>{
+    const sec = (Date.now()-missionStart)/1000;
+    TELAPS.textContent = sec.toFixed(1)+'s';
+    // LIVENESS — backend/relay guarantees a keepalive every ≤10s while working.
+    // 35s of total silence therefore means the channel is DEAD — not "model thinking".
+    // (No hard wall-clock timeout: long agent runs are legitimate.)
+    const idleSec = (Date.now() - (window._lastSSE||missionStart))/1000;
+    const SIG=$('t-signal');
+    if(SIG){
+      SIG.textContent = idleSec<12 ? '●●● LIVE' : idleSec<25 ? '●●○ QUIET' : '●○○ FADING';
+      SIG.className = 'val ' + (idleSec<12 ? 'gold' : 'warn');
+    }
+    // keepalives are now guaranteed every ≤8-10s at BOTH layers (model stream +
+    // relay) — 45s of true silence means the channel is genuinely dead.
+    if(idleSec > 45 && currentAbort){
+      addLog('⚠ channel silent '+idleSec.toFixed(0)+'s — closing', 'e-error');
+      addMsg('system','CONCIERGE','The channel went silent for '+idleSec.toFixed(0)+'s — backend or model stream died. Verify the backend is running, then dispatch again.');
+      try{ currentAbort.abort(); }catch(e){}
+    }
+    // WARM-UP indicator — channel alive but no token yet (model loading)
+    if(window._firstTokenTs == null && sec > 5 && currentAbort){
+      TPHASE.textContent = 'WARMING '+sec.toFixed(0)+'s';
+    }
+  },500);
+  addMsg('directive','OPERATOR',text);
+  addLog('▶ dispatch · '+text.slice(0,40));
+  SEND.disabled=true;STOP.disabled=false;
+
+  const mode = ESEL.value, model = MSEL.value;
+  // RELAY-FIRST strategy with auto-fallback to direct /api/agent/run on failure
+  const RELAY_URL  = API + '/api/continental/dispatch';
+  const DIRECT_URL = API + (mode==='council' ? '/api/workflow/run' : mode==='agent' ? '/api/agent/run' : '/api/chat');
+  const ws = (WSIN && WSIN.value.trim()) || undefined;
+  const relayBody  = { directive:text, model:model||undefined, mode:mode||'council', operator:'ELMATADORZ', workspace_folder:ws };
+  const directBody = (mode==='council'||mode==='agent')
+    ? { task:text, model:model||undefined, workspace_folder:ws }
+    : { model:model||undefined, messages:[{role:'user',content:text}], use_tools:false, agent_mode:false, workspace_folder:ws };
+
+  currentAbort = new AbortController();
+  let usedRelay = window._relayHealthy !== false;
+  let attempt = 0;
+
+  while(attempt < 2){
+    attempt++;
+    const url  = usedRelay ? RELAY_URL : DIRECT_URL;
+    const body = usedRelay ? relayBody : directBody;
+    console.log(`[Continental] attempt ${attempt} → ${url}`);
+    try{
+      const r = await fetch(url, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(body), signal: currentAbort.signal,
+      });
+      if(!r.ok){
+        if(usedRelay && (r.status===404 || r.status===405)){
+          // relay missing → permanently mark unhealthy + retry direct
+          console.warn('[Continental] relay '+r.status+' — falling back to direct /api/agent/run');
+          window._relayHealthy = false;
+          INTROUTE.textContent = 'DIRECT (relay 404)';
+          INTROUTE.className = 'val warn';
+          addLog('⚠ relay not mounted — using direct '+(mode==='agent'?'/api/agent/run':'/api/chat'), 'e-error');
+          usedRelay = false;
+          continue;  // retry as direct
+        }
+        throw new Error('HTTP '+r.status);
+      }
+      await readStream(r);
+      if(window._missionOutcome){ setPhase('L8'); addLog('✓ mission complete', 'e-done'); }
+      else if(window._missionDone){
+        // relay sealed the channel but the agent never reported an outcome
+        addLog('▷ channel closed — NO completion event', 'e-error');
+        if(window._firstTokenTs==null){
+          addMsg('system','CONCIERGE','Channel closed with ZERO output — โมเดล/provider ตอบ error เงียบ ๆ ทั้ง run. เช็ค: (1) MODEL=auto อาจ resolve เป็นชื่อที่ไม่มีจริง — ลองเลือก model ตรง ๆ (2) Ollama/API key ยังใช้ได้ไหม (3) ดู backend console.');
+        }
+      }
+      else { addLog('▷ stream ended (no completion event)', 'e-done'); }
+      window._idleTimer = setTimeout(()=>{ window._idleTimer = null; standDown(); CHAMBER.classList.remove('active'); resetPhases(); stageIdle(); }, 4000);
+      break;
+    }catch(e){
+      if(e.name==='AbortError'){
+        addMsg('system','CONCIERGE','Operative was recalled. The contract is closed.');
+        addLog('✗ stood down','e-error');
+        break;
+      }
+      console.error('[Continental] dispatch error', e);
+      // network / parse error during relay → try direct once
+      if(usedRelay && attempt < 2){
+        console.warn('[Continental] relay errored — falling back to direct');
+        window._relayHealthy = false;
+        INTROUTE.textContent = 'DIRECT (relay err)';
+        INTROUTE.className = 'val warn';
+        usedRelay = false;
+        continue;
+      }
+      addMsg('system','CONCIERGE','The channel was severed: '+e.message);
+      addLog('✗ error · '+e.message,'e-error');
+      standDown(); CHAMBER.classList.remove('active'); resetPhases(); stageIdle();
+      break;
+    }
+  }
+  currentAbort=null; SEND.disabled=false; STOP.disabled=true;
+  clearInterval(elapsedTimer); elapsedTimer=null;
+}
+function abort(){
+  console.log('[Continental] STAND DOWN — aborting');
+  addLog('▶ STAND DOWN issued', 'e-error');
+  if(currentAbort){
+    try{ currentAbort.abort(); }catch(e){}
+    currentAbort = null;
+  }
+  if(elapsedTimer){ clearInterval(elapsedTimer); elapsedTimer = null; }
+  SEND.disabled = false;
+  STOP.disabled = true;
+  CHAMBER.classList.remove('active');
+  standDown();
+  resetPhases();
+  stageIdle();
+}
+
+// ── SSE → maps to phase + operative state ──
+async function readStream(response){
+  const reader=response.body.getReader(),decoder=new TextDecoder();
+  let buffer='',textCursor=null,thinkCursor=null;
+  while(true){
+    const {value,done}=await reader.read();if(done) break;
+    window._lastSSE = Date.now();
+    buffer+=decoder.decode(value,{stream:true});
+    const lines=buffer.split('\n');buffer=lines.pop()||'';
+    for(const raw of lines){
+      if(!raw.startsWith('data: ')) continue;
+      const p=raw.slice(6).trim();if(!p) continue;
+      let ev;try{ev=JSON.parse(p);}catch(e){continue;}
+      handleEvent(ev,c=>{textCursor=c;},c=>{thinkCursor=c;},()=>textCursor,()=>thinkCursor);
+    }
+  }
+}
+function markFirstToken(){ if(window._firstTokenTs==null){ window._firstTokenTs=Date.now(); addLog('first token · '+((Date.now()-missionStart)/1000).toFixed(1)+'s','e-done'); } }
+
+// ── COUNCIL workflow: phase → operative + readable digest of each phase result ──
+const WF_AGENT={
+  comprehend:{code:'OPV-001',who:'THE ANALYST · COMPREHENSION',verb:'READING',L:'L0'},
+  plan:      {code:'OPV-002',who:'THE STRATEGIST · PLAN',verb:'PLOTTING',L:'L2'},
+  council:   {code:'OPV-003',who:'THE COUNCIL · VERDICT',verb:'CHALLENGING',L:'L5'},
+  execute:   {code:'OPV-005',who:'THE EXECUTOR',verb:'EXECUTING',L:'L3'},
+  reflect:   {code:'OPV-003',who:'THE SKEPTIC · AFTER-ACTION',verb:'CHALLENGING',L:'L4'},
+};
+function fmtPhase(phase,r){
+  try{
+    const arr=x=>Array.isArray(x)?x:(x?[x]:[]);
+    if(phase==='comprehend')
+      return 'INTENT — '+(r.intent||r.restated||'?')
+        +(arr(r.success_criteria).length?'\nDONE WHEN — '+arr(r.success_criteria).map(s=>s.criterion||s).join(' · '):'')
+        +(arr(r.gaps).length?'\nGAPS — '+arr(r.gaps).map(g=>g.gap||g).join(' · '):'')
+        +(r.estimated_complexity?'\nCOMPLEXITY — '+r.estimated_complexity:'');
+    if(phase==='plan')
+      return arr(r.steps).map((s,i)=>(i+1)+'. '+(s.action||s.description||s.step||s)).join('\n')
+        +(arr(r.risks).length?'\nRISKS — '+arr(r.risks).map(x=>x.risk||x).join(' · '):'');
+    if(phase==='council')
+      return 'RECOMMENDATION — '+(r.aggregate_recommendation||'?')
+        +(r.skeptic&&r.skeptic.verdict?'\nSKEPTIC — '+r.skeptic.verdict:'');
+    if(phase==='reflect')
+      return arr(r.lessons).map(l=>'• '+(l.lesson||l)).join('\n')||JSON.stringify(r).slice(0,300);
+  }catch(e){}
+  return JSON.stringify(r).slice(0,400);
+}
+
+function renderAskUser(ev){
+  setPhase('L5'); setOperative('OPV-012',true,'AWAITING');
+  const body=addMsg('system','CONCIERGE · DECISION REQUIRED',ev.question||'The operative needs your decision to continue.');
+  const wrap=document.createElement('div'); wrap.className='ask-options';
+  (ev.options||[]).forEach(o=>{
+    const b=document.createElement('button'); b.className='ask-btn'; b.type='button'; b.textContent=o;
+    b.onclick=()=>{ wrap.querySelectorAll('.ask-btn').forEach(x=>x.disabled=true); CMD.value=o; window.__dispatch(); };
+    wrap.appendChild(b);
+  });
+  if(wrap.children.length) body.appendChild(wrap);
+  TRANS.scrollTop=TRANS.scrollHeight;
+}
+
+function handleEvent(ev,setText,setThink,getText,getThink){
+  const t=ev.type||'';
+  const appendText=txt=>{ if(!txt)return; markFirstToken();
+    let cur=getText();if(!cur){cur=addMsg('agent','STORYTELLER','');setText(cur);}
+    cur.textContent+=txt;mission.chars+=txt.length;TCHARS.textContent=mission.chars.toLocaleString();TRANS.scrollTop=TRANS.scrollHeight; };
+  const appendThink=txt=>{ if(!txt)return; markFirstToken();
+    let cur=getThink();if(!cur){cur=addMsg('think','INTERNAL · ANALYST','');setThink(cur);}
+    cur.textContent+=txt;TRANS.scrollTop=TRANS.scrollHeight; };
+  const toolFired=(nm,ag)=>{ setPhase('L3'); setOperative('OPV-005',true,'EXECUTING');
+    let prev='';
+    if(ag){const k=['path','command','package','url','name','query','pattern','action'].find(x=>ag[x]);
+      if(k) prev=String(ag[k]).slice(0,70);}
+    addMsg('tool','EXECUTOR','▶ '+nm+'('+prev+')');
+    addLog('tool · '+nm+(prev?' · '+prev.slice(0,28):''),'e-tool');
+    mission.tools++; TTOOLS.textContent=mission.tools; setText(null); };
+
+  switch(t){
+    // ── heartbeat / channel envelope ──
+    case 'keepalive': case 'ping': return;  // readStream already refreshed _lastSSE
+    case 'continental_open':
+      if(ev.conv_id){ MID.textContent=ev.conv_id; addLog('conv · '+ev.conv_id); } return;
+    case 'continental_close':
+      window._missionDone=true;
+      // the relay seals WITH its outcome judgement — a completed chat/lookup
+      // close is a real completion, not "channel closed, no event"
+      if(ev.outcome==='completed'){ window._missionOutcome=true; if(ev.route) addLog('route · '+ev.route,'e-done'); }
+      if(ev.response_hash) addLog('sealed · '+ev.response_hash,'e-done'); return;
+    case 'continental_error':
+      addMsg('system','CONCIERGE','Relay error: '+(ev.error||'unknown'));
+      addLog('✗ relay · '+String(ev.error||'').slice(0,60),'e-error'); return;
+
+    // ── COUNCIL (4-phase workflow) — real division of labour ──
+    case 'workflow_start':
+      setPhase('L0'); setOperative('OPV-012',true,'ROUTING');
+      addLog('council workflow engaged','e-skill'); return;
+    case 'workflow_phase_start': {
+      const m=WF_AGENT[ev.phase];
+      if(m){ setPhase(m.L); setOperative(m.code,true,m.verb); addLog('phase · '+ev.phase); }
+      if(ev.phase==='council'){ setOperative('OPV-004',true,'FORECASTING'); setOperative('OPV-009',true,'ARBITRATING'); }
+      return; }
+    case 'workflow_phase': {
+      const m=WF_AGENT[ev.phase];
+      if(m&&ev.result){ markFirstToken(); addMsg('system',m.who,fmtPhase(ev.phase,ev.result)); }
+      return; }
+    case 'workflow_halt':
+      window._missionDone=true; window._missionOutcome=true;
+      setPhase('L4'); setVeto('OPV-003');
+      addMsg('system','SKEPTIC · HALT — REBUILD',(ev.reason||'')+(ev.recommendation?'\n'+ev.recommendation:''));
+      showVerdict('HALTED · SKEPTIC REBUILD', false);
+      setTimeout(clearVeto,2200); return;
+    case 'workflow_genome': addLog('genome updated','e-done'); return;
+    case 'workflow_error': case 'workflow_phase_error':
+      addMsg('system','CONCIERGE','Workflow error: '+(ev.error||ev.msg||JSON.stringify(ev).slice(0,200)));
+      addLog('✗ workflow','e-error'); return;
+
+    // ── AGENT_RUN lifecycle ──
+    case 'agent_start': setPhase('L0'); setOperative('OPV-012',true,'ROUTING'); return;
+    case 'agent_volition': addLog('volition · '+(ev.drive||'?')+' / '+(ev.tone||'?')); return;
+    case 'agent_step':
+      setPhase(ev.step<=1?'L2':'L3'); addLog('step '+ev.step+'/'+ev.max); return;
+    case 'agent_plan':
+      // log-only: the model's own streamed text already shows PLAN/DONE_WHEN in the
+      // transcript — a second (and third) styled copy was pure noise
+      setPhase('L2'); setOperative('OPV-002',true,'PLOTTING');
+      addLog('plan · '+String(ev.plan||'').slice(0,70),'e-skill'); return;
+    case 'agent_think':
+      if(ev.is_think) appendThink(ev.text||''); else appendText(ev.text||'');
+      return;
+    case 'commander':
+      setPhase('L5'); setOperative('OPV-000',true,'OVERRIDING'); setVeto('OPV-000');
+      addMsg('system','⚡ SKYNET ELITE COMMANDER',ev.text||'Supreme Council override issued.');
+      addLog('commander override','e-skill');
+      setTimeout(clearVeto,2200); return;
+    case 'commander_delegate':
+      setPhase('L5'); setOperative('OPV-000',true,'OVERRIDING');
+      if(ev.to) setOperative(ev.to,true);
+      addMsg('system','⚡ COMMANDER · DELEGATION ORDER',ev.text||'Delegating to the council.');
+      addLog('delegation → '+(ev.to||'council'),'e-skill'); return;
+    case 'atlas':
+      setPhase('L2'); setOperative('OPV-ATLAS',true,'COUNSELING');
+      addLog('atlas counsel attached','e-skill'); return;
+    case 'agent_tool_call': toolFired(ev.name||'tool', ev.args||null); return;
+    case 'agent_tool_result': {
+      addLog('result · '+(ev.name||'tool'),'e-tool');
+      const r=String(ev.result||'');
+      // failures surface in the transcript — "ทำอะไรบ้าง" includes what went wrong
+      if(/^\s*(\[exit [1-9]|❌|⛔)|⚠ (PYTHON|JS|JSON|HTML)|SYNTAX ERROR|FAILED/i.test(r.slice(0,300)))
+        addMsg('tool','EXECUTOR · ⚠ RESULT', r.slice(0,300));
+      return; }
+    case 'tool_failed':
+      addLog('✗ TOOL_FAILED · '+(ev.name||'tool'),'e-error');
+      addMsg('tool','EXECUTOR · ✗ TOOL_FAILED · '+(ev.name||'tool'), String(ev.result||'').slice(0,300));
+      return;
+    case 'agent_tool_skip': addLog('duplicate blocked · '+(ev.name||''),'e-error'); return;
+    case 'agent_workspace_commit': addLog('git commit · workspace','e-done'); return;
+    case 'agent_diary': addLog('diary saved','e-done'); return;
+    case 'agent_complete': {
+      window._missionDone=true; window._missionOutcome=true;
+      setPhase('L8'); setOperative('OPV-006',true,'DELIVERING');
+      const s=(ev.summary||'').trim();
+      if(s) addMsg('agent','STORYTELLER · FINAL',s);
+      showVerdict('CONTRACT CLOSED · '+(ev.steps||'?')+' STEPS · '+(ev.tools_used||0)+' TOOLS', true);
+      addLog('✓ TASK_COMPLETE · '+(ev.steps||'?')+' steps','e-done');
+      setText(null); return; }
+    case 'agent_stuck':
+      window._missionDone=true; window._missionOutcome=true;
+      setPhase('L4'); setOperative('OPV-003',true,'CHALLENGING'); setVeto('OPV-003');
+      addMsg('system','SKEPTIC · HALT',ev.text||'Agent stuck — halted to protect resources.');
+      showVerdict('HALTED · '+String(ev.reason||'STUCK').toUpperCase(), false);
+      setTimeout(clearVeto,1800); return;
+    case 'agent_limit':
+      window._missionDone=true; window._missionOutcome=true;
+      addMsg('system','CONCIERGE','Step limit reached ('+(ev.steps||'?')+'). Partial work is shown above.');
+      showVerdict('STEP LIMIT', false); return;
+    case 'agent_error':
+      addMsg('system','CONCIERGE','Operative error: '+(ev.msg||''));
+      addLog('✗ '+String(ev.msg||'').slice(0,60),'e-error'); return;
+    case 'ask_user': renderAskUser(ev); return;
+
+    // ── CHAT mode / generic stream ──
+    case 'text': {
+      const txt=ev.text||'';
+      if(/Auto-activated skill/.test(txt)){
+        setPhase('L1'); setOperative('OPV-007',true,'SCOUTING');
+        addBanner(txt.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/🎯\s*/,''));
+        addLog('skill · '+txt.replace(/.*\*\*(.*?)\*\*.*/,'$1'),'e-skill');
+        setText(null); return;
+      }
+      setPhase('L8'); setOperative('OPV-006',true,'DELIVERING'); appendText(txt); return; }
+    case 'think':
+      setPhase('L2'); setOperative('OPV-001',true,'READING'); setOperative('OPV-002',true,'PLOTTING');
+      appendThink(ev.text||''); return;
+    case 'think_start': case 'think_end': return;
+    case '__tool_calls__': case 'tool_call': case 'tool': {
+      setPhase('L3'); setOperative('OPV-005',true,'EXECUTING');
+      const calls=ev.calls||(ev.name?[{function:{name:ev.name}}]:[]);
+      calls.forEach(c=>{const nm=(c.function&&c.function.name)||c.name||'tool';addMsg('tool','EXECUTOR','▶ '+nm+'()');addLog('tool · '+nm,'e-tool');});
+      mission.tools+=calls.length;TTOOLS.textContent=mission.tools;setText(null); return; }
+    case 'tool_result': addLog('result · '+(ev.name||'tool'),'e-tool'); return;
+    case 'phase': {
+      const map={comprehend:'L0',plan:'L2',execute:'L3',shadow:'L4',council:'L5',reflect:'L4',synth:'L8'};
+      setPhase(map[ev.phase] || ev.phase || 'L0'); addLog('phase · '+ev.phase); return; }
+    case 'reflect': case 'reflection':
+      setPhase('L4'); setOperative('OPV-003',true,'CHALLENGING'); setVeto('OPV-003');
+      addMsg('system','AFTER-ACTION · SKEPTIC',ev.text||JSON.stringify(ev).slice(0,300));
+      showVerdict('REVIEWED · '+((ev.verdict||'CONSISTENT').toUpperCase()), !/REBUILD|FAIL|BLOCK/.test((ev.verdict||'').toUpperCase()));
+      setTimeout(()=>clearVeto(),1800); return;
+    case 'error':
+      addMsg('system','CONCIERGE',ev.msg||'Stream error.');
+      addLog('✗ '+String(ev.msg||'').slice(0,60),'e-error'); return;
+    case 'done': case 'end':
+      window._missionDone=true;
+      if(ev.final_status) addLog('stream closed · '+ev.final_status, ev.final_status==='SUCCESS'?'e-done':'e-error');
+      else addLog('stream closed','e-done');
+      return;
+    default:
+      if(ev.text) appendText(ev.text);  // unknown-but-textful event → show it, never drop content
+  }
+}
+
+CMD.focus();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     HOUSE STATE BRIDGE — unified state layer (no visual changes)
+     Served from the same origin (/house-state-client.js) so no cross-origin
+     restrictions.  All wiring is purely functional.
+     ══════════════════════════════════════════════════════════════════════════ -->
+<script src="/house-state-client.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* The main script has already executed; all global function declarations
+     (dispatch, setOperative, setPhase, standDown, abort) are on window. */
+
+  function _wire() {
+    if (!window.HouseState) { setTimeout(_wire, 250); return; }
+
+    var HS = window.HouseState;
+    HS.setOrigin('continental');
+
+    /* ── Model: publish outgoing ──────────────────────────────────────────── */
+    var msel = document.getElementById('model-select');
+    if (msel) {
+      msel.addEventListener('change', function () {
+        if (msel.value) HS.set('model', msel.value);
+      });
+    }
+
+    /* ── Model: receive incoming ──────────────────────────────────────────── */
+    HS.on('model', function (v) {
+      var sel = document.getElementById('model-select');
+      if (sel && v && sel.value !== v) {
+        sel.value = v;
+        // Keep the header label in sync (purely visual, no side effects)
+        var lbl = document.getElementById('model-label');
+        if (lbl) lbl.textContent = v;
+      }
+    });
+
+    /* ── Connection: publish outgoing ─────────────────────────────────────── */
+    var csel = document.getElementById('conn-select');
+    if (csel) {
+      csel.addEventListener('change', function () {
+        var opt = csel.options[csel.selectedIndex];
+        HS.set('connection', {
+          id:   csel.value,
+          name: opt ? opt.textContent.trim() : csel.value,
+        });
+      });
+    }
+
+    /* ── Connection: receive incoming ─────────────────────────────────────── */
+    HS.on('connection', function () {
+      if (typeof window.loadConnections === 'function') {
+        window.loadConnections().catch(function () {});
+      }
+    });
+
+    /* ── Mission: wrap dispatch to publish mission start ─────────────────── */
+    var _origDispatch = window.dispatch;
+    if (_origDispatch) {
+      window.dispatch = async function () {
+        var cmd = document.getElementById('cmd');
+        if (cmd && cmd.value.trim()) {
+          var sid = 'X-' + Date.now().toString(36).toUpperCase().slice(-6);
+          HS.set('active_session', { id: sid, type: 'dispatch', started_at: Date.now() / 1000 });
+          HS.set('mission', { active: true, phase: 'L0', phase_name: 'CONVENE', conv_id: sid });
+        }
+        return _origDispatch.apply(this, arguments);
+      };
+      // Keep __dispatch in sync with the new wrapper
+      window.__dispatch = function () { return window.dispatch(); };
+    }
+
+    /* ── Mission: wrap standDown to publish mission end ──────────────────── */
+    var _origStandDown = window.standDown;
+    if (_origStandDown) {
+      window.standDown = function () {
+        _origStandDown.apply(this, arguments);
+        HS.set('mission', { active: false, phase: '', phase_name: '', conv_id: null });
+        HS.set('active_agents', []);
+      };
+    }
+
+    /* ── Phase: wrap setPhase to publish phase transitions ───────────────── */
+    var _origSetPhase = window.setPhase;
+    if (_origSetPhase) {
+      window.setPhase = function (id) {
+        _origSetPhase.apply(this, arguments);
+        var cur = HS.get('mission') || {};
+        HS.set('mission', {
+          active:     cur.active !== false,   // preserve active flag
+          phase:      id || '',
+          phase_name: id || '',
+          conv_id:    cur.conv_id || null,
+        });
+      };
+    }
+
+    /* ── Active agents: wrap setOperative to publish roster state ────────── */
+    var _origSetOperative = window.setOperative;
+    if (_origSetOperative) {
+      window.setOperative = function (code, active, verb) {
+        _origSetOperative.apply(this, arguments);
+        // Read engaged agents from the DOM (ENGAGED Map is scoped to main script)
+        var engaged = [];
+        document.querySelectorAll('.dossier.engaged').forEach(function (el) {
+          engaged.push({
+            code: el.dataset.code || '',
+            name: (el.querySelector('.card-name') || {}).textContent || el.dataset.code || '',
+            verb: (el.querySelector('.verb') || {}).textContent || '',
+          });
+        });
+        HS.set('active_agents', engaged);
+      };
+    }
+
+    /* ── On connect: seed model from current selector value ──────────────── */
+    HouseEvent.on('state:connected', function (info) {
+      var remoteModel = info.state && info.state.model;
+      var sel = document.getElementById('model-select');
+      if (remoteModel && sel && !sel.value) sel.value = remoteModel;
+      if (sel && sel.value && !remoteModel) HS.set('model', sel.value);
+    });
+
+    console.log('[HouseState:Continental] wired · model + connection + mission + agents');
+  }
+
+  _wire();   // main script has already run — wire immediately
+}());
+</script>
+<script>
+/* ── OPERATOR-FIRST LAYOUT (2026-07-10) — the chat is the product ────────────
+   roster rail + stage visibility persist per machine; the EVAL chip ties the
+   nightly scoreboard into the operator's field of view. */
+(function(){
+  var B = document.body;
+  try{
+    if(localStorage.getItem('cd_roster') === 'full') B.classList.add('roster-full');
+    if(localStorage.getItem('cd_stage')  === 'hide') B.classList.add('stage-hidden');
+  }catch(e){}
+  var rt = document.getElementById('roster-toggle');
+  if(rt) rt.onclick = function(){
+    B.classList.toggle('roster-full');
+    try{ localStorage.setItem('cd_roster', B.classList.contains('roster-full') ? 'full' : 'rail'); }catch(e){}
+  };
+  var st = document.getElementById('stage-toggle');
+  if(st) st.onclick = function(){
+    B.classList.toggle('stage-hidden');
+    try{ localStorage.setItem('cd_stage', B.classList.contains('stage-hidden') ? 'hide' : 'show'); }catch(e){}
+  };
+  // EVAL chip — latest scoreboard run (refreshes every 5 min; nightly eval feeds it)
+  function evalChip(){
+    var el = document.getElementById('intel-eval');
+    if(!el || typeof API === 'undefined') return;
+    fetch(API + '/api/eval/history').then(function(r){ return r.json(); }).then(function(j){
+      var t = (j && j.trend) || {};
+      if(t.latest == null){ el.textContent = 'no runs'; return; }
+      el.textContent = (t.latest * 100).toFixed(0) + '%' +
+        (t.delta ? (' (' + (t.delta > 0 ? '+' : '') + (t.delta * 100).toFixed(0) + ')') : '');
+      el.style.color = t.latest >= 0.9 ? '' : 'var(--bad, #c96a55)';
+    }).catch(function(){ el.textContent = 'offline'; });
+  }
+  evalChip();
+  setInterval(evalChip, 300000);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     COUNCIL WIRETAP — seats illuminate from the Runtime Event Bus (Phase 2A)
+     Subscribes to /api/house/events and lights the matching seat as each
+     council member runs. No redesign — only seat STATE changes via the
+     existing setOperative(). Best-effort; failure never affects the UI.
+═══════════════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  // Real council members → seat code + the verb shown while THINKING
+  var COUNCIL_SEAT = {
+    ANALYST:    { code:'OPV-001', think:'READING'     },
+    STRATEGIST: { code:'OPV-002', think:'PLANNING'    },
+    SKEPTIC:    { code:'OPV-003', think:'CRITIQUING'  },
+    FORECASTER: { code:'OPV-004', think:'FORECASTING' },
+    EXECUTOR:   { code:'OPV-005', think:'DECIDING'    },
+    STORYTELLER:{ code:'OPV-006', think:'COMPOSING'   }
+  };
+  // Live agent status during AGENT execution (real tool events from the bus).
+  // Maps a tool to the operative seat + the verb derived from the actual tool.
+  function toolStatus(name){
+    var n = String(name||'').toLowerCase();
+    if(/read_file|read_obsidian|file_info|list_files/.test(n))     return {code:'OPV-007', verb:'READING'};
+    if(/grep|find_files|obsidian_search|web_search/.test(n))       return {code:'OPV-007', verb:'SEARCHING'};
+    if(/http_request|get_crypto|get_gold|get_forex|get_news|get_system|list_processes/.test(n))
+                                                                   return {code:'OPV-001', verb:'ANALYZING'};
+    if(/write_file|edit_file|write_obsidian|create_folder|move_file|copy_file/.test(n))
+                                                                   return {code:'OPV-005', verb:'WRITING'};
+    if(/shell_command|run_python|install|dev_server|kill_process/.test(n)) return {code:'OPV-005', verb:'EXECUTING'};
+    return {code:'OPV-005', verb:'EXECUTING'};
+  }
+  var es;
+  var lastReason = {};   // seat code -> latest verbatim reasoning statement
+  var _mindT = null, _idleT = {};
+  function trunc(s,n){ s=String(s||''); return s.length>n ? s.slice(0,n-1)+'…' : s; }
+  function mindNudge(){
+    clearTimeout(_mindT);
+    _mindT = setTimeout(function(){ try{ if(typeof window.refreshHouseMind==='function') window.refreshHouseMind(); }catch(ex){} }, 350);
+  }
+  function seatIdleSoon(code, ms){
+    clearTimeout(_idleT[code]);
+    _idleT[code] = setTimeout(function(){ try{ window.setOperative(code, false); }catch(ex){} }, ms||2500);
+  }
+
+  // ── P2 LIVE COUNCIL CHAMBER — state derived ONLY from real council events ──
+  var CHM = { done:{}, verdict:'', shown:false };
+  var VERDICT_CONS = { CONSISTENT:0.85, FRAGILE:0.55, REBUILD:0.25, VETO:0.30, BLOCKED:0.30 };
+  function chmEl(id){ return document.getElementById(id); }
+  function chmShow(){ var el=chmEl('chamber-panel'); if(el && !CHM.shown){ el.style.display='block'; CHM.shown=true; var tp=chmEl('cp-topic'); if(tp) tp.textContent = window.__directive || 'deliberating'; } }
+  function chmReset(){ CHM={done:{},verdict:'',shown:CHM.shown}; ['cp-challenge','cp-rec'].forEach(function(i){var e=chmEl(i); if(e)e.textContent='—';}); chmConsensus(); }
+  function chmConsensus(){
+    var pct, note;
+    if(CHM.verdict && VERDICT_CONS[CHM.verdict]!=null){ pct=VERDICT_CONS[CHM.verdict]; note='skeptic verdict: '+CHM.verdict; }
+    else { var n=Object.keys(CHM.done).length; pct=Math.min(n/6,0.95); note=n+' / 6 members reported'; }
+    var bar=chmEl('cp-cons-bar'), lab=chmEl('cp-cons-pct'), nt=chmEl('cp-cons-note');
+    if(bar) bar.style.width=Math.round(pct*100)+'%';
+    if(lab) lab.textContent=Math.round(pct*100)+'%';
+    if(nt) nt.textContent=note;
+  }
+  function chmHandle(t, p){
+    var ag=(p.agent||'').toUpperCase();
+    chmShow();
+    var sp=chmEl('cp-speaker'); if(sp && ag) sp.textContent=ag;
+    if(t==='reasoning_challenge'){ var c=chmEl('cp-challenge'); if(c) c.textContent=ag+': '+(p.message||''); }
+    else if(t==='reasoning_recommendation'){ var r=chmEl('cp-rec'); if(r) r.textContent=ag+': '+(p.message||''); }
+    else if(t==='reasoning_revision' && (p.source_field==='verdict')){ CHM.verdict=String(p.message||'').toUpperCase(); chmConsensus(); }
+  }
+
+  function handle(ev){
+    var t = ev.type || '';
+    var p = ev.payload || {};
+    if(t.indexOf('house_') === 0){ mindNudge(); return; }     // House Mind V2 sync
+    // SYNC: the canonical reasoning_* event drives the chamber AND (below) the
+    // seat — same event id, both views. No agent_* duplicate.
+    if(t.indexOf('reasoning_') === 0){ chmHandle(t, p); }
+    if(typeof window.setOperative !== 'function') return;
+
+    // ── FIX 5/6: live agent status from real AGENT-execution events ──
+    if(t === 'tool_started'){ var s=toolStatus(p.name); window.setOperative(s.code, true, s.verb); return; }
+    if(t === 'tool_completed'){ var s2=toolStatus(p.name); window.setOperative(s2.code, true, 'COMPLETE'); seatIdleSoon(s2.code); return; }
+    if(t === 'tool_failed'){ var s3=toolStatus(p.name); window.setOperative(s3.code, true, 'FAILED'); seatIdleSoon(s3.code, 3500); return; }
+    if(t === 'mission_recovered'){ window.setOperative('OPV-000', true, 'RECOVERING'); seatIdleSoon('OPV-000', 2500); return; }
+    if(t === 'budget_critical'){ window.setOperative('OPV-000', true, 'COMPACTING'); seatIdleSoon('OPV-000', 2500); return; }
+
+    // ── Council deliberation seats (Phase 2A/2B) ──
+    var seat = COUNCIL_SEAT[(p.agent||'').toUpperCase()];
+    if(!seat) return;
+    var ag = (p.agent||'').toUpperCase();
+    if(t === 'agent_started'){
+      if(Object.keys(CHM.done).length >= 6) chmReset();   // fresh deliberation
+      window.setOperative(seat.code, true, 'WATCHING');
+    }
+    else if(t === 'agent_thinking')  window.setOperative(seat.code, true,  seat.think);
+    else if(t.indexOf('reasoning_') === 0){
+      lastReason[seat.code] = trunc(p.message, 42);
+      window.setOperative(seat.code, true, lastReason[seat.code]);
+    }
+    else if(t === 'agent_completed'){
+      window.setOperative(seat.code, false, lastReason[seat.code]);
+      CHM.done[ag] = true; chmConsensus();                // real progress -> consensus
+    }
+  }
+  function connect(){
+    try{
+      // replay=0: only live deliberation lights seats, never stale past events
+      es = new EventSource('/api/house/events?origin=continental-bus&replay=0');
+      es.onmessage = function(e){ try{ handle(JSON.parse(e.data)); }catch(ex){} };
+      es.onerror = function(){ try{ es.close(); }catch(ex){} setTimeout(connect, 5000); };
+    }catch(ex){ setTimeout(connect, 5000); }
+  }
+  connect();
+}());
+</script>
+</body>
+</html>
+                                                                                                        

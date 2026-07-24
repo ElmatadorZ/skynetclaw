@@ -1,0 +1,153 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# SkynetClaw / THE HOUSE — release .gitignore
+# Keeps secrets, personal data, runtime state, logs and junk OUT of the repo.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Secrets & machine-specific config (ship the *.example.* templates instead) ──
+.env
+.env.*
+!.env.example
+backend/settings.json
+backend/settings.json.*
+!backend/settings.example.json
+
+# ── Databases & runtime state (per-install; never shared) ──
+*.db
+*.db-wal
+*.db-shm
+backend/agent_memory.json
+backend/atlas_genome.json
+backend/exec_approvals.json
+backend/pending_gates.json
+backend/router_config.json
+backend/governance_config.json
+backend/skills_index.json
+backend/skills_capability_index.json
+_MISSION_LEDGER.json
+backend/_MISSION_LEDGER.json
+backend/memory/
+backend/sessions/
+backend/Skynet_Agent/
+backend/GENESIS_TEST_ZONE/
+backend/new_folder/
+workspace/
+ToolsList/
+github_skills_report/
+
+# ── Logs & audit trails (operational, not source) ──
+*.log
+*.jsonl
+backend/logs/
+backend/backups/
+
+# ── Caches / build / venv ──
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+node_modules/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+
+# ── Editor / OS ──
+.DS_Store
+*.tmp
+*.swp
+.idea/
+.vscode/
+
+# ── Backups, archives, and OS-locked junk ──
+*.bak
+*.bak.*
+.fuse_hidden*
+_archive/
+$null
+-p
+
+# ── Generated self-description (regenerated on boot) ──
+backend/SELF.md
+
+# ── H6 Artifact Factory output (generated per mission; not source) ──
+backend/artifacts/
+
+# ── OX-SKILL-1 Tool Intelligence learned memory (accumulates at runtime) ──
+backend/tool_memory.json
+backend/tool_memory.tmp
+
+# ── OX-LEARNING-1 Lesson Registry (synthesized at runtime; not source) ──
+backend/lessons.json
+backend/lessons.tmp
+
+# ── OX-CAPABILITY-1 Capability Registry (promoted at runtime; not source) ──
+backend/capabilities.json
+backend/capabilities.tmp
+
+# ── OX-CONTROL-1 Control history (adaptive-control decisions; not source) ──
+backend/control_history.json
+backend/control_history.tmp
+
+# ── OX-ATTRIBUTION-1 Attribution records (recall→outcome; not source) ──
+backend/attribution.json
+backend/attribution.tmp
+
+# ── OX-REINFORCEMENT-1 Capability weights (adaptive; not source) ──
+backend/capability_weights.json
+backend/capability_weights.tmp
+
+# ── OX-COMPLIANCE-1 Compliance records (recall-vs-behavior; not source) ──
+backend/compliance.json
+backend/compliance.tmp
+
+# ── OX-ACQUISITION-1 Knowledge acquisition records (not source) ──
+backend/acquisitions.json
+backend/acquisitions.tmp
+
+# ── OX-METALEARNING-1 Learned acquisition strategies (not source) ──
+backend/learning_strategies.json
+backend/learning_strategies.tmp
+
+# ── OX-EXPLORATION-1 Exploration profiles + records (not source) ──
+backend/exploration.json
+backend/exploration.tmp
+
+# ── OX-CAUSAL-1 Causal hypotheses (not source) ──
+backend/causal_hypotheses.json
+backend/causal_hypotheses.tmp
+
+# ── OX-HOUSE-OS-1 / OX-WORKFLOW-ENGINE-1 runtime state (not source) ──
+backend/workspaces/
+backend/plugins/apps/
+backend/plugins/versions/
+backend/SKYNET_LEDGER_v1
+
+# ── OX-DOC-UPLOAD-1 — local test scratch artifacts (not source) ──
+backend/test_doc.docx
+backend/test.csv
+backend/market_brief.html
+backend/news_test.html
+
+backend/_house_archive_backup.json
+backend/ocr_test.png
+
+# ── Claude Code / preview local tooling (not source) ──
+.claude/
+
+# Telegram-triggered agent runs (isolated runtime workspace)
+telegram_workspace/
+
+# CEE runtime warrant/observation log (durable, per-machine)
+backend/warrant_log.jsonl
+
+# eval scoreboard time-series (per-machine runtime artifact)
+backend/eval_log.jsonl
+
+# watchdog singleton lock (runtime)
+.watchdog.lock
+execution_watchdog.lock
+backend/skills_usage.jsonl
+
+# Operator's personal profile (copy backend/prompts/USER.example.md)
+backend/prompts/USER.md

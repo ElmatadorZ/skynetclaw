@@ -1,0 +1,76 @@
+SkynetClaw
+A local-first cognitive operating system for AI agents.
+
+Copyright 2026 Bunyawat Dechanon (ElmatadorZ)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+--------------------------------------------------------------------------------
+Attribution
+--------------------------------------------------------------------------------
+Requested (not required beyond this NOTICE):
+
+    Built on SkynetClaw by Bunyawat Dechanon (ElmatadorZ)
+
+SkynetClaw composes several companion projects by the same author, each also
+Apache-2.0:
+
+    First Principle Codex OS   https://github.com/ElmatadorZ/FirstPrincipleCodex-OS-Skill
+    Genesis Protocol           https://github.com/ElmatadorZ/GENESIS_PROTOCOL-
+    Genesis Governance OS      https://github.com/ElmatadorZ/genesis-governance-os
+    Genesis Reality Grading    https://github.com/ElmatadorZ/genesis-reality-grading
+    Genesis OS Blueprint       https://github.com/ElmatadorZ/genesis-os-blueprint
+
+--------------------------------------------------------------------------------
+Relationship to the private instance
+--------------------------------------------------------------------------------
+This repository is the PUBLIC RELEASE of SkynetClaw. It is assembled from the
+author's private working instance by an explicit allowlist, and deliberately
+excludes:
+
+  * the operator's personal profile prompt (backend/prompts/USER.md) -- a
+    template is provided at backend/prompts/USER.example.md
+  * the operator's Obsidian vault memory, council archives, and session
+    checkpoints
+  * all runtime state: databases, indexes, session logs, generated SELF.md
+  * machine-specific scripts and generated reports
+
+Nothing here is a record of anyone's private work. The vault directory that
+ships with this repository contains architecture and theory documents only, and
+is intended as a STARTER TEMPLATE for your own vault.
+
+--------------------------------------------------------------------------------
+What this software is, and is not
+--------------------------------------------------------------------------------
+SkynetClaw runs autonomous agents that can read and write files, execute tools,
+and reach the network. That is the point of it, and it is also the risk.
+
+  * It is NOT sandboxed by default. Run it against a workspace you are willing
+    to lose, and read the governance configuration before enabling execution.
+  * The GPS-2 permission gate is deny-by-default and irreversible actions
+    require a human gate. Do not disable those unless you fully understand the
+    consequence -- they are what makes autonomy survivable.
+  * Model output is not verified truth. The Reality Grading loop grades claims
+    against evidence precisely because a model's own account of its success
+    cannot be trusted.
+
+You are responsible for what you let it do.
+
+--------------------------------------------------------------------------------
+Third-party components
+--------------------------------------------------------------------------------
+Runtime dependencies (FastAPI, Uvicorn, httpx, Pydantic, python-multipart) are
+distributed under their own licences; see backend/requirements.txt.
+
+Local model runtimes (Ollama, llama.cpp) and any cloud model provider are NOT
+included and remain subject to their own terms.

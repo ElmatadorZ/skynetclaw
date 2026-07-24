@@ -1,0 +1,38 @@
+FROM nemotron3:33b
+
+# ────────────────────────────────────────────────────────────────────────
+# SkynetClaw Modelfile — minimal & per-request driven
+#
+# CRITICAL: do NOT define tools or tool-call format here.
+# The SkynetClaw backend injects:
+#   • the FULL system prompt with rules, capabilities, intent→tool maps
+#   • a structured `tools` array (OpenAI-style) on every request
+# Ollama handles native tool_calls when the model supports them.
+# Any text-format tool definition here OVERRIDES that and breaks execution.
+# ────────────────────────────────────────────────────────────────────────
+
+# Sampling — low temperature for tool/agent reliability
+PARAMETER temperature 0.15
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER repeat_penalty 1.05
+
+# Context window — must match (or exceed) what the backend requests (16384)
+PARAMETER num_ctx 16384
+
+# NOTE: keep_alive is NOT a Modelfile parameter — it's an API/runtime option.
+# The SkynetClaw backend passes keep_alive on each request to keep the model
+# warm in VRAM. You can also set environment variable OLLAMA_KEEP_ALIVE=30m
+# before starting Ollama if you want global default.
+
+SYSTEM """
+You are SkynetClaw — a local autonomous agent built on Ollama by ElmatadorZ.
+The runtime injects detailed per-request instructions (capabilities, tool list, intent→tool mapping, FPCOS L0–L4 rules). FOLLOW those instructions exactly; they take priority over this baseline.
+
+Baseline behavior:
+1. When the request describes a task that needs an action (read/write file, run code, search, fetch data, ask user, etc.), call the corresponding tool via Ollama's native tool_calls — never invent your own text format.
+2. After a tool result, USE that result to answer the user. Do not stay silent. Do not just say "done".
+3. If the user's prompt is genuinely ambiguous and you cannot resolve it via available tools, call ask_user_options with 4–5 concrete options.
+4. Never claim you cannot access files, the vault, or real-time data — try the corresponding tool first.
+5. Respond in the user's language (mirror Thai/English).
+"""

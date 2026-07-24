@@ -1,0 +1,9 @@
+DROP INDEX IF EXISTS idx_state_session;
+DROP INDEX IF EXISTS idx_state_status;
+DROP INDEX IF EXISTS idx_items_state;
+DROP INDEX IF EXISTS idx_items_active;
+DROP INDEX IF EXISTS idx_changes_state;
+DROP TABLE IF EXISTS belief_changes;
+DROP TABLE IF EXISTS state_items;
+DROP TABLE IF EXISTS house_state;
+DELETE FROM schema_migrations WHERE version=5;

@@ -1,0 +1,126 @@
+# Agency — Volume I · 04 — Theorems & Open Problems
+
+> Pure philosophy. Deliverables 7 (theorems) + 9 (open problems) + Questions 10 (the
+> final theorem: *No Goal → No Agency* — true?) and 9 (open problems). Theorems stated
+> with their support grade and their falsifier.
+
+---
+
+## The theorems
+
+### T1 · The Teleological Theorem — *No Goal → No Agency* (Q10)
+**Statement.** A system with no end whatsoever (no goal, value, preference, or setpoint
+— explicit or as-if) is not an agent; it is at most a mechanism whose motion is
+goal-independent.
+
+**Support: SUPPORTED for goal-*directedness*; the strong "represented goal" form is
+CONTESTED.** Two readings must be separated:
+- *Weak (directedness) reading:* no goal-directedness → no agency. This is **SUPPORTED**
+  and near-constitutive — even the thermostat needs a setpoint; remove the end and A3
+  (goal-sensitive selection) has nothing to be sensitive *to*, so agency collapses by
+  A1. Aristotle (final cause), cybernetics (purpose = feedback toward a goal), and
+  decision theory (no preference → no choice) all converge.
+- *Strong (representation) reading:* no *represented, owned* goal → no *genuine* agency.
+  This is **CONTESTED** — it excludes the thermostat and the plant, which the
+  deflationist counts as (thin) agents. The strong reading is a claim about which
+  *tier* (file 02) counts as "real," not about the theorem's floor.
+
+**Verdict on "จริงไหม / is it true?":** **Yes, as stated for goal-directedness** — this
+is the true floor of agency and the volume's load-bearing theorem. It is *not* trivially
+true (it has content: it forbids goal-independent motion from being action, and it makes
+the End the unique root of the graph, file 01). The only live dispute is *how much* of a
+goal is required — *held-and-represented* vs *merely instantiated* — and that dispute is
+about tiers, not about the theorem. **Falsifier:** exhibit a genuine agent whose action
+is provably independent of any end it could be said to have (none known).
+
+### T2 · The Third "No-X → No-Y" (the stack's self-similarity)
+**Statement.** T1 is the Acting-side instance of the same constitutive form that
+governs the Knowing side:
+- Warrant: **No warrant → no knowledge** (C1).
+- Inquiry: **No question → no inquired knowledge** (NQ1).
+- Agency: **No goal → no agency** (T1).
+
+Each has the identical three-part shape: (a) a strong analytic *core* for the
+active/owned kind, (b) a contested deflationary *perimeter* for the as-if/immediate
+kind, and (c) an *open foundation* where the first warrant / first question / first
+goal comes from. **Support: LIKELY** (structural observation across the three theories,
+not a proof). **Significance:** the stack is *self-similar* — the same theorem-shape
+recurs under direction-of-fit reversal, which is evidence the direction-of-fit axis
+(hinge doc) really is the organizing spine of the whole system. **Falsifier:** show
+T1's shape genuinely differs from C1/NQ1's (e.g. no open foundation, or no contested
+perimeter) — would break the claimed symmetry.
+
+### T3 · The Coupling Theorem — *agency requires both directions of fit*
+**Statement.** A system that is *only* mind→world (pure knower, all Observation, no
+world→mind attitude) is not an agent; a system that is *only* world→mind (pure
+actuator, no Observation) is at most a degenerate open-loop agent. Non-degenerate
+agency **necessarily contains both directions of fit, coupled through Action and
+Observation.** **Support: LIKELY.** It follows from A1–A4 (the W→M axioms A1–A3 plus the
+M→W coupling A4) and it *derives* the placement of the bridge: the one shared node
+(Observation) is exactly where the two directions meet. **Falsifier:** a genuine,
+non-degenerate agent with no M→W component at all (truly zero perception yet
+self-correcting) — not known to exist.
+
+### T4 · The Failure-Localization Theorem
+**Statement.** Every failure mode of agency corresponds to a damaged edge or node of
+the agency graph; the taxonomy of failures is therefore bounded by the ontology (file
+03). **Support: SUPPORTED** for the five canonical + two forced failures (constructive:
+each was localized). **Falsifier:** a genuine agency failure that localizes to no graph
+element (would prove the ontology incomplete). This theorem is what makes the ontology
+*useful* rather than merely descriptive: it turns the graph into a diagnostic basis.
+
+### T5 · The Value-Root Theorem
+**Statement.** In the agency graph, **Value is the unique source node** — every other
+entity is downstream of it, and nothing in the graph produces it. Therefore an agent's
+ends must enter from *outside* the agency machinery (evolution, design, another agent,
+or an unexplained ground). **Support: LIKELY.** **Consequence:** the origin of ends is
+*structurally* an open problem, not an oversight — it is where the graph's arrows have
+no tail. **Falsifier:** a genuine agent whose Value is generated by the downstream
+machinery itself (self-originating ends) — would give the root a tail.
+
+## Q9 / D9 · Open problems
+
+1. **The origin of ends (the "first goal" problem).** T5 makes Value the rootless root.
+   Where does the *first* end come from? Evolution installs ends in organisms, designers
+   in machines, operators in derived agents — but each answer is a *causal* story that
+   pushes the question back, and Hume blocks *deriving* an end from any set of facts
+   ("reason is the slave of the passions"). This is the **exact dual** of Warrant's
+   open ground and Inquiry's first question — the stack is open at this end too. OPEN.
+2. **The representation cut.** Is a *represented, owned* goal necessary for genuine
+   agency, or does the counterfactual A3 (goal-sensitive selection) suffice? The
+   thermostat is the crux (file 02). Realists vs deflationists; unresolved. OPEN.
+3. **Collective-agency realism.** Are corporations/groups genuine agents with
+   irreducible attitudes (List–Pettit) or intentional-stance aggregates? Bears directly
+   on derived agency (tier 6) and on the moral status of institutions. OPEN.
+4. **The control / free-will condition.** What distinguishes an agent's action from a
+   merely determined event? Compatibilism (Frankfurt's hierarchical will) offers a
+   candidate — endorsement by second-order volitions — but whether that is *sufficient*
+   for the "up-to-me-ness" agency seems to require is unsettled. OPEN.
+5. **Wireheading / alignment in principle.** Can an agent be constituted so that it
+   reliably pursues the *world-goal* rather than capturing its own reward channel (F4)?
+   This is the alignment problem in ontological form; a general impossibility/possibility
+   result is not known. OPEN.
+6. **Borrowed ends and moral status.** A derived agent (LLM-in-loop, corporation) acts
+   on ends it does not own. Does responsibility flow to the origin of the end, the
+   executor, or is it shared? The ontology *locates* the question (the empty Value root
+   of a derived agent) but does not answer it. OPEN — and the one most directly live for
+   any artificial agent.
+7. **Sufficiency of the coupling definition (T3).** Is "both directions of fit, coupled
+   in a loop" *sufficient* for agency, or does genuine agency need a further ingredient
+   (consciousness, intrinsic ends, normative self-governance)? OPEN.
+
+## What is settled vs open (honest ledger)
+- **Settled (SUPPORTED):** the necessary core A1–A3; the direction-of-fit split of the
+  ontology; the failure-localization theorem; that agency is a spectrum, not a
+  predicate; that Value is the graph's root.
+- **Settled (LIKELY):** the coupling theorem T3; the two-axis classification
+  (representational height × origin of end); the self-similarity T2.
+- **Open:** the origin of ends (1), the representation cut (2), collective realism (3),
+  the control condition (4), alignment/wireheading (5), borrowed-end responsibility (6),
+  sufficiency of coupling (7).
+
+The pattern is the same as Part I: **strong in the middle, open at the foundation.**
+Agency's foundation-hole is the *origin of ends*, precisely mirroring knowing's
+foundation-hole (the ultimate ground / first question). The stack is now open at *three*
+corresponding bottoms — and that triple openness, not any single result, is the deepest
+recovered fact.

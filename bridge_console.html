@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>CBP Bridge Console — Continental ↔ SkynetClaw</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg-0:#07080a;--bg-1:#0c0d10;--bg-2:#131418;--ink:#d4c9a8;--ink-bright:#ece2c4;--ink-dim:#8a8170;--ink-ghost:#4a4438;--gold:#c9a155;--gold-dim:#7a5f31;--gold-bright:#e8c178;--blood:#5c1e1a;--blood-bright:#8a3530;--rule:#2a251c;--ok:#6b8b5a;--cyan:#5fc8d8}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'JetBrains Mono',monospace;background:var(--bg-0);color:var(--ink);font-size:12.5px;overflow:hidden;letter-spacing:0.02em}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,rgba(232,193,120,0.08) 0,transparent 50%)}
+
+.topbar{height:60px;background:linear-gradient(180deg,#15110a 0%,#0c0a06 100%);border-bottom:1px solid var(--gold-dim);display:flex;align-items:center;padding:0 26px;gap:26px}
+.topbar::before{content:'';position:absolute;top:60px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold-bright) 50%,var(--gold) 70%,transparent);opacity:0.6}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .seal{width:38px;height:38px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:17px;font-weight:700;color:var(--gold-bright);background:radial-gradient(circle,rgba(201,161,85,0.18) 0,transparent 70%)}
+.brand .ttl{font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.24em;color:var(--gold-bright)}
+.brand .sub{font-size:8.5px;color:var(--ink-dim);letter-spacing:0.32em;margin-top:2px}
+.topbar .meta{margin-left:auto;display:flex;gap:22px;font-size:9px;color:var(--ink-dim);letter-spacing:0.2em}
+.topbar .meta b{color:var(--gold);font-family:'Cinzel',serif}
+.topbar .meta .lbl{color:var(--ink-ghost);font-size:8px;display:block}
+
+.shell{display:grid;grid-template-columns:1fr 360px;height:calc(100% - 60px)}
+.left{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--rule)}
+.right{display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,var(--bg-1) 0%,var(--bg-0) 100%)}
+
+/* SEQUENCE DIAGRAM area */
+.seq-head{padding:14px 22px 10px;border-bottom:1px solid var(--rule);background:linear-gradient(180deg,rgba(201,161,85,0.05),transparent)}
+.seq-head .ttl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.3em;color:var(--gold);font-weight:600}
+.seq-head .sub{font-size:9px;color:var(--ink-dim);letter-spacing:0.18em;margin-top:3px}
+
+.lanes{display:grid;grid-template-columns:1fr 80px 1fr;padding:0 24px;height:44px;align-items:center;border-bottom:1px solid var(--rule);background:#0a0a0d;position:sticky;top:0;z-index:5}
+.lane-name{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.22em;color:var(--gold-bright);text-align:center;display:flex;align-items:center;justify-content:center;gap:8px}
+.lane-name .pip{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.lane-name.right-l{color:var(--cyan)}
+.lane-name.right-l .pip{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.lane-axis{text-align:center;color:var(--ink-ghost);font-size:8px;letter-spacing:0.3em;font-family:'Cinzel',serif}
+
+.seq-body{flex:1;overflow-y:auto;padding:14px 24px;position:relative}
+.seq-body::before,.seq-body::after{content:'';position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--gold-dim) 0%,transparent 100%);opacity:0.35}
+.seq-body::before{left:calc(50% - 40px)}
+.seq-body::after{left:calc(50% + 40px)}
+
+.msg{display:grid;grid-template-columns:1fr 80px 1fr;align-items:start;gap:0;margin-bottom:10px;position:relative}
+.msg .arrow{position:relative;height:30px;display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:0.18em;font-family:'Cinzel',serif;color:var(--gold)}
+.msg .arrow::before{content:'';position:absolute;left:0;right:14px;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim) 30%,var(--gold) 100%)}
+.msg .arrow::after{content:'▶';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--gold-bright)}
+.msg.right-to-left .arrow::before{background:linear-gradient(90deg,var(--cyan) 0%,var(--cyan) 70%,transparent);left:14px;right:0}
+.msg.right-to-left .arrow::after{content:'◀';left:10px;right:auto;color:var(--cyan)}
+.msg .body-left,.msg .body-right{padding:6px 10px;background:var(--bg-2);border:1px solid var(--rule);font-size:10px;line-height:1.4;border-radius:1px;max-width:100%}
+.msg .body-left{border-right:2px solid var(--gold-dim)}
+.msg .body-right{border-left:2px solid var(--gold-dim)}
+.msg.right-to-left .body-right{border-left:2px solid var(--cyan)}
+.msg .type{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;color:var(--gold-bright);margin-bottom:3px}
+.msg.right-to-left .type{color:var(--cyan)}
+.msg .pl{color:var(--ink-dim);font-size:10px;word-break:break-word;white-space:pre-wrap}
+.msg .hash{color:var(--ink-ghost);font-size:8px;margin-top:3px;letter-spacing:0.1em}
+.msg .ts{color:var(--ink-ghost);font-size:8px;margin-top:2px}
+
+/* RIGHT panel — insights + issues */
+.panel-head{padding:14px 18px 10px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline}
+.panel-head .ttl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.28em;color:var(--gold);font-weight:600}
+.panel-head .cnt{font-size:9px;color:var(--ink-dim)}
+.panel-body{flex:1;overflow-y:auto;padding:14px 14px 24px}
+
+.section{margin-bottom:20px}
+.section h4{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.3em;color:var(--gold);margin:0 0 8px;padding-bottom:4px;border-bottom:1px dashed var(--rule);font-weight:600}
+
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi-card{background:var(--bg-2);border:1px solid var(--rule);padding:10px;border-left:2px solid var(--gold-dim)}
+.kpi-card .k{font-size:8.5px;letter-spacing:0.22em;color:var(--ink-ghost);font-family:'Cinzel',serif}
+.kpi-card .v{font-size:18px;color:var(--gold-bright);font-family:'JetBrains Mono',monospace;margin-top:3px;font-weight:600}
+.kpi-card .u{font-size:9px;color:var(--ink-dim);margin-left:4px}
+
+.issue{background:var(--bg-2);border:1px solid var(--rule);padding:8px 10px;margin-bottom:6px;border-left:2px solid var(--gold-dim);font-size:10px}
+.issue.sev-high{border-left-color:var(--blood-bright)}
+.issue.sev-med{border-left-color:var(--gold)}
+.issue.sev-low{border-left-color:var(--ok)}
+.issue .sev{font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.22em;color:var(--ink-ghost)}
+.issue.sev-high .sev{color:var(--blood-bright)}
+.issue.sev-med .sev{color:var(--gold-bright)}
+.issue.sev-low .sev{color:var(--ok)}
+.issue .kind{color:var(--gold-bright);font-family:'Cinzel',serif;letter-spacing:0.14em;font-size:9.5px;margin-top:2px}
+.issue .msg2{color:var(--ink);margin-top:3px;font-size:10px}
+.issue .sugg{color:var(--ink-dim);margin-top:4px;font-style:italic;font-family:'Cormorant Garamond',serif;font-size:11px;border-top:1px dotted var(--rule);padding-top:4px}
+
+.bar{display:flex;align-items:center;gap:8px;font-size:9.5px;margin-bottom:3px;font-family:'JetBrains Mono',monospace}
+.bar .name{flex:1;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .val{color:var(--gold-bright);min-width:32px;text-align:right}
+.bar .track{flex:2;height:5px;background:var(--bg-2);border:1px solid var(--rule);overflow:hidden}
+.bar .fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold))}
+
+.controls{padding:10px 14px;border-top:1px solid var(--rule);background:var(--bg-1);display:flex;gap:8px;align-items:center}
+.btn{background:transparent;border:1px solid var(--gold-dim);color:var(--ink);font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.28em;padding:7px 14px;cursor:pointer;text-transform:uppercase;font-weight:600}
+.btn:hover{border-color:var(--gold);color:var(--gold-bright);background:rgba(201,161,85,0.06)}
+.btn.primary{background:linear-gradient(180deg,var(--gold) 0%,var(--gold-dim) 100%);color:#0a0807;border-color:var(--gold)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
+
+.empty{color:var(--ink-ghost);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;text-align:center;padding:18px}
+.chain-ok{color:var(--ok);font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em}
+.chain-bad{color:var(--blood-bright);font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="seal">X</div>
+    <div>
+      <div class="ttl">CBP BRIDGE CONSOLE</div>
+      <div class="sub">CONTINENTAL ↔ SKYNETCLAW · PROTOCOL CBP 1.0</div>
+    </div>
+  </div>
+  <div class="meta">
+    <div><span class="lbl">CHAIN</span><b id="chain-status">verifying…</b></div>
+    <div><span class="lbl">MESSAGES</span><b id="m-count">0</b></div>
+    <div><span class="lbl">ERRORS</span><b id="m-errors">0</b></div>
+    <div><span class="lbl">FEED</span><b><span class="live-dot"></span> LIVE</b></div>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="left">
+    <div class="seq-head">
+      <div class="ttl">▾ Sequence Diagram</div>
+      <div class="sub">every cross-app envelope · hash-chain verified · poll 2s</div>
+    </div>
+    <div class="lanes">
+      <div class="lane-name"><span class="pip"></span>THE CONTINENTAL (operator)</div>
+      <div class="lane-axis">→ CBP →</div>
+      <div class="lane-name right-l"><span class="pip"></span>SKYNETCLAW (house)</div>
+    </div>
+    <div class="seq-body" id="seq">
+      <div class="empty">— awaiting envelopes —</div>
+    </div>
+    <div class="controls">
+      <button class="btn primary" onclick="loadAll(true)">REFRESH</button>
+      <button class="btn" onclick="verifyChain()">VERIFY CHAIN</button>
+      <button class="btn" onclick="window.open('/agent-room','continental')">OPEN CONTINENTAL</button>
+      <span style="margin-left:auto;color:var(--ink-ghost);font-size:9px">spec → <a href="/api/bridge/spec" target="_blank" style="color:var(--gold)">/api/bridge/spec</a></span>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="panel-head">
+      <span class="ttl">Ecosystem Intel</span>
+      <span class="cnt">auto-refresh 5s</span>
+    </div>
+    <div class="panel-body">
+
+      <div class="section">
+        <h4>▾ Mission KPIs</h4>
+        <div class="kpi">
+          <div class="kpi-card"><div class="k">CONVERSATIONS</div><div class="v" id="kpi-convs">0</div></div>
+          <div class="kpi-card"><div class="k">TOOL CALLS</div><div class="v" id="kpi-tools">0</div></div>
+          <div class="kpi-card"><div class="k">TTFT p50</div><div class="v" id="kpi-p50">0<span class="u">ms</span></div></div>
+          <div class="kpi-card"><div class="k">TTFT p95</div><div class="v" id="kpi-p95">0<span class="u">ms</span></div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4>▾ Open Issues</h4>
+        <div id="issues"><div class="empty">— scanning —</div></div>
+      </div>
+
+      <div class="section">
+        <h4>▾ Operatives Engaged</h4>
+        <div id="ops"><div class="empty">— quiet —</div></div>
+      </div>
+
+      <div class="section">
+        <h4>▾ Tools Called</h4>
+        <div id="tools"><div class="empty">— quiet —</div></div>
+      </div>
+
+      <div class="section">
+        <h4>▾ Skills Auto-fired</h4>
+        <div id="skills"><div class="empty">— quiet —</div></div>
+      </div>
+
+      <div class="section">
+        <h4>▾ Hot Directives</h4>
+        <div id="hot"><div class="empty">— quiet —</div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API = (location.hostname && location.hostname !== '') ? `${location.protocol}//${location.hostname}:${location.port||8766}` : 'http://localhost:8766';
+
+const SEQ = document.getElementById('seq');
+const MCOUNT = document.getElementById('m-count');
+const MERR = document.getElementById('m-errors');
+const CHAIN = document.getElementById('chain-status');
+
+const RIGHT_TYPES = new Set(['ACK','STREAM_START','PHASE','OPERATIVE_ON','OPERATIVE_OFF','SKILL_FIRE','TOOL_CALL','TOOL_RESULT','TEXT_DELTA','VERDICT','COMPLETE','ERROR']);
+const LEFT_TYPES  = new Set(['DIRECTIVE']);
+
+function fmtTime(ts){
+  const d = new Date(ts*1000);
+  return d.toTimeString().slice(0,8);
+}
+
+function fmtPayload(p, type){
+  if(type === 'DIRECTIVE') return (p.text || '').slice(0,180);
+  if(type === 'TEXT_DELTA') return (p.text || '').slice(0,80) + (p.text && p.text.length>80?'…':'');
+  if(type === 'TOOL_CALL') return p.name + '(' + (p.args_hash || '?') + ')';
+  if(type === 'TOOL_RESULT') return p.name + ' → ' + (p.ok ? '✓' : '✗') + ' ' + (p.size||0) + 'b';
+  if(type === 'PHASE') return p.phase || '';
+  if(type === 'OPERATIVE_ON' || type === 'OPERATIVE_OFF') return (p.code||'') + ' · ' + (p.verb||'');
+  if(type === 'SKILL_FIRE') return p.name || '';
+  if(type === 'VERDICT') return p.verdict || '';
+  if(type === 'COMPLETE') return 'response_hash=' + (p.response_hash||'') + ' tools=' + (p.tools||0);
+  if(type === 'ERROR') return p.message || '';
+  if(type === 'ACK') return 'conv_id=' + (p.conv_id||'');
+  if(type === 'STREAM_START') return 'mode=' + (p.mode||'');
+  return JSON.stringify(p).slice(0,120);
+}
+
+async function loadAll(scroll){
+  try{
+    const r = await fetch(API + '/api/bridge/log?limit=200');
+    const j = await r.json();
+    const envs = j.envelopes || [];
+    MCOUNT.textContent = envs.length;
+    const errs = envs.filter(e=>e.type==='ERROR').length;
+    MERR.textContent = errs;
+    MERR.style.color = errs > 0 ? 'var(--blood-bright)' : 'var(--gold)';
+
+    if(!envs.length){
+      SEQ.innerHTML = '<div class="empty">— no envelopes yet — send a directive in Continental to populate —</div>';
+      return;
+    }
+    SEQ.innerHTML = envs.map(env=>{
+      const left   = LEFT_TYPES.has(env.type);
+      const cls    = left ? '' : 'right-to-left';
+      const ttl    = env.type;
+      const body   = fmtPayload(env.payload||{}, env.type);
+      const hash   = env.hash ? '#'+env.hash : '';
+      const ts     = fmtTime(env.ts);
+      return `<div class="msg ${cls}">
+        <div class="${left?'body-left':'body-right'}" style="${left?'':'visibility:hidden'}">${left?
+          `<div class="type">${ttl}</div><div class="pl">${escapeHtml(body)}</div><div class="ts">${ts} · ${hash}</div>`:''}</div>
+        <div class="arrow">${ttl}</div>
+        <div class="${!left?'body-right':'body-right'}" style="${left?'visibility:hidden':''}">${!left?
+          `<div class="type">${ttl}</div><div class="pl">${escapeHtml(body)}</div><div class="ts">${ts} · ${hash}</div>`:''}</div>
+      </div>`;
+    }).join('');
+    if(scroll) SEQ.scrollTop = SEQ.scrollHeight;
+  }catch(e){
+    console.error(e);
+    SEQ.innerHTML = '<div class="empty">— failed to load: '+e.message+' —</div>';
+  }
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+async function verifyChain(){
+  CHAIN.textContent = 'verifying…';
+  try{
+    const r = await fetch(API + '/api/bridge/verify');
+    const j = await r.json();
+    if(j.ok){
+      CHAIN.textContent = '✓ INTACT (' + j.total + ')';
+      CHAIN.className = 'chain-ok';
+    }else{
+      CHAIN.textContent = '✗ BROKEN at '+(j.first_bad||'?');
+      CHAIN.className = 'chain-bad';
+    }
+  }catch(e){
+    CHAIN.textContent = 'unreachable';
+    CHAIN.style.color = 'var(--blood-bright)';
+  }
+}
+
+async function loadInsights(){
+  try{
+    const r = await fetch(API + '/api/feedback/insights');
+    const j = await r.json();
+    document.getElementById('kpi-convs').textContent = j.totals.conversations;
+    document.getElementById('kpi-tools').textContent = (j.tools_called||[]).reduce((s,[,n])=>s+n,0);
+    document.getElementById('kpi-p50').innerHTML = j.ttft_ms.p50 + '<span class="u">ms</span>';
+    document.getElementById('kpi-p95').innerHTML = j.ttft_ms.p95 + '<span class="u">ms</span>';
+
+    const ISS = document.getElementById('issues');
+    if(j.issues && j.issues.length){
+      ISS.innerHTML = j.issues.map(i=>`<div class="issue sev-${i.severity}">
+        <div class="sev">${i.severity.toUpperCase()} · ${i.kind}</div>
+        <div class="kind">${i.kind.replace(/_/g,' ')}</div>
+        <div class="msg2">${escapeHtml(i.msg)}</div>
+        ${i.suggest?`<div class="sugg">→ ${escapeHtml(i.suggest)}</div>`:''}
+      </div>`).join('');
+    } else {
+      ISS.innerHTML = '<div class="empty">✓ all systems nominal</div>';
+    }
+
+    fillBars('ops',    j.operatives_engaged);
+    fillBars('tools',  j.tools_called);
+    fillBars('skills', j.skills_fired);
+    fillBars('hot',    j.hot_directives);
+  }catch(e){
+    console.error(e);
+  }
+}
+
+function fillBars(id, rows){
+  const el = document.getElementById(id);
+  if(!rows || !rows.length){ el.innerHTML = '<div class="empty">— quiet —</div>'; return; }
+  const max = Math.max(...rows.map(r=>r[1]));
+  el.innerHTML = rows.map(([name,n])=>{
+    const pct = max?Math.round(n*100/max):0;
+    return `<div class="bar"><span class="name">${escapeHtml(name)}</span><span class="track"><span class="fill" style="width:${pct}%"></span></span><span class="val">${n}</span></div>`;
+  }).join('');
+}
+
+// auto-poll
+verifyChain();
+loadAll(true);
+loadInsights();
+setInterval(()=>{ loadAll(false); verifyChain(); }, 2500);
+setInterval(loadInsights, 5000);
+</script>
+</body>
+</html>

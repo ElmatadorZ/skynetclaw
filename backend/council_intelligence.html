@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Council Intelligence · THE HOUSE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0a0b0e;--bg-1:#101116;--bg-2:#17181e;--bg-3:#20222a;
+  --ink:#e3d9bc;--ink-bright:#f7efd8;--ink-dim:#b0a78e;--ink-ghost:#736b58;
+  --gold:#d4ac60;--gold-dim:#8a6c38;--gold-bright:#f0ca82;
+  --blood:#6e2620;--blood-bright:#a8453e;
+  --rule:#2e2b20;--line:#1e2028;--ok:#7da26a;--warn:#c8893a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg-0);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:2px}
+
+/* ── HEADER ── */
+.hdr{
+  padding:14px 28px;border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(180deg,#12100a 0%,var(--bg-0) 100%);
+  position:sticky;top:0;z-index:50;
+}
+.hdr-title{font-family:'Cinzel',serif;font-size:15px;font-weight:600;letter-spacing:0.22em;color:var(--gold-bright)}
+.hdr-sub{font-size:8.5px;color:var(--ink-ghost);letter-spacing:0.25em;text-transform:uppercase;margin-top:2px}
+.hdr-right{display:flex;align-items:center;gap:12px}
+.reload-btn{background:none;border:1px solid var(--rule);color:var(--ink-dim);padding:5px 12px;
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;cursor:pointer;transition:border-color .2s}
+.reload-btn:hover{border-color:var(--gold);color:var(--gold)}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── NAV ── */
+.nav{display:flex;gap:0;padding:0 28px;border-bottom:1px solid var(--rule);background:var(--bg-1);overflow-x:auto}
+.nav-tab{
+  background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--ink-ghost);padding:10px 16px;cursor:pointer;
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.18em;
+  text-transform:uppercase;white-space:nowrap;transition:all .18s;
+}
+.nav-tab:hover{color:var(--ink-dim)}
+.nav-tab.on{color:var(--gold);border-bottom-color:var(--gold);text-shadow:0 0 12px rgba(212,172,96,.4)}
+.nav-tab.on::after{content:'';position:absolute}
+
+/* ── LAYOUT ── */
+main{max-width:1160px;margin:0 auto;padding:22px 28px}
+.view{display:none}.view.on{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.full{grid-column:1/-1}
+
+/* ── CARDS (premium institutional surface) ── */
+.card{
+  position:relative;
+  background:linear-gradient(165deg,#141824 0%,#0c0f17 100%);
+  border:1px solid var(--line);border-radius:11px;padding:16px 18px;
+  box-shadow:0 1px 0 rgba(255,255,255,.02) inset, 0 10px 30px rgba(0,0,0,.28);
+  transition:border-color .25s, box-shadow .25s, transform .25s;
+}
+.card::before{content:'';position:absolute;left:0;top:0;height:100%;width:2px;border-radius:11px 0 0 11px;
+  background:linear-gradient(180deg,var(--gold-dim),transparent 70%);opacity:.5}
+.card:hover{border-color:rgba(201,161,85,.28);box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 14px 38px rgba(0,0,0,.4)}
+.card-h{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--gold);border-bottom:1px solid var(--line);padding-bottom:9px;margin-bottom:13px;
+  display:flex;align-items:center;gap:8px}
+.card-h::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 7px var(--gold);flex-shrink:0}
+.view.on{animation:viewIn .35s ease}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── CONFIDENCE RING ── */
+.ring-wrap{display:flex;align-items:center;gap:18px}
+.ring{width:80px;height:80px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(var(--gold) calc(var(--c)*1%),#1a1c24 0);
+  display:grid;place-items:center;position:relative}
+.ring::after{content:'';position:absolute;inset:9px;border-radius:50%;background:var(--bg-0)}
+.ring span{position:relative;z-index:1;font-family:'Cinzel',serif;font-size:18px;color:var(--gold-bright)}
+.ring-label{font-size:9px;color:var(--ink-ghost);letter-spacing:0.2em;text-transform:uppercase;margin-top:3px}
+
+/* ── LISTS ── */
+.item-list{list-style:none}
+.item-list li{padding:5px 0;border-bottom:1px solid rgba(30,32,40,.8);font-size:12px;line-height:1.5;color:var(--ink-dim)}
+.item-list li:last-child{border-bottom:0}
+.item-list li::before{margin-right:7px;font-size:10px}
+.k::before{content:'✓';color:var(--ok)}
+.u::before{content:'?';color:var(--warn)}
+.h::before{content:'~';color:var(--gold)}
+.c::before{content:'⚡';color:var(--blood-bright)}
+.m::before{content:'⚖';color:var(--ink-ghost)}
+.b::before{content:'◌';color:var(--ink-ghost)}
+.muted{color:var(--ink-ghost);font-style:italic}
+
+/* ── PILLS ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;letter-spacing:0.05em}
+.pill-ok{background:rgba(125,162,106,.15);color:var(--ok);border:1px solid rgba(125,162,106,.3)}
+.pill-bad{background:rgba(168,69,62,.15);color:var(--blood-bright);border:1px solid rgba(168,69,62,.3)}
+.pill-warn{background:rgba(200,137,58,.15);color:var(--warn);border:1px solid rgba(200,137,58,.3)}
+.pill-dim{background:rgba(30,32,40,.8);color:var(--ink-ghost);border:1px solid var(--line)}
+.pill-gold{background:rgba(212,172,96,.12);color:var(--gold);border:1px solid rgba(212,172,96,.3)}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid rgba(30,32,40,.7)}
+th{color:var(--ink-ghost);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500}
+tr:last-child td{border-bottom:0}
+
+/* ── PROGRESS BARS ── */
+.bar{height:5px;background:#1a1c24;border-radius:3px;overflow:hidden;margin-top:3px}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:3px}
+
+/* ── STAT CHIPS ── */
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.stat{background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:8px 12px;flex:1;min-width:90px}
+.stat-val{font-family:'Cinzel',serif;font-size:20px;color:var(--gold-bright);line-height:1}
+.stat-lbl{font-size:8.5px;color:var(--ink-ghost);letter-spacing:0.15em;text-transform:uppercase;margin-top:3px}
+
+/* ── AGENT CARDS ── */
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.agent-card{
+  background:linear-gradient(180deg,#14161e 0%,#0e1016 100%);
+  border:1px solid var(--line);border-radius:8px;padding:14px;
+  cursor:pointer;transition:border-color .2s,box-shadow .2s;
+}
+.agent-card:hover{border-color:var(--gold-dim);box-shadow:0 0 16px rgba(212,172,96,.08)}
+.agent-card-code{font-size:8px;color:var(--gold-dim);letter-spacing:0.2em;margin-bottom:6px}
+.agent-card-name{font-family:'Cinzel',serif;font-size:11px;font-weight:600;color:var(--gold-bright);margin-bottom:4px}
+.agent-card-role{font-size:8.5px;color:var(--ink-ghost);line-height:1.3;margin-bottom:10px}
+.agent-card-score{font-family:'Cinzel',serif;font-size:22px;color:var(--gold);line-height:1}
+.agent-card-wld{font-size:8px;color:var(--ink-ghost);margin-top:4px;letter-spacing:0.05em}
+.agent-trend-up{color:var(--ok);font-size:9px}
+.agent-trend-down{color:var(--blood-bright);font-size:9px}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:linear-gradient(180deg,#14161f 0%,#0d1018 100%);border:1px solid var(--rule);
+  border-radius:10px;width:min(620px,94vw);max-height:88vh;overflow-y:auto;padding:24px}
+.modal-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+.modal-close{background:none;border:none;color:var(--ink-ghost);font-size:18px;cursor:pointer;line-height:1;padding:2px 6px}
+.modal-close:hover{color:var(--ink)}
+.modal-code{font-size:9px;color:var(--gold-dim);letter-spacing:0.2em;margin-bottom:4px}
+.modal-name{font-family:'Cinzel',serif;font-size:18px;font-weight:600;color:var(--gold-bright)}
+
+/* ── TIMELINE (belief changes) ── */
+.timeline{display:flex;flex-direction:column;gap:10px}
+.tl-item{position:relative;padding-left:18px;border-left:2px solid var(--line)}
+.tl-item::before{content:'';position:absolute;left:-5px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--gold-dim)}
+.tl-who{font-family:'Cinzel',serif;font-size:9.5px;color:var(--gold);letter-spacing:0.1em}
+.tl-question{font-size:9px;color:var(--ink-ghost);margin:1px 0}
+.tl-from{font-size:11px;color:var(--ink-dim);text-decoration:line-through;opacity:.6}
+.tl-to{font-size:11px;color:var(--ink);margin-top:2px}
+.tl-reason{font-size:9.5px;color:var(--ink-ghost);margin-top:3px;font-style:italic}
+.tl-impact{font-size:9px;padding:1px 6px;border-radius:8px;display:inline-block;margin-top:3px}
+.tl-up{background:rgba(125,162,106,.12);color:var(--ok)}
+.tl-dn{background:rgba(168,69,62,.12);color:var(--blood-bright)}
+
+/* ── MISSION CARDS ── */
+.mission-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:8px;
+  padding:14px 16px;margin-bottom:10px;
+}
+.mission-active{border-color:rgba(212,172,96,.3);background:linear-gradient(180deg,#16140c 0%,#0f0e09 100%)}
+.mission-card{cursor:pointer;transition:border-color .2s,background .2s}
+.mission-card:hover{border-color:rgba(201,161,85,.3)}
+/* objective clamps to 2 lines (no text dumps); click the card to expand */
+.mission-q{font-size:12px;color:var(--ink);line-height:1.5;margin-bottom:8px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mission-card.expanded .mission-q{-webkit-line-clamp:unset;display:block}
+.mission-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.resume-btn{
+  background:rgba(212,172,96,.08);border:1px solid var(--gold-dim);color:var(--gold);
+  padding:4px 12px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.15em;
+  cursor:pointer;transition:all .18s;border-radius:4px;
+}
+.resume-btn:hover{background:rgba(212,172,96,.18);border-color:var(--gold)}
+
+/* ── VALIDITY STATES ── */
+.val-VALIDATED{color:var(--ok)}.val-PARTIALLY_VALID{color:var(--warn)}
+.val-UNKNOWN{color:var(--ink-ghost)}.val-OUTDATED{color:var(--ink-ghost)}.val-DISPROVEN{color:var(--blood-bright)}
+
+/* ── TREND INDICATOR ── */
+.trend-rising::before{content:'↑ ';color:var(--ok)}
+.trend-falling::before{content:'↓ ';color:var(--blood-bright)}
+.trend-flat::before{content:'→ ';color:var(--ink-ghost)}
+
+.err-msg{color:var(--blood-bright);font-size:11px;font-style:italic}
+.foot{text-align:center;padding:20px;color:var(--ink-ghost);font-size:9px;letter-spacing:0.2em}
+
+/* ── House Mind animated ring ── */
+@property --c{syntax:'<number>';inherits:false;initial-value:0}
+#m-ring{transition:--c 0.7s cubic-bezier(.4,0,.2,1)}
+
+/* ── THE HOUSE — institutional hero (primary view) ── */
+.house-hero{display:flex;gap:24px;align-items:center;background:
+  radial-gradient(120% 140% at 0% 0%,rgba(201,161,85,.10),transparent 55%),
+  linear-gradient(165deg,#15192400,#0c0f17);
+  border:1px solid rgba(201,161,85,.22);border-radius:14px;padding:22px 26px;margin-bottom:16px;
+  box-shadow:0 14px 44px rgba(0,0,0,.4)}
+.hero-ring{text-align:center;flex-shrink:0}
+.hero-ring .ring{width:104px;height:104px}
+.hero-ring .ring>span{font-size:22px}
+.hero-body{flex:1;min-width:0}
+.hero-kicker{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.32em;color:var(--gold-dim);
+  text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.hero-lbl{font-size:8.5px;color:var(--ink-ghost);letter-spacing:0.24em;text-transform:uppercase;margin-bottom:4px}
+.hero-objective{font-family:'Cinzel',serif;font-size:18px;line-height:1.35;color:var(--gold-bright);
+  margin-bottom:2px}
+.hero-belief{font-size:13px;line-height:1.5;color:var(--ink);margin-bottom:2px}
+.hero-counts{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+/* Belief Evolution flow: Old Belief -> New Evidence -> Revised Belief */
+.bevo{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.bevo-node{flex:1;min-width:150px;background:rgba(255,255,255,.02);border:1px solid rgba(60,64,78,.55);
+  border-radius:9px;padding:9px 11px}
+.bevo-node.old{border-left:2px solid var(--ink-dim)}
+.bevo-node.ev{border-left:2px solid #aebbe6}
+.bevo-node.new{border-left:2px solid var(--ok)}
+.bevo-lbl{font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.2em;color:var(--gold-dim);margin-bottom:4px}
+.bevo-txt{font-size:11px;color:var(--ink-dim);line-height:1.4}
+.bevo-arrow{display:flex;align-items:center;color:var(--gold-dim);font-size:16px;padding:0 9px}
+.bevo-delta{display:inline-block;margin-top:5px;font-size:9px;padding:1px 7px;border-radius:8px}
+.bevo-delta.up{background:rgba(125,162,106,.16);color:var(--ok)}
+.bevo-delta.dn{background:rgba(176,82,82,.16);color:var(--blood-bright)}
+/* ── Mind status strip (legacy) ── */
+.mind-top{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.mind-top>.card{flex:1;min-width:200px}
+.mind-lbl{font-size:8px;color:var(--ink-ghost);letter-spacing:0.22em;text-transform:uppercase;margin-bottom:5px}
+.mind-lbl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.mind-mission{font-size:11.5px;color:var(--gold);line-height:1.5;margin-bottom:10px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mind-belief-top{font-size:11.5px;color:var(--ink);line-height:1.5;font-style:italic;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mind-next{font-size:14px;color:var(--ok);font-family:'Cinzel',serif;letter-spacing:0.05em;margin-bottom:14px}
+.mind-updated{font-size:11px;color:var(--ink-dim)}
+.sse-row{display:flex;align-items:center;gap:6px;margin-top:12px}
+.sse-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-ghost);flex-shrink:0}
+.sse-dot.on{background:var(--ok);box-shadow:0 0 6px var(--ok);animation:pulse 2.5s infinite}
+.sse-dot.err{background:var(--blood-bright)}
+.sse-txt{font-size:9.5px;color:var(--ink-ghost)}
+.known-pills{display:flex;flex-wrap:wrap;gap:6px}
+.known-pill{padding:3px 10px;border-radius:10px;font-size:11px;background:rgba(125,162,106,.12);
+  color:var(--ok);border:1px solid rgba(125,162,106,.28);white-space:nowrap}
+/* House Mind V2 — unknown + hypothesis chips (scannable, no walls of text) */
+.unknown-pill{padding:3px 10px;border-radius:10px;font-size:11px;background:rgba(201,161,85,.10);
+  color:var(--gold);border:1px solid rgba(201,161,85,.30)}
+.hyp-pill{padding:3px 10px;border-radius:10px;font-size:11px;background:rgba(120,140,200,.10);
+  color:#aebbe6;border:1px solid rgba(120,140,200,.30)}
+.hyp-pill .pct{opacity:.7;margin-left:5px;font-variant-numeric:tabular-nums}
+/* ── LIVE COUNCIL — agent floor cards ── */
+.lc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.lc-card{position:relative;background:linear-gradient(160deg,rgba(255,255,255,.025),rgba(255,255,255,.006));
+  border:1px solid rgba(60,64,78,.6);border-radius:10px;padding:11px 13px;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s,transform .3s}
+.lc-card.on{border-color:rgba(95,216,255,.5);box-shadow:0 0 0 1px rgba(95,216,255,.15),0 6px 22px rgba(0,0,0,.45)}
+.lc-card.speaking{border-color:var(--gold);box-shadow:0 0 0 1px rgba(201,161,85,.35),0 0 26px rgba(201,161,85,.25);transform:translateY(-1px)}
+.lc-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.lc-name{font-family:'Cinzel',serif;font-size:11px;letter-spacing:0.12em;color:var(--gold)}
+.lc-stat{font-size:8px;letter-spacing:0.16em;text-transform:uppercase;padding:2px 8px;border-radius:9px;
+  background:rgba(60,64,78,.5);color:var(--ink-ghost);white-space:nowrap}
+.lc-card.on .lc-stat{background:rgba(95,216,255,.16);color:#9fe6ff}
+.lc-card.done .lc-stat{background:rgba(125,162,106,.16);color:var(--ok)}
+.lc-thought{font-size:11px;color:var(--ink-dim);line-height:1.45;min-height:30px}
+.lc-card.idle .lc-thought{color:var(--ink-ghost)}
+.lc-led{position:absolute;top:11px;right:11px;width:6px;height:6px;border-radius:50%;background:var(--ink-ghost);opacity:0}
+.lc-card.on .lc-led{background:#5fd8ff;opacity:1;box-shadow:0 0 7px #5fd8ff;animation:pulse 1.6s infinite}
+.lc-bar{height:3px;border-radius:3px;background:#141620;margin-top:8px;overflow:hidden}
+.lc-bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#2a6f9c,#5fd8ff);transition:width .6s}
+/* ── DELIBERATION MAP — position clusters ── */
+.dm-wrap{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:14px;align-items:start}
+@media(max-width:720px){.dm-wrap{grid-template-columns:1fr}}
+.dm-col{border:1px solid rgba(60,64,78,.5);border-radius:10px;padding:10px 12px;min-height:90px}
+.dm-consensus{border-top:2px solid var(--ok)}
+.dm-conflict{border-top:2px solid var(--blood-bright)}
+.dm-col-h{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.18em;color:var(--ink-dim);margin-bottom:9px;display:flex;justify-content:space-between}
+.dm-nodes{display:flex;flex-direction:column;gap:7px}
+.dm-node{background:rgba(255,255,255,.02);border:1px solid rgba(60,64,78,.6);border-radius:8px;padding:7px 9px}
+.dm-consensus .dm-node{border-left:2px solid var(--ok)}
+.dm-conflict .dm-node{border-left:2px solid var(--blood-bright)}
+.dm-node.minority{border-left-color:var(--gold);box-shadow:0 0 0 1px rgba(201,161,85,.25)}
+.dm-node-a{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.1em;color:var(--gold);margin-bottom:2px}
+.dm-node-p{font-size:10.5px;color:var(--ink-dim);line-height:1.4}
+.dm-center{display:flex;flex-direction:column;gap:12px;padding-top:6px}
+.dm-dominant{text-align:center;background:radial-gradient(120% 130% at 50% 0%,rgba(201,161,85,.12),transparent 60%);
+  border:1px solid rgba(201,161,85,.3);border-radius:10px;padding:12px}
+.dm-dom-lbl{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:0.28em;color:var(--gold-dim);margin-bottom:5px}
+.dm-dom-txt{font-size:12px;color:var(--gold-bright);line-height:1.4}
+.dm-meter-top{display:flex;justify-content:space-between;font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:0.16em;color:var(--gold);margin-bottom:4px}
+.dm-bar{height:7px;border-radius:4px;background:#141620;overflow:hidden}
+.dm-bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#b05252,#caa15a 55%,#7da26a);transition:width .6s}
+.dm-minority{border:1px dashed rgba(201,161,85,.45);border-radius:8px;padding:7px 10px;font-size:10px;color:var(--gold)}
+/* ── LIVE COUNCIL feed (Phase 2A wiretap) ── */
+#lc-feed{max-height:42vh;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.lc-row{display:grid;grid-template-columns:64px 120px 1fr;gap:10px;align-items:baseline;
+  padding:6px 10px;border-left:2px solid rgba(60,64,78,.6);background:rgba(255,255,255,.012);
+  font-size:11.5px;animation:lcIn .35s ease}
+.lc-row.t-started{border-left-color:var(--ink-ghost)}
+.lc-row.t-thinking{border-left-color:var(--gold)}
+.lc-row.t-completed{border-left-color:var(--ok)}
+.lc-time{font-size:9.5px;color:var(--ink-ghost);font-variant-numeric:tabular-nums}
+.lc-agent{font-family:'Cinzel',serif;font-size:10.5px;letter-spacing:0.12em;color:var(--gold)}
+.lc-msg{color:var(--ink-dim)}
+.lc-row.t-thinking .lc-msg{color:var(--gold-bright)}
+.lc-row.t-completed .lc-msg{color:var(--ok)}
+@keyframes lcIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+/* ── REASONING CHAIN (Observation -> ... -> Recommendation) ── */
+.rs-chain{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:stretch}
+.rs-stage{background:linear-gradient(165deg,rgba(255,255,255,.02),rgba(255,255,255,.005));
+  border:1px solid rgba(60,64,78,.55);border-left:3px solid var(--gold-dim);border-radius:10px;padding:11px 14px}
+.rs-stage[data-stage="challenge"]{border-left-color:var(--blood-bright)}
+.rs-stage[data-stage="revision"]{border-left-color:#caa15a}
+.rs-stage[data-stage="recommendation"]{border-left-color:var(--ok)}
+.rs-stage-h{display:flex;align-items:center;gap:9px;font-family:'Cinzel',serif;font-size:10px;
+  letter-spacing:0.2em;color:var(--gold);margin-bottom:9px}
+.rs-stage-n{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;
+  background:rgba(201,161,85,.16);color:var(--gold-bright);font-size:9px;flex-shrink:0}
+.rs-stage-c{margin-left:auto;font-size:9px;color:var(--ink-ghost);background:rgba(60,64,78,.5);
+  border-radius:8px;padding:1px 8px;font-family:'JetBrains Mono',monospace}
+.rs-arrow{text-align:center;color:var(--gold-dim);font-size:15px;line-height:1;padding:5px 0}
+.rs-list{display:flex;flex-direction:column;gap:6px;max-height:30vh;overflow-y:auto}
+.rs-list:empty::after{content:'—';color:var(--ink-ghost);font-size:11px}
+.rs-item{font-size:11.5px;border-left:2px solid rgba(125,162,106,.5);padding:4px 8px;animation:lcIn .35s ease}
+.rs-item.g-observation{border-left-color:var(--ink-dim)}
+.rs-item.g-evidence{border-left-color:var(--ok)}
+.rs-item.g-hypothesis{border-left-color:var(--gold)}
+.rs-item.g-challenge{border-left-color:var(--blood-bright)}
+.rs-item.g-revision{border-left-color:#caa15a}
+.rs-item.g-recommendation{border-left-color:var(--ok)}
+.rs-meta{display:flex;gap:8px;align-items:baseline;margin-bottom:2px}
+.rs-agent{font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.1em;color:var(--gold)}
+.rs-time{font-size:8.5px;color:var(--ink-ghost);font-variant-numeric:tabular-nums}
+.rs-field{font-size:8.5px;color:var(--ink-ghost);font-style:italic}
+.rs-msg{color:var(--ink-dim);line-height:1.45}
+.rs-item.rs-open{background:rgba(201,161,85,.08);border-left-color:var(--gold-bright)!important;box-shadow:0 0 0 1px rgba(201,161,85,.2)}
+.rs-item.rs-open .rs-msg{color:var(--ink)}
+/* per-branch confidence (agent-stated) */
+.rs-conf{height:3px;border-radius:3px;background:#141620;margin-top:6px;overflow:hidden}
+.rs-conf>i{display:block;height:100%;background:linear-gradient(90deg,#2a6f9c,#aebbe6)}
+.rs-conf-l{font-size:8px;color:var(--ink-ghost);margin-top:2px;letter-spacing:.08em}
+/* HYPOTHESIS + competing regimes render as parallel branches */
+.rs-stage[data-stage="hypothesis"] .rs-list,
+.rs-stage[data-stage="challenge"] .rs-list{flex-direction:row;flex-wrap:wrap}
+.rs-stage[data-stage="hypothesis"] .rs-item,
+.rs-stage[data-stage="challenge"] .rs-item{flex:1 1 200px;min-width:180px;
+  border-top:2px solid rgba(120,140,200,.4)}
+.rs-stage[data-stage="hypothesis"] .rs-list::before{content:'competing branches →';
+  width:100%;font-size:8px;letter-spacing:.16em;color:var(--ink-ghost);text-transform:uppercase}
+/* ── BELIEF EVOLUTION TIMELINE (Phase 4) ── */
+#tl-flow{display:flex;flex-direction:column;align-items:stretch;gap:0;max-width:760px;margin:0 auto}
+.tl-node{border-left:3px solid var(--ink-dim);padding:9px 14px;border-radius:6px;background:rgba(255,255,255,.014);animation:lcIn .35s ease}
+.tl-node.tl-question{border-left-color:var(--gold)}
+.tl-node.tl-evidence{border-left-color:var(--ok)}
+.tl-node.tl-hypothesis{border-left-color:#aebbe6}
+.tl-node.tl-challenge{border-left-color:var(--blood-bright)}
+.tl-node.tl-revision{border-left-color:#caa15a}
+.tl-node.tl-decision{border-left-color:var(--gold-bright);background:rgba(201,161,85,.06)}
+.tl-stage{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.22em;color:var(--gold);margin-bottom:3px}
+.tl-content{font-size:12.5px;color:var(--ink-dim);line-height:1.5}
+.tl-prov{font-size:9px;color:var(--ink-ghost);margin-top:4px;font-style:italic}
+.tl-arrow{text-align:center;color:var(--ink-ghost);font-size:13px;line-height:1;padding:3px 0}
+.tl-imp{padding:1px 6px;border-radius:8px;font-size:9.5px;font-style:normal;margin-left:6px}
+.tl-imp.up{background:rgba(125,162,106,.16);color:var(--ok)}
+.tl-imp.dn{background:rgba(176,82,82,.16);color:var(--blood-bright)}
+.tl-gap{margin-top:10px;padding:7px 12px;border:1px dashed rgba(176,82,82,.4);border-radius:6px;
+  color:var(--blood-bright);font-size:10.5px;text-align:center}
+/* Institutional Memory stream */
+#im-stream{display:flex;flex-direction:column;gap:5px;max-height:50vh;overflow-y:auto}
+.im-row{display:grid;grid-template-columns:78px 132px 1fr;gap:10px;align-items:baseline;
+  padding:6px 10px;border-left:2px solid rgba(60,64,78,.6);background:rgba(255,255,255,.012);font-size:11px}
+.im-row.k-belief{border-left-color:#caa15a}
+.im-row.k-consensus{border-left-color:var(--ok)}
+.im-row.k-learning{border-left-color:#aebbe6}
+.im-row.k-policy{border-left-color:var(--gold)}
+.im-row.k-risk{border-left-color:var(--blood-bright)}
+.im-time{font-size:9px;color:var(--ink-ghost);font-variant-numeric:tabular-nums}
+.im-type{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold)}
+.im-text{color:var(--ink-dim);line-height:1.4}
+/* ── MISSION COMMAND CENTER (Phase 5) ── */
+.mc-bar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.mc-input{background:rgba(255,255,255,.03);border:1px solid rgba(60,64,78,.7);color:var(--ink-dim);
+  border-radius:6px;padding:5px 9px;font-size:11px;font-family:inherit}
+.mc-input:focus{outline:none;border-color:var(--gold-dim)}
+#mc-buckets{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.mc-bucket-h{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;color:var(--gold);
+  margin-bottom:9px;border-bottom:1px solid rgba(60,64,78,.5);padding-bottom:5px}
+.mc-count{color:var(--ink-ghost);font-size:9px}
+.mission-card.mc-active{border-left:2px solid var(--ok)}
+.mission-card.mc-completed{border-left:2px solid var(--ink-dim)}
+.mission-card.mc-failed{border-left:2px solid var(--blood-bright)}
+.mission-card.mc-paused{border-left:2px solid var(--gold)}
+.mc-top{display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.mc-kind{font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-ghost);
+  border:1px solid rgba(60,64,78,.7);border-radius:8px;padding:1px 6px}
+.mc-meta{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:9.5px;color:var(--ink-ghost)}
+.mc-prog{color:var(--ink-dim)}
+.mc-next{color:var(--ok)}
+.mc-agents{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.mc-agent{font-size:8.5px;padding:1px 7px;border-radius:8px;background:rgba(201,161,85,.10);
+  color:var(--gold);border:1px solid rgba(201,161,85,.22)}
+/* mission HEALTH row — real item counts at a glance */
+.mc-health{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 4px}
+.mc-stat{display:flex;flex-direction:column;align-items:center;min-width:46px;padding:5px 8px;
+  background:rgba(255,255,255,.022);border:1px solid rgba(60,64,78,.5);border-radius:7px;
+  font-size:7.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-ghost)}
+.mc-stat b{font-family:'Cinzel',serif;font-size:14px;color:var(--ink);margin-bottom:1px}
+.mission-card.has-risk{border-left:2px solid var(--blood-bright)}
+/* ── INSTITUTIONAL LEARNING (Phase 6) ── */
+#le-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.le-group{background:rgba(255,255,255,.012);border:1px solid rgba(60,64,78,.5);border-radius:8px;padding:11px 13px}
+.le-group-h{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;color:var(--gold);
+  margin-bottom:9px;border-bottom:1px solid rgba(60,64,78,.5);padding-bottom:5px;display:flex;justify-content:space-between}
+.le-count{color:var(--ink-ghost);font-size:9px}
+.le-item{font-size:11.5px;padding:6px 9px;border-left:2px solid var(--ink-dim);margin-bottom:6px;
+  background:rgba(255,255,255,.01);animation:lcIn .35s ease}
+.le-item.r-correct{border-left-color:var(--ok)}
+.le-item.r-incorrect{border-left-color:var(--blood-bright)}
+.le-item.r-partial{border-left-color:var(--gold)}
+.le-lesson{color:var(--ink-dim);line-height:1.45}
+.le-change{font-size:9.5px;color:var(--ink-ghost);margin-top:3px}
+.le-imp{padding:1px 6px;border-radius:8px;font-size:9px;margin-left:5px}
+.le-imp.up{background:rgba(125,162,106,.16);color:var(--ok)}
+.le-imp.dn{background:rgba(176,82,82,.16);color:var(--blood-bright)}
+.le-repeat{border:1px dashed rgba(176,82,82,.45);border-radius:6px;padding:6px 10px;margin-bottom:6px;font-size:11px}
+.le-repeat .n{color:var(--blood-bright);font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:.1em}
+/* ── HOUSE OPERATING SYSTEM (Phase P3) ── */
+#os-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){#os-wrap{grid-template-columns:1fr}}
+.os-group-h{font-family:'Cinzel',serif;font-size:10px;letter-spacing:0.2em;color:var(--gold);
+  margin-bottom:9px;border-bottom:1px solid rgba(60,64,78,.5);padding-bottom:5px;display:flex;justify-content:space-between}
+.os-policy{border-left:2px solid var(--gold);background:rgba(201,161,85,.05);border-radius:6px;
+  padding:9px 12px;margin-bottom:9px;animation:lcIn .35s ease}
+.os-stmt{font-family:'Cinzel',serif;font-size:12px;color:var(--gold-bright);margin-bottom:5px}
+.os-prov{font-size:10px;color:var(--ink-dim);line-height:1.5}
+.os-prov b{color:var(--ink-ghost);font-weight:400;font-style:italic}
+.os-origin{font-size:8.5px;color:var(--ink-ghost);margin-top:4px;font-style:italic}
+.os-rule{border-left:2px solid var(--ok);background:rgba(125,162,106,.05);border-radius:6px;
+  padding:8px 12px;margin-bottom:8px}
+.os-rule-stmt{font-size:11.5px;color:var(--ink-bright)}
+.os-rule-enf{font-size:9px;color:var(--ink-ghost);margin-top:3px;font-family:monospace}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="hdr-title">COUNCIL INTELLIGENCE</div>
+    <div class="hdr-sub">The House remembers · deliberates · learns · governs itself</div>
+  </div>
+  <div class="hdr-right">
+    <div class="live-dot" title="Auto-refresh 30s"></div>
+    <button class="reload-btn" onclick="loadAll()">↻ RELOAD</button>
+  </div>
+</div>
+
+<div class="nav" id="nav">
+  <button class="nav-tab on"  data-v="mind">House Mind</button>
+  <button class="nav-tab"     data-v="council">Live Council</button>
+  <button class="nav-tab"     data-v="reasoning">Reasoning</button>
+  <button class="nav-tab"     data-v="agents">Agents</button>
+  <button class="nav-tab"     data-v="learning">Learning</button>
+  <button class="nav-tab"     data-v="lessons">Lessons</button>
+  <button class="nav-tab"     data-v="os">Operating System</button>
+  <button class="nav-tab"     data-v="predictions">Predictions</button>
+  <button class="nav-tab"     data-v="governance">Governance</button>
+  <button class="nav-tab"     data-v="beliefs">Beliefs</button>
+  <button class="nav-tab"     data-v="timeline">Timeline</button>
+  <button class="nav-tab"     data-v="missions">Missions</button>
+</div>
+
+<main>
+
+<!-- ══ HOUSE MIND ══ -->
+<section class="view on" id="v-mind">
+
+  <!-- ░░ THE HOUSE — primary institutional state ░░ -->
+  <div class="house-hero">
+    <div class="hero-ring">
+      <div class="ring" id="m-ring" style="--c:0"><span id="m-cv">—</span></div>
+      <div class="ring-label" style="margin-top:6px">Confidence</div>
+    </div>
+    <div class="hero-body">
+      <div class="hero-kicker">THE HOUSE
+        <span id="m-status" class="pill" style="font-size:8px;font-weight:600">⚫ OFFLINE</span>
+        <span id="m-mission-status" class="pill pill-dim" style="font-size:8px">—</span>
+        <span class="sse-row" style="margin:0;display:inline-flex">
+          <span id="m-sse-dot" class="sse-dot"></span><span id="m-sse-txt" class="sse-txt">connecting…</span>
+        </span>
+      </div>
+      <div class="hero-lbl">Objective · what the House is trying to achieve</div>
+      <div id="m-q" class="hero-objective">— The House holds no active question —</div>
+      <div class="hero-lbl" style="margin-top:14px">Current Belief · what it believes now</div>
+      <div id="m-belief-top" class="hero-belief">—</div>
+      <div class="hero-counts" id="m-counts"></div>
+    </div>
+  </div>
+
+  <!-- CURRENT PLAN -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h">Current Plan · what it intends to do next</div>
+    <div id="m-next" class="mind-next">—</div>
+    <div style="margin-top:8px;font-size:11px"><span class="hero-lbl" style="display:inline">Active mission:</span>
+      <span id="m-mission" class="muted">— no active mission —</span></div>
+  </div>
+
+  <!-- RISKS | UNCERTAINTIES -->
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card"><div class="card-h">Risks · what may prevent success</div>
+      <ul class="item-list" id="m-contra"><li class="muted">—</li></ul></div>
+    <div class="card"><div class="card-h">Uncertainties · what it does not know</div>
+      <div class="known-pills" id="m-unknown"><span class="muted">—</span></div></div>
+  </div>
+
+  <!-- EVIDENCE -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h">Evidence · why the House believes this</div>
+    <div id="m-known-pills" class="known-pills"><span class="muted">—</span></div>
+  </div>
+
+  <!-- ░░ deeper detail (secondary) ░░ -->
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card"><div class="card-h">Working Hypotheses</div>
+      <div class="known-pills" id="m-hyp"><span class="muted">—</span></div></div>
+    <div class="card"><div class="card-h">Blind Spots</div>
+      <ul class="item-list" id="m-blind"><li class="muted">—</li></ul></div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card"><div class="card-h">Belief Confidence</div>
+      <ul class="item-list" id="m-beliefs"><li class="muted">—</li></ul></div>
+    <div class="card"><div class="card-h">Minority Position</div>
+      <ul class="item-list" id="m-min"><li class="muted">—</li></ul></div>
+  </div>
+
+  <!-- BELIEF EVOLUTION + WHAT CHANGED ITS MIND -->
+  <div class="card">
+    <div class="card-h">Belief Evolution · how reality revised the belief
+      <span class="hero-lbl" style="display:inline;margin-left:auto" id="m-updated">—</span></div>
+    <div id="m-evolution" class="bevo"><div class="muted">— no revision recorded —</div></div>
+    <div class="card-h" style="border:0;margin-top:14px;font-size:9px;color:var(--ink-ghost)">FULL REVISION HISTORY</div>
+    <ul class="item-list" id="m-chg"><li class="muted">—</li></ul>
+  </div>
+
+</section>
+
+<!-- ══ AGENTS ══ -->
+<section class="view" id="v-agents">
+  <div class="stat-row" id="ag-stats"></div>
+  <div class="agent-grid" id="agent-grid"></div>
+</section>
+
+<!-- ══ LEARNING ══ -->
+<section class="view" id="v-learning">
+  <div class="stat-row" id="lrn-stats"></div>
+  <div class="grid2">
+    <div class="card"><div class="card-h">Top Performers</div>
+      <table><thead><tr><th>Agent</th><th>Score</th><th>W/L/D</th></tr></thead>
+      <tbody id="lrn-best"></tbody></table></div>
+    <div class="card"><div class="card-h">Needs Improvement</div>
+      <table><thead><tr><th>Agent</th><th>Score</th><th>W/L/D</th></tr></thead>
+      <tbody id="lrn-worst"></tbody></table></div>
+    <div class="card full"><div class="card-h">Recall Quality · Recent Sessions</div>
+      <table>
+        <thead><tr><th>Directive</th><th>Confidence</th><th>Validity</th><th>Age</th><th>Outcomes</th></tr></thead>
+        <tbody id="rq-tbl"></tbody>
+      </table></div>
+  </div>
+</section>
+
+<!-- ══ PREDICTIONS ══ -->
+<section class="view" id="v-predictions">
+  <div class="stat-row" id="pred-stats"></div>
+  <div class="grid2">
+    <div class="card"><div class="card-h">By Agent · Accuracy</div>
+      <table><thead><tr><th>Agent</th><th>W/L/D</th><th>Accuracy</th><th>Calibration</th></tr></thead>
+      <tbody id="pred-agent-tbl"></tbody></table></div>
+    <div class="card"><div class="card-h">Historical Failures</div>
+      <ul class="item-list" id="pred-failures"><li class="muted">—</li></ul></div>
+    <div class="card full"><div class="card-h">Recent Graded Outcomes</div>
+      <table><thead><tr><th>Agent</th><th>Statement</th><th>Horizon</th><th>Result</th></tr></thead>
+      <tbody id="pred-recent-tbl"></tbody></table></div>
+  </div>
+</section>
+
+<!-- ══ GOVERNANCE ══ -->
+<section class="view" id="v-governance">
+  <div class="stat-row" id="gov-stats"></div>
+  <div class="grid2">
+    <div class="card"><div class="card-h">Minority Scoreboard — Whose Dissent Proved Right</div>
+      <table><thead><tr><th>Member</th><th>Dissents</th><th>Vindicated</th><th>Rate</th></tr></thead>
+      <tbody id="gov-min-tbl"></tbody></table></div>
+    <div class="card"><div class="card-h">Constitution Rules</div>
+      <ul class="item-list" id="gov-rules"><li class="muted">—</li></ul></div>
+  </div>
+</section>
+
+<!-- ══ BELIEFS ══ -->
+<section class="view" id="v-beliefs">
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-h">Belief Revision History — What Changed the House's Mind</div>
+    <div class="timeline" id="belief-timeline"><div class="muted">—</div></div>
+  </div>
+</section>
+
+<!-- ══ LIVE COUNCIL (Phase 2A wiretap) ══ -->
+<section class="view" id="v-council">
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h" style="display:flex;align-items:center;justify-content:space-between">
+      <span>LIVE COUNCIL — Deliberation Wiretap</span>
+      <span class="sse-row" style="margin:0">
+        <span class="sse-dot" id="lc-dot"></span><span class="sse-txt" id="lc-txt">connecting…</span>
+      </span>
+    </div>
+    <div class="muted" style="font-size:10px;margin:6px 0 12px">
+      Live council floor — each member's status and latest verbatim thought.
+    </div>
+    <div id="lc-cards" class="lc-cards"></div>
+
+    <!-- DELIBERATION MAP — position clusters from real council outputs -->
+    <div class="card-h" style="font-size:9px;letter-spacing:0.2em;border:0;padding:16px 0 8px">DELIBERATION MAP · positions, not conversations</div>
+    <div id="dm-wrap" class="dm-wrap">
+      <div class="dm-col dm-consensus"><div class="dm-col-h">CONSENSUS <span id="dm-c-n">0</span></div><div id="dm-consensus" class="dm-nodes"></div></div>
+      <div class="dm-center">
+        <div class="dm-dominant"><div class="dm-dom-lbl">DOMINANT VIEW</div><div id="dm-dominant" class="dm-dom-txt">— awaiting deliberation —</div></div>
+        <div class="dm-meter"><div class="dm-meter-top"><span>CONSENSUS STRENGTH</span><span id="dm-strength">—</span></div><div class="dm-bar"><i id="dm-bar"></i></div></div>
+        <div class="dm-minority" id="dm-minority" style="display:none"></div>
+      </div>
+      <div class="dm-col dm-conflict"><div class="dm-col-h">CHALLENGE <span id="dm-x-n">0</span></div><div id="dm-conflict" class="dm-nodes"></div></div>
+    </div>
+
+    <div class="card-h" style="font-size:9px;letter-spacing:0.2em;border:0;padding:14px 0 6px;color:var(--ink-ghost)">TRANSCRIPT</div>
+    <div id="lc-feed"><div class="muted">— awaiting council activity —</div></div>
+  </div>
+</section>
+
+<!-- ══ REASONING STREAM (Phase 2B) ══ -->
+<section class="view" id="v-reasoning">
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h" style="display:flex;align-items:center;justify-content:space-between">
+      <span>REASONING STREAM — Verbatim Council Cognition</span>
+      <span class="sse-row" style="margin:0">
+        <span class="sse-dot" id="rs-dot"></span><span class="sse-txt" id="rs-txt">connecting…</span>
+      </span>
+    </div>
+    <div class="muted" style="font-size:10px;margin:6px 0 12px">
+      Each line is a council member's own words, pulled verbatim from its returned
+      JSON — the source field is shown. Nothing summarised or generated.
+    </div>
+    <div id="rs-wrap" class="rs-chain">
+      <div class="rs-stage" data-stage="observation"><div class="rs-stage-h"><span class="rs-stage-n">1</span>OBSERVATION<span class="rs-stage-c" id="rsc-observation">0</span></div><div class="rs-list" id="rs-observation"></div></div>
+      <div class="rs-arrow">↓</div>
+      <div class="rs-stage" data-stage="evidence"><div class="rs-stage-h"><span class="rs-stage-n">2</span>EVIDENCE<span class="rs-stage-c" id="rsc-evidence">0</span></div><div class="rs-list" id="rs-evidence"></div></div>
+      <div class="rs-arrow">↓</div>
+      <div class="rs-stage" data-stage="hypothesis"><div class="rs-stage-h"><span class="rs-stage-n">3</span>HYPOTHESIS<span class="rs-stage-c" id="rsc-hypothesis">0</span></div><div class="rs-list" id="rs-hypothesis"></div></div>
+      <div class="rs-arrow">↓</div>
+      <div class="rs-stage" data-stage="challenge"><div class="rs-stage-h"><span class="rs-stage-n">4</span>CHALLENGE<span class="rs-stage-c" id="rsc-challenge">0</span></div><div class="rs-list" id="rs-challenge"></div></div>
+      <div class="rs-arrow">↓</div>
+      <div class="rs-stage" data-stage="revision"><div class="rs-stage-h"><span class="rs-stage-n">5</span>REVISION<span class="rs-stage-c" id="rsc-revision">0</span></div><div class="rs-list" id="rs-revision"></div></div>
+      <div class="rs-arrow">↓</div>
+      <div class="rs-stage" data-stage="recommendation"><div class="rs-stage-h"><span class="rs-stage-n">6</span>RECOMMENDATION<span class="rs-stage-c" id="rsc-recommendation">0</span></div><div class="rs-list" id="rs-recommendation"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOUSE OPERATING SYSTEM (Phase P3) ══ -->
+<section class="view" id="v-os">
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h" style="display:flex;align-items:center;justify-content:space-between">
+      <span>HOUSE OPERATING SYSTEM — Policies &amp; Rules from reality</span>
+      <span class="sse-row" style="margin:0"><span class="sse-dot" id="os-dot"></span><span class="sse-txt" id="os-txt">connecting…</span></span>
+    </div>
+    <div class="muted" style="font-size:10px;margin:6px 0 14px">
+      Codified operating policies and rules — each traces back to a real lesson
+      or enforced behavior (What happened · Why · What changed). Never fabricated.
+    </div>
+    <div id="os-wrap"><div class="muted">— no policies codified yet —</div></div>
+  </div>
+</section>
+
+<!-- ══ INSTITUTIONAL LEARNING (Phase 6) ══ -->
+<section class="view" id="v-lessons">
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h" style="display:flex;align-items:center;justify-content:space-between">
+      <span>INSTITUTIONAL LEARNING — What reality taught the House</span>
+      <span class="sse-row" style="margin:0"><span class="sse-dot" id="le-dot"></span><span class="sse-txt" id="le-txt">connecting…</span></span>
+    </div>
+    <div class="muted" style="font-size:10px;margin:6px 0 14px">
+      A lesson exists only when a prediction was graded by reality and a belief
+      changed because of it. Reasoning and confidence never create lessons —
+      only outcomes do. Empty when reality has graded nothing.
+    </div>
+    <div id="le-wrap"><div class="muted">— nothing learned from reality yet —</div></div>
+  </div>
+</section>
+
+<!-- ══ BELIEF EVOLUTION TIMELINE (Phase 4) ══ -->
+<section class="view" id="v-timeline">
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h">Institutional Memory — what the House has lived through</div>
+    <div class="muted" style="font-size:10px;margin:6px 0 12px">
+      Belief changes, consensus, learning and policy updates across all missions —
+      newest first, every entry a real recorded event.
+    </div>
+    <div id="im-stream"><div class="muted">— no institutional history yet —</div></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h" style="display:flex;align-items:center;justify-content:space-between">
+      <span>BELIEF EVOLUTION — How the House arrived at its belief</span>
+      <span class="sse-row" style="margin:0"><span class="sse-dot" id="tl-dot"></span><span class="sse-txt" id="tl-txt">connecting…</span></span>
+    </div>
+    <div class="muted" style="font-size:10px;margin:6px 0 14px">
+      Question → Evidence → Hypothesis → Challenge → Revision → Decision. Each node
+      shows its source + provenance + time, projected from real house_state and
+      belief_changes. Missing stages are shown as gaps — never invented.
+    </div>
+    <div id="tl-flow"><div class="muted">— no belief evolution recorded yet —</div></div>
+  </div>
+</section>
+
+<!-- ══ MISSIONS ══ -->
+<section class="view" id="v-missions">
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h" style="display:flex;align-items:center;justify-content:space-between">
+      <span>MISSION COMMAND CENTER</span>
+      <span class="sse-row" style="margin:0"><span class="sse-dot" id="mc-dot"></span><span class="sse-txt" id="mc-txt">connecting…</span></span>
+    </div>
+    <div class="muted" style="font-size:10px;margin:6px 0 0">
+      Unified view of council + agent missions, projected from house_state +
+      agent_runs. PAUSED is empty by design — no real pause source exists.
+    </div>
+    <div class="mc-bar">
+      <input id="mc-search" class="mc-input" placeholder="search objective / agent…" oninput="renderMissions()" style="flex:1;min-width:140px">
+      <select id="mc-filter" class="mc-input" onchange="renderMissions()">
+        <option value="all">all statuses</option>
+        <option value="active">active</option>
+        <option value="completed">completed</option>
+        <option value="failed">failed</option>
+        <option value="paused">paused</option>
+      </select>
+      <select id="mc-sort" class="mc-input" onchange="renderMissions()">
+        <option value="recent">sort: recent</option>
+        <option value="objective">sort: objective</option>
+        <option value="confidence">sort: confidence</option>
+      </select>
+    </div>
+  </div>
+  <div id="mc-buckets"><div class="muted">—</div></div>
+</section>
+
+</main>
+<div class="foot">THE HOUSE · MMXXVI · Council Intelligence · auto-refresh 30s</div>
+
+<!-- ══ AGENT SCORECARD MODAL ══ -->
+<div class="modal-bg" id="agent-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div>
+        <div class="modal-code" id="sc-code"></div>
+        <div class="modal-name" id="sc-name"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="stat-row" id="sc-stats"></div>
+    <div class="grid2">
+      <div class="card"><div class="card-h">Skill Estimate (Bayesian)</div>
+        <div id="sc-skill"></div></div>
+      <div class="card"><div class="card-h">Calibration (Brier)</div>
+        <div id="sc-cal"></div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="card-h">Score Trend</div>
+      <div id="sc-trend"></div></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const API='/api/council';
+const $=s=>document.getElementById(s);
+const Q=s=>document.querySelector(s);
+async function j(u){const r=await fetch(API+u);if(!r.ok)throw new Error(u+' '+r.status);return r.json();}
+const pct=x=>Math.round((x||0)*100)+'%';
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const ago=ts=>{if(!ts)return '—';const d=(Date.now()/1e3-ts)/86400;return d<1?'today':d<2?'yesterday':Math.round(d)+'d ago';};
+const trunc=(s,n)=>{s=String(s||'');return s.length>n?s.slice(0,n)+'…':s;};
+
+function fill(id,arr,cls,fmt){
+  const el=$(id);if(!el)return;
+  el.innerHTML=(arr&&arr.length)?arr.map(x=>`<li class="${cls||''}">${fmt?esc(fmt(x)):esc(x)}</li>`).join(''):'<li class="muted">— none —</li>';
+}
+function fillRaw(id,arr,cls,fmt){
+  const el=$(id);if(!el)return;
+  el.innerHTML=(arr&&arr.length)?arr.map(x=>`<li class="${cls||''}">${fmt?fmt(x):esc(x)}</li>`).join(''):'<li class="muted">— none —</li>';
+}
+
+/* ── NAV ── */
+document.querySelectorAll('.nav-tab').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.nav-tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+    b.classList.add('on');
+    const v=document.getElementById('v-'+b.dataset.v);
+    if(v)v.classList.add('on');
+  };
+});
+
+/* ══ HOUSE MIND ══ */
+function _mAgo(ts){
+  if(!ts)return'—';const s=Math.floor(Date.now()/1e3-ts);
+  if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';
+}
+
+async function loadMind(){
+  try{
+    const st=await j('/state/current');
+    const noState=!st||!st.id||st.error;
+    if(noState){
+      $('m-q').textContent='The House holds no active question.';
+      $('m-ring').style.setProperty('--c',0);$('m-cv').textContent='—';
+      ['m-known-pills','m-unknown','m-hyp'].forEach(id=>{$(id).innerHTML='<span class="muted">—</span>';});
+      ['m-contra','m-blind','m-min','m-beliefs','m-chg'].forEach(id=>{
+        $(id).innerHTML='<li class="muted">—</li>';});
+      $('m-counts').innerHTML='';
+      $('m-belief-top').textContent='—';
+      $('m-updated').textContent='—';
+      {const e=$('m-evolution');if(e)e.innerHTML='<div class="muted">— no revision recorded —</div>';}
+    }else{
+      const a=await j('/state/'+st.id+'/answer');
+      $('m-q').textContent=a.question||'';
+      const c=Math.round((a.overall_confidence||0)*100);
+      $('m-ring').style.setProperty('--c',c);$('m-cv').textContent=c+'%';
+
+      // Counts strip
+      const g=st.items||{};
+      const countData=[
+        {k:'known_fact',l:'Known',cls:'pill-ok'},{k:'unknown_fact',l:'Unknown',cls:'pill-warn'},
+        {k:'hypothesis',l:'Hyp',cls:'pill-gold'},{k:'contradiction',l:'Contra',cls:'pill-bad'},
+        {k:'belief',l:'Belief',cls:'pill-dim'},{k:'blind_spot',l:'Blind',cls:'pill-dim'},
+      ];
+      $('m-counts').innerHTML=countData.filter(x=>(g[x.k]||[]).length)
+        .map(x=>`<span class="pill ${x.cls}">${x.l} ${(g[x.k]||[]).length}</span>`).join('');
+
+      // Top belief
+      const topB=(a.what_we_believe||[])[0];
+      $('m-belief-top').textContent=topB?topB.belief:'—';
+
+      // Known as pills
+      const kn=a.what_we_know||[];
+      $('m-known-pills').innerHTML=kn.length
+        ? kn.map(k=>`<span class="known-pill">${esc(trunc(k,60))}</span>`).join('')
+        : '<span class="muted">— nothing confirmed yet —</span>';
+
+      // Unknown + Hypotheses as chips (V2 — scannable in <5s)
+      const unk=a.what_we_dont_know||[];
+      $('m-unknown').innerHTML=unk.length
+        ? unk.map(u=>`<span class="unknown-pill">${esc(trunc(u,60))}</span>`).join('')
+        : '<span class="muted">— nothing unresolved —</span>';
+      const hyp=a.hypotheses||[];
+      $('m-hyp').innerHTML=hyp.length
+        ? hyp.map(h=>`<span class="hyp-pill">${esc(trunc(h.hypothesis,60))}<span class="pct">${pct(h.confidence)}</span></span>`).join('')
+        : '<span class="muted">— none —</span>';
+      fill('m-contra',a.contradictions,'c');
+      fill('m-min',a.minority_view,'m');
+      fill('m-blind',a.blind_spots,'b');
+      fillRaw('m-beliefs',a.what_we_believe,'',b=>
+        `<span class="k">&nbsp;</span>${esc(b.belief)}&nbsp;<span class="pill ${b.confidence>=.6?'pill-ok':'pill-warn'}">${pct(b.confidence)}</span><div class="bar"><i style="width:${pct(b.confidence)}"></i></div>`);
+      // Belief Evolution flow — the most recent real revision as Old -> Evidence -> New
+      const chg=a.what_changed_our_mind||[]; const evEl=$('m-evolution');
+      if(evEl){
+        if(chg.length){
+          const c0=chg[0]; const up=(c0.confidence_impact||0)>=0;
+          const evidence=c0.evidence||c0.reason||'(graded outcome)';
+          evEl.innerHTML=
+            `<div class="bevo-node old"><div class="bevo-lbl">Old Belief</div><div class="bevo-txt">${esc(trunc(c0.from||'∅',90))}</div></div>`+
+            `<div class="bevo-arrow">→</div>`+
+            `<div class="bevo-node ev"><div class="bevo-lbl">New Evidence · ${esc(c0.agent||'?')}</div><div class="bevo-txt">${esc(trunc(evidence,90))}</div></div>`+
+            `<div class="bevo-arrow">→</div>`+
+            `<div class="bevo-node new"><div class="bevo-lbl">Revised Belief</div><div class="bevo-txt">${esc(trunc(c0.to||'',90))}`+
+            `<span class="bevo-delta ${up?'up':'dn'}">${up?'+':''}${c0.confidence_impact} confidence</span></div></div>`;
+        } else evEl.innerHTML='<div class="muted">— no revision recorded yet —</div>';
+      }
+      fillRaw('m-chg',a.what_changed_our_mind,'',ch=>{
+        const up=(ch.confidence_impact||0)>=0;
+        return `<span style="color:var(--gold);font-family:'Cinzel',serif;font-size:10px">${esc(ch.agent||'?')}</span>
+          <span style="color:var(--ink-ghost)"> "${esc(trunc(ch.from||'∅',50))}" → </span>"${esc(trunc(ch.to||'',60))}"
+          <span class="${up?'tl-up':'tl-dn'}" style="padding:1px 6px;border-radius:8px;font-size:9px">${up?'+':''}${ch.confidence_impact}</span>
+          ${ch.reason?`<br><span style="color:var(--ink-ghost);font-size:9.5px;font-style:italic">${esc(ch.reason)}</span>`:''}`;
+      });
+      $('m-updated').textContent=_mAgo(st.updated_at||st.created_at);
+    }
+  }catch(e){$('m-q').innerHTML=`<span class="err-msg">House Mind offline — ${e.message}</span>`;}
+
+  // Mission (non-blocking parallel)
+  j('/missions?limit=1').then(d=>{
+    const act=(d.active||[])[0];
+    const mEl=$('m-mission'),msEl=$('m-mission-status');
+    if(mEl){
+      mEl.textContent=act?trunc(act.question,120):'— no active mission —';
+      mEl.style.color=act?'var(--gold)':'var(--ink-ghost)';
+    }
+    if(msEl){msEl.textContent=act?'ACTIVE':'NONE';msEl.className='pill '+(act?'pill-ok':'pill-dim');}
+  }).catch(()=>{});
+
+  // Next Action (non-blocking parallel)
+  j('/scheduler/status').then(d=>{
+    const jobs=(d.pending||[]).filter(x=>x.status==='pending').sort((a,b)=>a.run_at-b.run_at);
+    const nEl=$('m-next');if(!nEl)return;
+    if(jobs.length){
+      const job=jobs[0];
+      const lbl={outcome_review:'Outcome Review',reputation_decay:'Reputation Decay'}[job.kind]||job.kind;
+      const now=Date.now()/1e3,diff=job.run_at-now;
+      const when=diff<=0?'due now':diff<3600?Math.round(diff/60)+'m':Math.round(diff/86400)+'d';
+      nEl.textContent=lbl+' · '+when;
+      nEl.style.color=diff<=0?'var(--warn)':'var(--ok)';
+    }else{nEl.textContent='— awaiting directive —';nEl.style.color='var(--ink-ghost)';}
+  }).catch(()=>{const nEl=$('m-next');if(nEl){nEl.textContent='—';nEl.style.color='var(--ink-ghost)';}});
+
+  // OX-UI-1: operator STATUS badge — same cognitive-state language as Continental
+  refreshHouseStatus();
+}
+
+// STATUS — operator language, real signals only (never raw state ids)
+const _M_ST={ready:{t:'🟢 READY',c:'var(--ok)'},waiting:{t:'🟡 WAITING',c:'var(--gold-bright)'},
+  thinking:{t:'🔵 THINKING',c:'#5aa9e6'},blocked:{t:'🔴 BLOCKED',c:'var(--blood-bright)'},offline:{t:'⚫ OFFLINE',c:'var(--ink-ghost)'}};
+function _mSetStatus(state){const el=$('m-status');if(!el)return;const s=_M_ST[state]||_M_ST.offline;el.textContent=s.t;el.style.color=s.c;el.className='pill';}
+async function refreshHouseStatus(){
+  try{
+    const [runsR,schR]=await Promise.all([
+      fetch('/api/agent/runs?limit=1').then(r=>r.json()).catch(()=>null),
+      fetch(API+'/scheduler/status').then(r=>r.json()).catch(()=>null)]);
+    const latest=runsR&&(runsR.runs||[])[0];
+    const jobs=schR?((schR.pending||[]).filter(x=>x.status==='pending')):[];
+    const rs=latest&&String(latest.status||'').toLowerCase();
+    if(rs==='running')_mSetStatus('thinking');
+    else if(rs==='blocked')_mSetStatus('blocked');
+    else if(jobs.length)_mSetStatus('waiting');
+    else _mSetStatus('ready');
+  }catch(e){_mSetStatus('offline');}
+}
+
+// Live SSE from HouseSync — instant reload on mission / session change
+(function(){
+  let es;
+  function _connect(){
+    try{
+      es=new EventSource('/api/house/state/stream?origin=intel-mind');
+      const dot=$('m-sse-dot'),txt=$('m-sse-txt');
+      if(dot){dot.className='sse-dot on';}
+      if(txt)txt.textContent='live';
+      es.onmessage=function(e){
+        try{
+          const d=JSON.parse(e.data);
+          if(d.type==='state_update'&&(d.changes.mission||d.changes.active_session)){loadMind();}
+        }catch(ex){}
+      };
+      es.onerror=function(){
+        const dot=$('m-sse-dot'),txt=$('m-sse-txt');
+        if(dot)dot.className='sse-dot err';if(txt)txt.textContent='reconnecting…';
+        es.close();setTimeout(_connect,5000);
+      };
+    }catch(ex){}
+  }
+  _connect();
+})();
+
+/* ══ LIVE COUNCIL + REASONING STREAM + HOUSE MIND V2 — off the Runtime Event Bus ══ */
+(function(){
+  let es, started=false, _nudgeT=null, _tlT=null;
+  const SHORT={agent_started:'started',agent_thinking:'thinking',agent_completed:'completed'};
+  // House Mind V2: a house_* change event re-renders the live cognitive panel
+  // (debounced — a council run fires several house_* events in a burst).
+  function _mindNudge(){ clearTimeout(_nudgeT); _nudgeT=setTimeout(()=>{try{loadMind();}catch(ex){}},350); }
+  // Phase 4: a timeline_* event re-renders the Belief Evolution panel.
+  function _tlNudge(){ clearTimeout(_tlT); _tlT=setTimeout(()=>{try{loadTimeline();loadInstitutionalMemory();}catch(ex){}},350); }
+  // Phase 5: a mission_* event re-renders the Mission Command Center.
+  let _mcT=null;
+  function _mcNudge(){ clearTimeout(_mcT); _mcT=setTimeout(()=>{try{loadMissions();}catch(ex){}},350); }
+  // Phase 6: a lesson_/behavior_/repeat_ event re-renders Institutional Learning.
+  let _leT=null;
+  function _leNudge(){ clearTimeout(_leT); _leT=setTimeout(()=>{try{loadLearningEngine();}catch(ex){}},350); }
+  // Phase P3: a policy_/rule_ event re-renders the Operating System tab.
+  let _osT=null;
+  function _osNudge(){ clearTimeout(_osT); _osT=setTimeout(()=>{try{loadHouseOS();}catch(ex){}},350); }
+  function _t(ts){const d=new Date((ts||Date.now()/1e3)*1000);return d.toLocaleTimeString([],{hour12:false});}
+  // ── LIVE COUNCIL agent floor cards (real events only) ──
+  const LC_MEMBERS=['ANALYST','STRATEGIST','SKEPTIC','FORECASTER','EXECUTOR','STORYTELLER'];
+  const LC_VERB={agent_observation:'OBSERVING',agent_hypothesis:'HYPOTHESIZING',agent_challenge:'CHALLENGING',
+                 agent_recommendation:'PROPOSING',agent_decision:'DECIDING',
+                 reasoning_observation:'OBSERVING',reasoning_evidence:'CITING',reasoning_hypothesis:'HYPOTHESIZING',
+                 reasoning_challenge:'CHALLENGING',reasoning_revision:'REVISING',reasoning_recommendation:'PROPOSING'};
+  let _lcDone=0;
+  function _lcInit(){
+    const wrap=$('lc-cards'); if(!wrap||wrap.dataset.built)return; wrap.dataset.built='1';
+    wrap.innerHTML=LC_MEMBERS.map(m=>`<div class="lc-card idle" id="lc-card-${m}">`+
+      `<span class="lc-led"></span>`+
+      `<div class="lc-card-top"><span class="lc-name">${m}</span><span class="lc-stat" id="lc-stat-${m}">IDLE</span></div>`+
+      `<div class="lc-thought" id="lc-th-${m}">— awaiting —</div>`+
+      `<div class="lc-bar"><i id="lc-bar-${m}"></i></div></div>`).join('');
+  }
+  function _lcSet(agent, status, thought, speaking, progress){
+    _lcInit(); const A=(agent||'').toUpperCase(); const card=$('lc-card-'+A); if(!card)return;
+    card.classList.remove('idle');
+    card.classList.toggle('done', status==='DONE');
+    card.classList.toggle('on', status!=='DONE' && status!=='IDLE');
+    if(speaking){ document.querySelectorAll('.lc-card.speaking').forEach(n=>n.classList.remove('speaking')); card.classList.add('speaking'); }
+    const st=$('lc-stat-'+A); if(st&&status)st.textContent=status;
+    const th=$('lc-th-'+A); if(th&&thought)th.textContent=thought;
+    const bar=$('lc-bar-'+A); if(bar&&progress!=null)bar.style.width=progress+'%';
+  }
+  function _lcEvent(ev){
+    const p=ev.payload||{}, t=ev.type||'';
+    if(t==='agent_started' && (_lcDone>=6 || Object.keys(DM.pos).length>=6)){ _lcDone=0; _dmReset(); }
+    if(t==='agent_started') _lcSet(p.agent,'ENGAGED',null,false,15);
+    else if(t==='agent_thinking') _lcSet(p.agent,'THINKING',null,true,45);
+    else if(t==='agent_completed'){ _lcSet(p.agent,'DONE',null,false,100); _lcDone++; }
+    else if(LC_VERB[t]) _lcSet(p.agent, LC_VERB[t], p.message, true, 80);
+    _dmEvent(t, p);
+  }
+  // ── DELIBERATION MAP — cluster members by their REAL position (not interactions) ──
+  const DM={pos:{}, verdict:'', dominant:''};
+  const DM_VCONS={CONSISTENT:0.85,FRAGILE:0.55,REBUILD:0.25,VETO:0.30,BLOCKED:0.30};
+  function _dmReset(){ DM.pos={}; DM.verdict=''; DM.dominant=''; _dmRender(); }
+  function _dmEvent(t, p){
+    const A=(p.agent||'').toUpperCase(); if(!A) return;
+    // SYNC: deliberation map clusters from the SAME canonical reasoning_* events
+    if(t==='reasoning_challenge'){ DM.pos[A]={stance:'conflict', text:p.message||''}; }
+    else if(t==='reasoning_revision' && p.source_field==='verdict'){
+      DM.verdict=String(p.message||'').toUpperCase();
+      const challenge=/FRAGILE|REBUILD|VETO|BLOCKED/.test(DM.verdict);
+      DM.pos[A]={stance:challenge?'conflict':'consensus', text:'verdict · '+DM.verdict};
+    }
+    else if(t==='reasoning_observation'||t==='reasoning_evidence'||t==='reasoning_hypothesis'||t==='reasoning_recommendation'){
+      if(!DM.pos[A]||DM.pos[A].stance!=='conflict') DM.pos[A]={stance:'consensus', text:p.message||''};
+      if(t==='reasoning_recommendation' && (A==='EXECUTOR'||A==='STRATEGIST')) DM.dominant=p.message||DM.dominant;
+    } else return;
+    _dmRender();
+  }
+  function _dmRender(){
+    const cons=[], conf=[];
+    Object.keys(DM.pos).forEach(a=>{ (DM.pos[a].stance==='conflict'?conf:cons).push([a,DM.pos[a].text]); });
+    const minority = (conf.length===1 && cons.length>=3) ? conf[0][0] : (cons.length===1 && conf.length>=3 ? cons[0][0] : '');
+    const node=(a,txt,isMin)=>`<div class="dm-node${isMin?' minority':''}"><div class="dm-node-a">${esc(a)}${isMin?' · minority':''}</div><div class="dm-node-p">${esc(trunc(txt||'—',90))}</div></div>`;
+    const cE=$('dm-consensus'), xE=$('dm-conflict');
+    if(cE) cE.innerHTML=cons.length?cons.map(([a,t])=>node(a,t,a===minority)).join(''):'<div class="muted" style="font-size:10px">—</div>';
+    if(xE) xE.innerHTML=conf.length?conf.map(([a,t])=>node(a,t,a===minority)).join(''):'<div class="muted" style="font-size:10px">—</div>';
+    const cn=$('dm-c-n'), xn=$('dm-x-n'); if(cn)cn.textContent=cons.length; if(xn)xn.textContent=conf.length;
+    const dom=$('dm-dominant'); if(dom) dom.textContent=DM.dominant||'— forming —';
+    // consensus strength: real verdict if known, else fraction agreeing
+    let pct, lbl;
+    if(DM.verdict && DM_VCONS[DM.verdict]!=null){ pct=DM_VCONS[DM.verdict]; lbl=DM.verdict; }
+    else { const tot=cons.length+conf.length; pct=tot?cons.length/tot:0; lbl=tot?Math.round(pct*100)+'% aligned':'—'; }
+    const bar=$('dm-bar'), st=$('dm-strength'); if(bar)bar.style.width=Math.round(pct*100)+'%'; if(st)st.textContent=lbl;
+    const mEl=$('dm-minority');
+    if(mEl){ if(minority){ mEl.style.display='block'; mEl.textContent='Minority view · '+minority+': '+trunc((DM.pos[minority]||{}).text||'',80); } else mEl.style.display='none'; }
+  }
+  function _row(ev){                                       // Phase 2A activity feed
+    const feed=$('lc-feed');if(!feed)return;
+    const p=ev.payload||{};
+    const short=SHORT[ev.type];if(!short)return;
+    if(!started){feed.innerHTML='';started=true;}
+    const row=document.createElement('div');
+    row.className='lc-row t-'+short;
+    row.innerHTML=`<span class="lc-time">${_t(ev.timestamp)}</span>`+
+                  `<span class="lc-agent">${esc(p.agent||'—')}</span>`+
+                  `<span class="lc-msg">${esc(p.message||short)}</span>`;
+    feed.insertBefore(row,feed.firstChild);
+    while(feed.children.length>200)feed.removeChild(feed.lastChild);
+  }
+  function _reason(ev){                                    // Phase 2B verbatim reasoning (chain node)
+    const p=ev.payload||{};
+    const suffix=(ev.type||'').replace('reasoning_','');
+    const box=$('rs-'+suffix);if(!box)return;
+    const row=document.createElement('div');
+    row.className='rs-item g-'+suffix;
+    row.style.cursor='pointer';
+    // a node is linked to its source event: agent + exact JSON field it came from
+    row.title='source: '+(p.agent||'?')+' · '+(p.source_field||'')+' · '+_t(ev.timestamp);
+    // competing-branch confidence: parse the agent's OWN stated probability if present
+    const cm=String(p.message||'').match(/(?:A:)?\s*(\d{1,3})\s*%/);
+    const conf=cm?Math.min(parseInt(cm[1],10),100):null;
+    row.innerHTML=`<div class="rs-meta"><span class="rs-agent">${esc(p.agent||'—')}</span>`+
+                  `<span class="rs-time">${_t(ev.timestamp)}</span>`+
+                  `<span class="rs-field">${esc(p.source_field||'')}</span></div>`+
+                  `<div class="rs-msg">${esc(p.message||'')}</div>`+
+                  (conf!=null?`<div class="rs-conf"><i style="width:${conf}%"></i></div><div class="rs-conf-l">${conf}% confidence</div>`:'');
+    row.onclick=function(){ this.classList.toggle('rs-open'); };
+    box.insertBefore(row,box.firstChild);
+    while(box.children.length>60)box.removeChild(box.lastChild);
+    const cEl=$('rsc-'+suffix); if(cEl) cEl.textContent=box.children.length;
+    const d=$('rs-dot'),t=$('rs-txt');if(d)d.className='sse-dot on';if(t)t.textContent='live';
+  }
+  function _connect(){
+    try{
+      es=new EventSource('/api/house/events?origin=intel-council&replay=60');
+      const dot=$('lc-dot'),txt=$('lc-txt');if(dot)dot.className='sse-dot on';if(txt)txt.textContent='live';
+      const rd=$('rs-dot'),rt=$('rs-txt');if(rd)rd.className='sse-dot on';if(rt)rt.textContent='live';
+      _lcInit();
+      es.onmessage=function(e){
+        try{const ev=JSON.parse(e.data);
+          if(SHORT[ev.type]){_row(ev);_lcEvent(ev);}
+          // SYNC: reasoning_* is the single canonical reasoning event — it drives
+          // the transcript feed, the agent cards, AND the deliberation map.
+          else if((ev.type||'').indexOf('reasoning_')===0){_reason(ev);_lcEvent(ev);}
+          else if((ev.type||'').indexOf('house_')===0)_mindNudge();   // House Mind V2 live
+          else if((ev.type||'').indexOf('timeline_')===0)_tlNudge();  // Belief Evolution live
+          else if((ev.type||'').indexOf('mission_')===0)_mcNudge();   // Mission Command live
+          else if(/^(lesson_|behavior_|repeat_)/.test(ev.type||'')){ _leNudge(); _osNudge(); } // Learning + OS live
+          else if(/^(policy_|rule_)/.test(ev.type||''))_osNudge();    // Operating System live
+        }catch(ex){}
+      };
+      es.onerror=function(){
+        ['lc','rs'].forEach(function(pfx){
+          const dot=$(pfx+'-dot'),txt=$(pfx+'-txt');
+          if(dot)dot.className='sse-dot err';if(txt)txt.textContent='reconnecting…';
+        });
+        es.close();setTimeout(_connect,5000);
+      };
+    }catch(ex){}
+  }
+  _connect();
+})();
+
+/* ══ AGENTS ══ */
+const AGENT_ROLES={
+  'Elite Commander':'supreme council · verify · override',
+  'Atlas':'global intelligence · mastermind',
+  'Analyst':'evidence · analysis · facts',
+  'Strategist':'long game · planning',
+  'Skeptic':'shadow gate · veto · critique',
+  'Auditor':'quality · verification',
+  'Governor':'governance · arbitration',
+  'Architect':'system design · blueprint',
+  'Scout':'discovery · knowledge',
+  'Storyteller':'synthesize · brief · close',
+  'Concierge':'router · mission intake',
+  'Forecaster':'scenarios · risk',
+  'Sentinel':'security · boundary',
+  'Executor':'tools · build · execute',
+};
+async function loadAgents(){
+  try{
+    const d=await j('/reputation?limit=14');
+    const lb=d.leaderboard||[];
+    const bw=await j('/reputation/best-worst');
+    const best=new Set((bw.best||[]).map(a=>a.agent));
+    const worst=new Set((bw.worst||[]).map(a=>a.agent));
+
+    const topScore=lb[0]?lb[0].score:1000;
+    $('ag-stats').innerHTML=`
+      <div class="stat"><div class="stat-val">${lb.length}</div><div class="stat-lbl">Members</div></div>
+      <div class="stat"><div class="stat-val">${lb.filter(a=>a.wins+a.losses+a.draws>0).length}</div><div class="stat-lbl">Graded</div></div>
+      <div class="stat"><div class="stat-val">${lb.reduce((s,a)=>s+a.wins,0)}</div><div class="stat-lbl">Correct</div></div>
+      <div class="stat"><div class="stat-val">${lb.reduce((s,a)=>s+a.losses,0)}</div><div class="stat-lbl">Incorrect</div></div>`;
+
+    $('agent-grid').innerHTML=lb.map(a=>{
+      const sk=a.alpha&&(a.alpha+a.beta)?a.alpha/(a.alpha+a.beta):0.5;
+      const isBest=best.has(a.agent), isWorst=worst.has(a.agent);
+      const scoreColor=isBest?'var(--ok)':isWorst?'var(--blood-bright)':'var(--gold)';
+      const code='OPV-'+a.agent.toUpperCase().slice(0,4).replace(/\s/g,'');
+      return `<div class="agent-card" onclick="openAgent(${JSON.stringify(a.agent)})">
+        <div class="agent-card-code">${code}</div>
+        <div class="agent-card-name">${esc(a.agent)}</div>
+        <div class="agent-card-role">${esc(AGENT_ROLES[a.agent]||'council member')}</div>
+        <div class="agent-card-score" style="color:${scoreColor}">${Math.round(a.score)}</div>
+        <div class="bar" style="margin-top:6px"><i style="width:${pct(sk)}"></i></div>
+        <div class="agent-card-wld">W${a.wins} · L${a.losses} · D${a.draws}</div>
+      </div>`;
+    }).join('');
+  }catch(e){$('agent-grid').innerHTML=`<div class="err-msg">Agents offline — ${e.message}</div>`;}
+}
+
+async function openAgent(agent){
+  const modal=$('agent-modal');modal.classList.add('open');
+  $('sc-code').textContent='OPV-'+agent.toUpperCase().slice(0,4);
+  $('sc-name').textContent=agent;
+  $('sc-stats').innerHTML='<div class="muted" style="font-size:11px">Loading…</div>';
+  try{
+    const d=await j('/reputation/'+encodeURIComponent(agent)+'/scorecard');
+    const rep=d.reputation||{};
+    const sk=d.skill||0;
+    const cal=rep.calibration||0;
+    const acc=rep.accuracy_rate||0;
+    const trend=d.trend||'flat';
+    $('sc-stats').innerHTML=`
+      <div class="stat"><div class="stat-val">${Math.round(rep.score||0)}</div><div class="stat-lbl">Score</div></div>
+      <div class="stat"><div class="stat-val">${pct(sk)}</div><div class="stat-lbl">Skill</div></div>
+      <div class="stat"><div class="stat-val">${pct(acc)}</div><div class="stat-lbl">Accuracy</div></div>
+      <div class="stat"><div class="stat-val">${pct(cal)}</div><div class="stat-lbl">Calibration</div></div>
+      <div class="stat"><div class="stat-val">${rep.wins||0}/${rep.losses||0}/${rep.draws||0}</div><div class="stat-lbl">W/L/D</div></div>`;
+    $('sc-skill').innerHTML=`
+      <div style="font-size:24px;font-family:'Cinzel',serif;color:var(--gold-bright)">${pct(sk)}</div>
+      <div class="bar" style="margin-top:8px"><i style="width:${pct(sk)}"></i></div>
+      <div style="font-size:9px;color:var(--ink-ghost);margin-top:6px">α=${(rep.alpha||1).toFixed(2)} β=${(rep.beta||1).toFixed(2)} · 90-day half-life decay</div>`;
+    $('sc-cal').innerHTML=`
+      <div style="font-size:24px;font-family:'Cinzel',serif;color:var(--${cal>=.6?'ok':'warn'})">${pct(cal)}</div>
+      <div class="bar" style="margin-top:8px"><i style="width:${pct(cal)}"></i></div>
+      <div style="font-size:9px;color:var(--ink-ghost);margin-top:6px">Brier score · n=${(rep.brier_n||0).toFixed(0)} calibrated predictions</div>`;
+    $('sc-trend').innerHTML=`
+      <span class="trend-${trend}" style="font-family:'Cinzel',serif;font-size:13px;color:var(--ink-dim)">${trend}</span>
+      <span style="color:var(--ink-ghost);font-size:9px;margin-left:12px">${d.history_points} graded outcomes on record</span>
+      <div style="display:flex;gap:3px;margin-top:10px;align-items:flex-end;height:40px">
+        ${(d.history||[]).slice(0,20).reverse().map(h=>{
+          const h_pct=Math.round((h.score||0)/10);
+          return `<div style="flex:1;background:var(--gold-dim);height:${Math.max(4,h_pct)}%;border-radius:2px 2px 0 0;opacity:0.7" title="${Math.round(h.score)}"></div>`;
+        }).join('')}
+      </div>`;
+  }catch(e){$('sc-stats').innerHTML=`<span class="err-msg">${e.message}</span>`;}
+}
+
+function closeModal(){$('agent-modal').classList.remove('open');}
+$('agent-modal').addEventListener('click',e=>{if(e.target===$('agent-modal'))closeModal();});
+
+/* ══ LEARNING ══ */
+async function loadLearning(){
+  try{
+    const d=await j('/learning');
+    const trend=d.confidence_trend||'flat';
+    $('lrn-stats').innerHTML=`
+      <div class="stat"><div class="stat-val trend-${trend}" style="font-size:16px">${trend}</div><div class="stat-lbl">Confidence Trend</div></div>
+      <div class="stat"><div class="stat-val">${pct(d.avg_confidence)}</div><div class="stat-lbl">Avg Confidence</div></div>
+      <div class="stat"><div class="stat-val">${pct(d.consensus_dissent_rate)}</div><div class="stat-lbl">Dissent Rate</div></div>
+      <div class="stat"><div class="stat-val">${d.n_sessions||0}</div><div class="stat-lbl">Sessions</div></div>`;
+    const agRow=a=>`<tr><td style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold)">${esc(a.agent)}</td>
+      <td>${Math.round(a.score||0)}</td><td class="muted">${a.wins}/${a.losses}/${a.draws}</td></tr>`;
+    $('lrn-best').innerHTML=(d.best_agents||[]).map(agRow).join('')||'<tr><td class="muted" colspan=3>—</td></tr>';
+    $('lrn-worst').innerHTML=(d.worst_agents||[]).map(agRow).join('')||'<tr><td class="muted" colspan=3>—</td></tr>';
+  }catch(e){$('lrn-stats').innerHTML=`<div class="err-msg">${e.message}</div>`;}
+
+  // recall quality
+  try{
+    const rq=await j('/recall-quality/sessions?limit=20');
+    $('rq-tbl').innerHTML=(rq.sessions||[]).map(s=>`<tr>
+      <td>${esc(trunc(s.directive||'',56))}</td>
+      <td>${pct(s.confidence)}</td>
+      <td class="val-${s.validity}">${s.validity||'—'}</td>
+      <td class="muted">${Math.round(s.age_days||0)}d</td>
+      <td class="muted">${s.outcomes?(s.outcomes.n_correct||0)+'✓ '+(s.outcomes.n_incorrect||0)+'✕':'—'}</td>
+    </tr>`).join('')||'<tr><td class="muted" colspan=5>— no sessions yet —</td></tr>';
+  }catch(e){$('rq-tbl').innerHTML=`<tr><td class="err-msg" colspan=5>${e.message}</td></tr>`;}
+}
+
+/* ══ PREDICTIONS ══ */
+async function loadPredictions(){
+  try{
+    const s=await j('/outcomes/summary');
+    $('pred-stats').innerHTML=`
+      <div class="stat"><div class="stat-val">${s.total||0}</div><div class="stat-lbl">Total</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--ok)">${(s.by_status||{}).correct||0}</div><div class="stat-lbl">Correct</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--blood-bright)">${(s.by_status||{}).incorrect||0}</div><div class="stat-lbl">Incorrect</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--warn)">${(s.by_status||{}).partial||0}</div><div class="stat-lbl">Partial</div></div>
+      <div class="stat"><div class="stat-val" style="color:var(--ink-ghost)">${(s.by_status||{}).pending||0}</div><div class="stat-lbl">Pending</div></div>
+      <div class="stat"><div class="stat-val">${(s.due_now||{})['30']||0}/${(s.due_now||{})['90']||0}/${(s.due_now||{})['180']||0}</div><div class="stat-lbl">Due 30/90/180</div></div>`;
+
+    const d=await j('/reputation?limit=14');
+    $('pred-agent-tbl').innerHTML=(d.leaderboard||[]).filter(a=>a.wins+a.losses+a.draws>0).map(a=>`<tr>
+      <td style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold)">${esc(a.agent)}</td>
+      <td class="muted">${a.wins}/${a.losses}/${a.draws}</td>
+      <td><span class="pill ${(a.accuracy_rate||0)>=.6?'pill-ok':'pill-warn'}">${pct(a.accuracy_rate)}</span></td>
+      <td><span class="pill ${(a.calibration||0)>=.5?'pill-ok':'pill-warn'}">${pct(a.calibration)}</span></td>
+    </tr>`).join('')||'<tr><td class="muted" colspan=4>No graded outcomes yet</td></tr>';
+
+    const learning=await j('/learning');
+    fillRaw('pred-failures',learning.recent_failures||[],'',o=>
+      `<span style="color:var(--blood-bright);font-family:'Cinzel',serif;font-size:9px">${esc(o.agent)}</span> — ${esc(trunc(o.statement||'',80))}`);
+
+    const rec=await j('/outcomes/recent?limit=15');
+    $('pred-recent-tbl').innerHTML=(rec.outcomes||[]).map(o=>`<tr>
+      <td style="font-size:10px;color:var(--gold);font-family:'Cinzel',serif">${esc(o.agent)}</td>
+      <td>${esc(trunc(o.statement||'',60))}</td>
+      <td class="muted">${o.horizon_primary||'—'}</td>
+      <td><span class="pill ${o.status==='correct'?'pill-ok':o.status==='incorrect'?'pill-bad':'pill-warn'}">${o.status}</span></td>
+    </tr>`).join('')||'<tr><td class="muted" colspan=4>No graded outcomes yet</td></tr>';
+  }catch(e){$('pred-stats').innerHTML=`<div class="err-msg">${e.message}</div>`;}
+}
+
+/* ══ GOVERNANCE ══ */
+async function loadGovernance(){
+  try{
+    const gs=await j('/governance/stats');
+    $('gov-stats').innerHTML=`
+      <div class="stat"><div class="stat-val">${Object.values(gs.by_decision||{}).reduce((s,v)=>s+v,0)}</div><div class="stat-lbl">Decisions</div></div>`+
+      Object.entries(gs.by_decision||{}).map(([k,v])=>`<div class="stat">
+        <div class="stat-val" style="font-size:18px;color:${k==='PASS'?'var(--ok)':k==='REJECTED'?'var(--blood-bright)':'var(--warn)'}">
+          ${v}</div><div class="stat-lbl">${k}</div></div>`).join('')+
+      `<div class="stat"><div class="stat-val" style="color:var(--gold)">${(gs.avg_governance_score*100).toFixed(0)}%</div><div class="stat-lbl">Avg Score</div></div>
+       <div class="stat"><div class="stat-val">${gs.minorities||0}</div><div class="stat-lbl">Dissents</div></div>
+       <div class="stat"><div class="stat-val" style="color:var(--ok)">${gs.vindicated||0}</div><div class="stat-lbl">Vindicated</div></div>`;
+
+    const ms=await j('/minorities/scoreboard');
+    $('gov-min-tbl').innerHTML=(ms.scoreboard||[]).map(a=>`<tr>
+      <td style="font-family:'Cinzel',serif;font-size:10px;color:var(--gold)">${esc(a.agent)}</td>
+      <td>${a.n_dissents}</td><td>${a.n_vindicated}</td>
+      <td>${a.vindication_rate==null?'—':`<span class="pill pill-ok">${pct(a.vindication_rate)}</span>`}</td>
+    </tr>`).join('')||'<tr><td class="muted" colspan=4>No dissent on record</td></tr>';
+
+    const con=await j('/constitution');
+    fill('gov-rules',(con.rules||[]).map(r=>r.name||r),'k');
+  }catch(e){$('gov-stats').innerHTML=`<div class="err-msg">${e.message}</div>`;}
+}
+
+/* ══ BELIEFS ══ */
+async function loadBeliefs(){
+  try{
+    const d=await j('/belief-changes?limit=30');
+    const changes=d.changes||[];
+    if(!changes.length){$('belief-timeline').innerHTML='<div class="muted">No belief changes recorded yet.</div>';return;}
+    $('belief-timeline').innerHTML=changes.map(ch=>{
+      const impact=(ch.new_confidence||0)-(ch.prev_confidence||0);
+      const up=impact>=0;
+      const dt=ch.ts?new Date(ch.ts*1000).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
+      return `<div class="tl-item">
+        <div class="tl-who">${esc(ch.agent||'?')} <span style="color:var(--ink-ghost);font-size:9px;font-family:'JetBrains Mono',monospace">${dt}</span></div>
+        ${ch.question?`<div class="tl-question">${esc(trunc(ch.question,80))}</div>`:''}
+        ${ch.previous?`<div class="tl-from">${esc(trunc(ch.previous,100))}</div>`:''}
+        <div class="tl-to">${esc(trunc(ch.new||'',120))}</div>
+        <span class="tl-impact ${up?'tl-up':'tl-dn'}">${up?'+':''}${impact.toFixed(2)} confidence</span>
+        ${ch.reason?`<div class="tl-reason">${esc(ch.reason)}</div>`:''}
+      </div>`;
+    }).join('');
+  }catch(e){$('belief-timeline').innerHTML=`<div class="err-msg">${e.message}</div>`;}
+}
+
+/* ══ MISSIONS ══ */
+/* ══ MISSION COMMAND CENTER (Phase 5) ══ */
+let _MCC={active:[],paused:[],completed:[],failed:[]};
+const MC_ORDER=['active','paused','completed','failed'];
+const MC_LABEL={active:'ACTIVE',paused:'PAUSED',completed:'COMPLETED',failed:'FAILED'};
+async function loadMissions(){
+  try{
+    const r=await fetch('/api/house/missions'); const d=await r.json();
+    _MCC=(d&&d.missions)||{active:[],paused:[],completed:[],failed:[]};
+    const dot=$('mc-dot'),txt=$('mc-txt'); if(dot)dot.className='sse-dot on'; if(txt)txt.textContent='live';
+    renderMissions();
+  }catch(e){ const b=$('mc-buckets'); if(b)b.innerHTML='<div class="err-msg">'+esc(e.message)+'</div>';
+    const dot=$('mc-dot'),txt=$('mc-txt'); if(dot)dot.className='sse-dot err'; if(txt)txt.textContent='—'; }
+}
+function _mStat(label,val){return `<span class="mc-stat"><b>${val}</b>${label}</span>`;}
+function _mHealth(m){
+  const h=m.health||{};
+  if('steps' in h) return _mStat('steps',h.steps||0)+_mStat('tools',h.tools||0);
+  return _mStat('evidence',h.evidence||0)+_mStat('reasoning',h.reasoning||0)+
+         _mStat('risks',h.risks||0)+_mStat('unknowns',h.uncertainties||0);
+}
+function mCard(m){
+  const conf=(m.confidence!=null)?Math.round(m.confidence*100)+'%':null;
+  const dt=m.updated_at?new Date(m.updated_at*1000).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  const stCls={active:'pill-ok',completed:'pill-dim',failed:'pill-bad',paused:'pill-warn'}[m.status]||'pill-dim';
+  const agents=(m.assigned_agents||[]).map(x=>`<span class="mc-agent">${esc(x)}</span>`).join('');
+  const riskLvl=(m.health&&m.health.risks)?'has-risk':'';
+  return `<div class="mission-card mc-${m.status} ${riskLvl}" onclick="this.classList.toggle('expanded')" title="click to expand">
+    <div class="mc-top"><span class="mc-kind">${esc(m.kind||'')}</span>
+      <span class="pill ${stCls}">${esc((m.status||'').toUpperCase())}</span>
+      ${conf?`<span class="pill pill-gold">${conf}</span>`:''}
+      ${m.health&&m.health.risks?`<span class="pill pill-bad" title="open risks">⚠ ${m.health.risks}</span>`:''}</div>
+    <div class="mission-q">${esc(m.objective||'—')}</div>
+    <div class="mc-health">${_mHealth(m)}</div>
+    <div class="mc-meta">
+      ${m.next_action?`<span class="mc-next">→ ${esc(m.next_action)}</span>`:''}
+      <span class="mc-time">${dt}</span></div>
+    ${agents?`<div class="mc-agents">${agents}</div>`:''}
+    ${m.kind==='council'&&m.status==='active'?`<button class="resume-btn" style="margin-top:8px" onclick="event.stopPropagation();resumeMission(${JSON.stringify(m.objective)})">↺ RESUME</button>`:''}
+  </div>`;
+}
+function renderMissions(){
+  if(!$('mc-buckets'))return;
+  const q=(($('mc-search')||{}).value||'').toLowerCase();
+  const filt=(($('mc-filter')||{}).value)||'all', sort=(($('mc-sort')||{}).value)||'recent';
+  const out=[];
+  MC_ORDER.forEach(bucket=>{
+    if(filt!=='all'&&filt!==bucket)return;
+    let arr=(_MCC[bucket]||[]).slice();
+    if(q)arr=arr.filter(m=>(m.objective||'').toLowerCase().includes(q)||(m.assigned_agents||[]).join(' ').toLowerCase().includes(q));
+    if(sort==='objective')arr.sort((a,b)=>(a.objective||'').localeCompare(b.objective||''));
+    else if(sort==='confidence')arr.sort((a,b)=>(b.confidence||0)-(a.confidence||0));
+    else arr.sort((a,b)=>(b.updated_at||0)-(a.updated_at||0));
+    out.push(`<div class="mc-bucket"><div class="mc-bucket-h">${MC_LABEL[bucket]} <span class="mc-count">${arr.length}</span></div>`+
+      (arr.length?arr.map(mCard).join(''):'<div class="muted" style="font-size:10.5px">— none —</div>')+'</div>');
+  });
+  $('mc-buckets').innerHTML=out.join('');
+}
+
+function resumeMission(question){
+  const ctx='Continue this mission:\n\n'+question;
+  try{
+    navigator.clipboard.writeText(ctx).then(()=>{
+      // try to push context to parent window via HouseState if available
+      if(window.parent&&window.parent.HouseState){
+        window.parent.HouseState.set('pending_resume',{directive:question,ts:Date.now()/1e3});
+      }
+      alert('Mission context copied to clipboard.\n\nPaste into the directive box and dispatch.');
+    });
+  }catch(e){prompt('Copy this directive:',ctx);}
+}
+
+/* ══ BELIEF EVOLUTION TIMELINE (Phase 4) ══ */
+const TL_STAGE={question:'QUESTION',evidence:'EVIDENCE',hypothesis:'HYPOTHESIS',
+                challenge:'CHALLENGE',revision:'BELIEF REVISION',decision:'DECISION'};
+async function loadInstitutionalMemory(){
+  const box=$('im-stream'); if(!box)return;
+  try{
+    const [bc,os,le]=await Promise.all([
+      fetch(API+'/belief-changes?limit=40').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/house/os').then(r=>r.json()).catch(()=>({})),
+      fetch('/api/house/learning').then(r=>r.json()).catch(()=>({}))
+    ]);
+    const ev=[];
+    (bc.changes||[]).forEach(c=>{
+      const real=/Reality/i.test(c.agent||'');
+      ev.push({ts:c.ts,kind:real?'learning':(/(Council)/i.test(c.agent||'')?'consensus':'belief'),
+        type:real?'Belief Revised by Reality':(/(Council)/i.test(c.agent||'')?'Consensus Reached':'Belief Changed'),
+        text:(c.reason?c.reason+' — ':'')+'"'+trunc(c.new||c.previous||'',70)+'"'+(c.question?' · '+trunc(c.question,40):'')});
+    });
+    ((os.os&&os.os.policies)||[]).forEach(p=>ev.push({ts:p.updated_at||p.created_at,kind:'policy',
+      type:'Policy Updated',text:p.statement+(p.what_changed?' — '+trunc(p.what_changed,60):'')}));
+    ((le.learning&&le.learning.lessons)||[]).forEach(l=>ev.push({ts:l.ts,kind:'learning',
+      type:'Learning Recorded',text:trunc(l.reason||l.lesson||'',90)}));
+    ev.sort((a,b)=>(b.ts||0)-(a.ts||0));
+    if(!ev.length){box.innerHTML='<div class="muted">— no institutional history yet —</div>';return;}
+    box.innerHTML=ev.slice(0,60).map(e=>{
+      const t=e.ts?new Date(e.ts*1000).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+      return `<div class="im-row k-${e.kind}"><span class="im-time">${t}</span>`+
+             `<span class="im-type">${esc(e.type)}</span><span class="im-text">${esc(e.text)}</span></div>`;
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="err-msg">'+esc(e.message)+'</div>'; }
+}
+async function loadTimeline(){
+  const box=$('tl-flow'); if(!box)return;
+  try{
+    const r=await fetch('/api/house/timeline'); const d=await r.json();
+    const tl=(d&&d.timeline)||{}; const nodes=tl.nodes||[];
+    const dot=$('tl-dot'),txt=$('tl-txt'); if(dot)dot.className='sse-dot on'; if(txt)txt.textContent='live';
+    if(!nodes.length){
+      box.innerHTML='<div class="muted">— no belief evolution recorded yet —</div>';
+      if(tl.gaps&&tl.gaps.length) box.innerHTML+=`<div class="tl-gap">⚠ gaps: ${tl.gaps.map(esc).join(', ')}</div>`;
+      return;
+    }
+    const out=[];
+    nodes.forEach((n,i)=>{
+      const t=n.timestamp?new Date(n.timestamp*1000).toLocaleTimeString([],{hour12:false}):'';
+      const meta='source: '+esc(n.source||'?')+(n.provenance?' · '+esc(n.provenance):'')+(t?' · '+t:'');
+      let imp='';
+      if(n.confidence_impact!=null) imp=` <span class="tl-imp ${n.confidence_impact>=0?'up':'dn'}">${n.confidence_impact>=0?'+':''}${n.confidence_impact}</span>`;
+      out.push(`<div class="tl-node tl-${n.node}"><div class="tl-stage">${TL_STAGE[n.node]||esc(n.node)}</div>`+
+               `<div class="tl-content">${esc(n.content||'')}${imp}</div><div class="tl-prov">${meta}</div></div>`);
+      if(i<nodes.length-1) out.push('<div class="tl-arrow">↓</div>');
+    });
+    if(tl.gaps&&tl.gaps.length) out.push(`<div class="tl-gap">⚠ gaps (no evidence recorded): ${tl.gaps.map(esc).join(', ')}</div>`);
+    box.innerHTML=out.join('');
+  }catch(ex){ box.innerHTML='<div class="muted">timeline unavailable</div>';
+    const dot=$('tl-dot'),txt=$('tl-txt'); if(dot)dot.className='sse-dot err'; if(txt)txt.textContent='—'; }
+}
+
+/* ══ INSTITUTIONAL LEARNING (Phase 6) ══ */
+function _leImp(v){ return (v!=null&&v!==0)?` <span class="le-imp ${v>=0?'up':'dn'}">${v>=0?'+':''}${v}</span>`:''; }
+async function loadLearningEngine(){
+  const box=$('le-wrap'); if(!box)return;
+  try{
+    const r=await fetch('/api/house/learning'); const d=await r.json();
+    const L=(d&&d.learning)||{}; const c=L.counts||{};
+    const dot=$('le-dot'),txt=$('le-txt'); if(dot)dot.className='sse-dot on'; if(txt)txt.textContent='live';
+    const tot=(c.lessons||0)+(c.failures||0)+(c.successes||0);
+    if(!tot){ box.innerHTML='<div class="muted">— nothing learned from reality yet —</div>'; return; }
+    const lesson=l=>`<div class="le-item r-${esc(l.result||'')}"><div class="le-lesson">${esc(l.reason||l.lesson||'—')}${_leImp(l.confidence_impact)}</div>`+
+      (l.previous!=null||l.new!=null?`<div class="le-change">"${esc(trunc(l.previous||'∅',40))}" → "${esc(trunc(l.new||'',48))}"</div>`:'')+
+      (l.question?`<div class="le-change" style="font-style:italic">${esc(trunc(l.question,60))}</div>`:'')+`</div>`;
+    const pred=p=>`<div class="le-item r-${esc(p.status||'')}"><div class="le-lesson">${esc(p.statement||'—')}</div>`+
+      (p.agent?`<div class="le-change">${esc(p.agent)}</div>`:'')+`</div>`;
+    const repeat=g=>`<div class="le-repeat"><span class="n">×${g.count}</span> ${esc(trunc((g.statements||[])[0]||'',70))}</div>`;
+    function grp(title,n,items){return `<div class="le-group"><div class="le-group-h"><span>${title}</span><span class="le-count">${n}</span></div>`+
+      (items&&items.length?items:'<div class="muted" style="font-size:10.5px">— none —</div>')+`</div>`;}
+    box.innerHTML=
+      grp('LESSONS LEARNED', c.lessons||0, (L.lessons||[]).map(lesson).join(''))+
+      grp('BEHAVIOR CHANGES', c.behavior_changes||0, (L.behavior_changes||[]).map(lesson).join(''))+
+      grp('FAILURES (disproven)', c.failures||0, (L.failures||[]).map(pred).join(''))+
+      grp('SUCCESSES (validated)', c.successes||0, (L.successes||[]).map(pred).join(''))+
+      grp('REPEAT ERRORS', c.repeat_failures||0, (L.repeat_failures||[]).map(repeat).join(''));
+  }catch(e){ box.innerHTML='<div class="err-msg">'+esc(e.message)+'</div>';
+    const dot=$('le-dot'),txt=$('le-txt'); if(dot)dot.className='sse-dot err'; if(txt)txt.textContent='—'; }
+}
+
+/* ══ HOUSE OPERATING SYSTEM (Phase P3) ══ */
+async function loadHouseOS(){
+  const box=$('os-wrap'); if(!box)return;
+  try{
+    const r=await fetch('/api/house/os'); const d=await r.json();
+    const O=(d&&d.os)||{}; const c=O.counts||{};
+    const dot=$('os-dot'),txt=$('os-txt'); if(dot)dot.className='sse-dot on'; if(txt)txt.textContent='live';
+    if(!(c.policies||c.rules)){ box.innerHTML='<div class="muted">— no policies codified yet —</div>'; return; }
+    const policy=p=>`<div class="os-policy"><div class="os-stmt">${esc(p.statement||'')}</div>`+
+      `<div class="os-prov"><b>What happened:</b> ${esc(p.what_happened||'—')}<br>`+
+      `<b>Why:</b> ${esc(p.why||'—')}<br><b>What changed:</b> ${esc(p.what_changed||'—')}</div>`+
+      (p.origin?`<div class="os-origin">origin: ${esc(p.origin)}</div>`:'')+`</div>`;
+    const rule=r=>`<div class="os-rule"><div class="os-rule-stmt">${esc(r.statement||'')}</div>`+
+      (r.enforcement?`<div class="os-rule-enf">enforced by: ${esc(r.enforcement)}</div>`:'')+`</div>`;
+    box.innerHTML=
+      `<div><div class="os-group-h"><span>POLICIES</span><span class="le-count">${c.policies||0}</span></div>`+
+      ((O.policies||[]).map(policy).join('')||'<div class="muted" style="font-size:10.5px">— none —</div>')+`</div>`+
+      `<div><div class="os-group-h"><span>RULES</span><span class="le-count">${c.rules||0}</span></div>`+
+      ((O.rules||[]).map(rule).join('')||'<div class="muted" style="font-size:10.5px">— none —</div>')+`</div>`;
+  }catch(e){ box.innerHTML='<div class="err-msg">'+esc(e.message)+'</div>';
+    const dot=$('os-dot'),txt=$('os-txt'); if(dot)dot.className='sse-dot err'; if(txt)txt.textContent='—'; }
+}
+
+/* ══ LOAD ALL ══ */
+function loadAll(){loadMind();loadAgents();loadLearning();loadPredictions();loadGovernance();loadBeliefs();loadTimeline();loadInstitutionalMemory();loadLearningEngine();loadHouseOS();loadMissions();}
+loadAll();
+setInterval(loadAll,30000);
+</script>
+</body>
+</html>

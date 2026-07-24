@@ -1,0 +1,210 @@
+[
+  {
+    "runtime": "ollama",
+    "url": "http://127.0.0.1:11434",
+    "api_type": "ollama",
+    "online": true,
+    "models": [
+      {
+        "id": "SkynetClaw:latest",
+        "family": "nemotron_h_omni",
+        "size_gb": 27.6,
+        "quantization": "Q4_K_M",
+        "parameters": "33.0B",
+        "context": 131072,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 33.0,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Reasoning",
+          "Council"
+        ]
+      },
+      {
+        "id": "nemotron3:33b",
+        "family": "nemotron_h_omni",
+        "size_gb": 27.6,
+        "quantization": "Q4_K_M",
+        "parameters": "33.0B",
+        "context": 131072,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 33.0,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Reasoning",
+          "Council"
+        ]
+      },
+      {
+        "id": "Genesis-Mind:latest",
+        "family": "gemma4",
+        "size_gb": 18.0,
+        "quantization": "Q4_K_M",
+        "parameters": "25.8B",
+        "context": 262144,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 25.8,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Reasoning"
+        ]
+      },
+      {
+        "id": "ElmatadorZ-AI:latest",
+        "family": "gemma4",
+        "size_gb": 18.0,
+        "quantization": "Q4_K_M",
+        "parameters": "25.8B",
+        "context": 262144,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 25.8,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Reasoning"
+        ]
+      },
+      {
+        "id": "Alternative-LLM:latest",
+        "family": "gemma4",
+        "size_gb": 18.0,
+        "quantization": "Q4_K_M",
+        "parameters": "25.8B",
+        "context": 262144,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 25.8,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Reasoning"
+        ]
+      },
+      {
+        "id": "gemma4:26b",
+        "family": "gemma4",
+        "size_gb": 18.0,
+        "quantization": "Q4_K_M",
+        "parameters": "25.8B",
+        "context": 262144,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 25.8,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Reasoning"
+        ]
+      },
+      {
+        "id": "Skynet-Agent:latest",
+        "family": "qwen35",
+        "size_gb": 6.6,
+        "quantization": "Q4_K_M",
+        "parameters": "9.7B",
+        "context": 262144,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 9.7,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Execution",
+          "Reasoning"
+        ]
+      },
+      {
+        "id": "qwen3.5:9b",
+        "family": "qwen35",
+        "size_gb": 6.6,
+        "quantization": "Q4_K_M",
+        "parameters": "9.7B",
+        "context": 262144,
+        "tool_calling": true,
+        "vision": true,
+        "thinking": true,
+        "embedding": false,
+        "api_type": "ollama",
+        "param_b": 9.7,
+        "runtime": "ollama",
+        "url": "http://127.0.0.1:11434",
+        "online": true,
+        "roles": [
+          "Vision",
+          "Execution",
+          "Reasoning"
+        ]
+      }
+    ]
+  },
+  {
+    "runtime": "llamacpp",
+    "url": "http://127.0.0.1:8080/v1",
+    "api_type": "openai",
+    "online": true,
+    "models": [
+      {
+        "id": "qwen25-7b.gguf",
+        "family": "qwen",
+        "size_gb": 4.7,
+        "parameters": null,
+        "param_b": 7.0,
+        "quantization": null,
+        "context": 32768,
+        "tool_calling": null,
+        "vision": null,
+        "thinking": null,
+        "embedding": null,
+        "api_type": "openai",
+        "runtime": "llamacpp",
+        "url": "http://127.0.0.1:8080/v1",
+        "online": true,
+        "roles": [
+          "Execution"
+        ]
+      }
+    ]
+  }
+]

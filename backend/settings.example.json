@@ -1,0 +1,17 @@
+{
+  "_comment": "Copy to settings.json and edit. settings.json is git-ignored, so your paths and model choices stay local to your machine.",
+
+  "_comment_vault": "Both keys point at the same Obsidian vault; leave them equal unless you know why not. Optional — SkynetClaw runs without a vault.",
+  "vault_path": "/path/to/your/obsidian/vault",
+  "obsidian_vault": "/path/to/your/obsidian/vault",
+
+  "_comment_models": "Reasoning models. Any Ollama tag works; swap for a cloud model via .env if you prefer.",
+  "default_model": "llama3.1:8b",
+  "model": "llama3.1:8b",
+  "active_model": "llama3.1:8b",
+  "embed_model": "nomic-embed-text",
+
+  "_comment_exec": "The execution path — tool calls and file edits. Prefer a small, fast model here: the model that reasons does not have to be the model that executes.",
+  "exec_model": "qwen2.5-coder:7b",
+  "exec_connection": "ollama"
+}

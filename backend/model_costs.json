@@ -1,0 +1,86 @@
+{
+  "nemotron3:33b": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 131072,
+    "local": true
+  },
+  "Genesis-Mind:latest": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 16384,
+    "local": true
+  },
+  "ElmatadorZ-AI:latest": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 16384,
+    "local": true
+  },
+  "Alternative-LLM:latest": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 16384,
+    "local": true
+  },
+  "SkynetClaw:latest": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 16384,
+    "local": true
+  },
+  "Skynet-Agent:latest": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 16384,
+    "local": true
+  },
+  "gemma4:26b": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 8192,
+    "local": true
+  },
+  "qwen3.5:9b": {
+    "input": 0.0,
+    "output": 0.0,
+    "ctx": 32768,
+    "local": true
+  },
+  "moonshotai/Kimi-K2.5": {
+    "input": 0.5,
+    "output": 2.8,
+    "ctx": 262144,
+    "local": false
+  },
+  "deepseek-ai/DeepSeek-V3.1": {
+    "input": 0.6,
+    "output": 1.25,
+    "ctx": 131072,
+    "local": false
+  },
+  "deepseek-ai/DeepSeek-R1": {
+    "input": 3.0,
+    "output": 7.0,
+    "ctx": 131072,
+    "local": false
+  },
+  "meta-llama/Llama-3.3-70B-Instruct-Turbo": {
+    "input": 0.88,
+    "output": 0.88,
+    "ctx": 131072,
+    "local": false
+  },
+  "meta-llama/Llama-4-Scout-17B-16E-Instruct": {
+    "input": 0.18,
+    "output": 0.59,
+    "ctx": 10000000,
+    "local": false
+  },
+  "zai-org/GLM-4.7": {
+    "input": 0.45,
+    "output": 2.0,
+    "ctx": 202752,
+    "local": false
+  }
+}

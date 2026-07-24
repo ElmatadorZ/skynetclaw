@@ -1,0 +1,18 @@
+[
+  {
+    "driver": "ollama",
+    "api_types": [
+      "ollama"
+    ]
+  },
+  {
+    "driver": "openai",
+    "api_types": [
+      "openai",
+      "llamacpp",
+      "lmstudio",
+      "vllm",
+      "sglang"
+    ]
+  }
+]

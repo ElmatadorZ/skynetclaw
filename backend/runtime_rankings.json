@@ -1,0 +1,159 @@
+{
+  "Execution": [
+    {
+      "id": "qwen25-7b.gguf",
+      "runtime": "llamacpp",
+      "url": "http://127.0.0.1:8080/v1",
+      "api_type": "openai",
+      "score": 56.892
+    },
+    {
+      "id": "Skynet-Agent:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 15.3
+    },
+    {
+      "id": "qwen3.5:9b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 15.3
+    }
+  ],
+  "Reasoning": [
+    {
+      "id": "SkynetClaw:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 90.0
+    },
+    {
+      "id": "nemotron3:33b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 90.0
+    },
+    {
+      "id": "Genesis-Mind:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 75.6
+    },
+    {
+      "id": "ElmatadorZ-AI:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 75.6
+    },
+    {
+      "id": "Alternative-LLM:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 75.6
+    },
+    {
+      "id": "gemma4:26b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 75.6
+    },
+    {
+      "id": "Skynet-Agent:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 43.4
+    },
+    {
+      "id": "qwen3.5:9b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 43.4
+    }
+  ],
+  "Council": [
+    {
+      "id": "SkynetClaw:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 90.0
+    },
+    {
+      "id": "nemotron3:33b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 90.0
+    }
+  ],
+  "Vision": [
+    {
+      "id": "SkynetClaw:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 43.0
+    },
+    {
+      "id": "nemotron3:33b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 43.0
+    },
+    {
+      "id": "Genesis-Mind:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 35.8
+    },
+    {
+      "id": "ElmatadorZ-AI:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 35.8
+    },
+    {
+      "id": "Alternative-LLM:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 35.8
+    },
+    {
+      "id": "gemma4:26b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 35.8
+    },
+    {
+      "id": "Skynet-Agent:latest",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 19.7
+    },
+    {
+      "id": "qwen3.5:9b",
+      "runtime": "ollama",
+      "url": "http://127.0.0.1:11434",
+      "api_type": "ollama",
+      "score": 19.7
+    }
+  ],
+  "Embedding": [],
+  "Utility": []
+}
