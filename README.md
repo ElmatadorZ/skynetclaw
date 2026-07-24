@@ -215,6 +215,9 @@ See [NOTICE](NOTICE) for the full statement.
 | **Windows** | ✅ verified in CI | `install.bat` · `start.bat` |
 | **macOS** | ⚠️ should work (POSIX path); **not yet in CI** | use the commands above |
 
+Linux specifics — system packages, discovery paths, systemd unit, known gaps:
+**[docs/LINUX.md](docs/LINUX.md)**.
+
 CI installs from `requirements.txt` alone on Ubuntu and Windows across Python 3.10 / 3.11 / 3.12,
 runs the migration, boots the server, and requires `/api/system/health` to report `ok`. If that
 badge is red, the claim that this works is not currently true.

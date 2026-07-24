@@ -72,12 +72,22 @@ def _html(path: str) -> str:
 
 
 def _find_tesseract() -> str:
+    """Locate the tesseract binary. PATH first — that is how it is installed on
+    Linux (apt/dnf/pacman), macOS (brew), and increasingly on Windows too.
+    The explicit lists are fallbacks for installers that skip PATH."""
     import shutil
     cmd = shutil.which("tesseract")
     if cmd:
         return cmd
-    for p in (r"C:\Program Files\Tesseract-OCR\tesseract.exe",
-              r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe"):
+    if os.name == "nt":
+        cands = (r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                 r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe")
+    else:
+        cands = ("/usr/bin/tesseract",            # Debian/Ubuntu, Fedora, Arch
+                 "/usr/local/bin/tesseract",      # source builds, Intel brew
+                 "/opt/homebrew/bin/tesseract",   # Apple-silicon brew
+                 "/snap/bin/tesseract")
+    for p in cands:
         if os.path.exists(p):
             return p
     return ""
@@ -85,10 +95,18 @@ def _find_tesseract() -> str:
 
 def _find_tessdata() -> str:
     """A tessdata dir that contains Thai (tha.traineddata)."""
+    home = os.path.expanduser("~")
     cands = [os.environ.get("TESSDATA_PREFIX", ""),
-             os.path.join(os.path.expanduser("~"), "llamacpp_test", "tessdata"),
-             r"C:\Program Files\Tesseract-OCR\tessdata",
-             r"C:\Program Files (x86)\Tesseract-OCR\tessdata"]
+             os.path.join(home, "llamacpp_test", "tessdata")]
+    if os.name == "nt":
+        cands += [r"C:\Program Files\Tesseract-OCR\tessdata",
+                  r"C:\Program Files (x86)\Tesseract-OCR\tessdata"]
+    else:
+        cands += ["/usr/share/tesseract-ocr/5/tessdata",   # Debian/Ubuntu (v5)
+                  "/usr/share/tesseract-ocr/4.00/tessdata",  # older Debian
+                  "/usr/share/tessdata",                     # Fedora/Arch
+                  "/usr/local/share/tessdata",
+                  "/opt/homebrew/share/tessdata"]            # Apple-silicon brew
     for d in cands:
         if d and os.path.exists(os.path.join(d, "tha.traineddata")):
             return d

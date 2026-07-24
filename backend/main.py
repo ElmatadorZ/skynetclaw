@@ -3915,8 +3915,16 @@ Write-Output $d.FileName"""
 @app.get("/api/browse/obsidian-vaults")
 async def find_obsidian_vaults():
     vaults=[]
-    for cfg in [Path(os.environ.get("APPDATA",""))/"obsidian"/"obsidian.json",
-                Path.home()/"AppData"/"Roaming"/"obsidian"/"obsidian.json"]:
+    # Obsidian stores its vault registry in the host's config location, which
+    # differs per platform. Probe all of them; missing ones are simply skipped.
+    _cfgs = [Path(os.environ.get("APPDATA", "")) / "obsidian" / "obsidian.json",
+             Path.home() / "AppData" / "Roaming" / "obsidian" / "obsidian.json",          # Windows
+             Path.home() / "Library" / "Application Support" / "obsidian" / "obsidian.json",  # macOS
+             Path(os.environ.get("XDG_CONFIG_HOME") or (Path.home() / ".config"))
+             / "obsidian" / "obsidian.json",                                              # Linux
+             Path.home() / ".var" / "app" / "md.obsidian.Obsidian" / "config"
+             / "obsidian" / "obsidian.json"]                                              # Linux flatpak
+    for cfg in _cfgs:
         if cfg.exists():
             try:
                 data=json.loads(cfg.read_text(encoding="utf-8"))
@@ -7419,11 +7427,19 @@ async def api_upload(file: UploadFile = File(...), workspace_folder: str = Form(
         import doc_reader as _dr
         ws = (workspace_folder or "").strip()
         if not ws:
-            for _cand in [os.path.join(os.path.expanduser("~"), "OneDrive", "Desktop", "workspace"),
-                          os.path.join(os.path.expanduser("~"), "Desktop", "workspace")]:
+            _home = os.path.expanduser("~")
+            # Desktop is not guaranteed on Linux (headless, or a non-English
+            # XDG name), so fall back to a plain ~/skynetclaw-workspace there.
+            _cands = [os.path.join(_home, "OneDrive", "Desktop", "workspace"),
+                      os.path.join(_home, "Desktop", "workspace"),
+                      os.path.join(_home, "skynetclaw-workspace")]
+            for _cand in _cands:
                 if os.path.isdir(_cand):
                     ws = _cand; break
-            ws = ws or os.path.join(os.path.expanduser("~"), "Desktop", "workspace")
+            if not ws:
+                ws = (os.path.join(_home, "Desktop", "workspace")
+                      if os.path.isdir(os.path.join(_home, "Desktop"))
+                      else os.path.join(_home, "skynetclaw-workspace"))
         updir = os.path.join(ws, "uploads")
         os.makedirs(updir, exist_ok=True)
         safe = os.path.basename(file.filename or "upload.bin").replace("..", "_")
@@ -7455,11 +7471,19 @@ async def api_news_report(req: Request):
             topics = [t.strip() for t in _re2.split(r"[,\n;|]", topics) if t.strip()]
         ws = body.get("workspace_folder")
         if not ws:
-            for _cand in [os.path.join(os.path.expanduser("~"), "OneDrive", "Desktop", "workspace"),
-                          os.path.join(os.path.expanduser("~"), "Desktop", "workspace")]:
+            _home = os.path.expanduser("~")
+            # Desktop is not guaranteed on Linux (headless, or a non-English
+            # XDG name), so fall back to a plain ~/skynetclaw-workspace there.
+            _cands = [os.path.join(_home, "OneDrive", "Desktop", "workspace"),
+                      os.path.join(_home, "Desktop", "workspace"),
+                      os.path.join(_home, "skynetclaw-workspace")]
+            for _cand in _cands:
                 if os.path.isdir(_cand):
                     ws = _cand; break
-            ws = ws or os.path.join(os.path.expanduser("~"), "Desktop", "workspace")
+            if not ws:
+                ws = (os.path.join(_home, "Desktop", "workspace")
+                      if os.path.isdir(os.path.join(_home, "Desktop"))
+                      else os.path.join(_home, "skynetclaw-workspace"))
         fname = (body.get("filename") or "news_report.html").strip()
         if not fname.lower().endswith(".html"):
             fname += ".html"

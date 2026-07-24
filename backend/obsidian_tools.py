@@ -11,12 +11,15 @@ obsidian_tools.py — Obsidian vault access for SkynetClaw / Continental Divisio
 Vault discovery (in order):
   1. settings.json → 'obsidian_vault'
   2. settings.json → 'obsidian_vaults' (list, first entry)
-  3. C:/Users/<user>/Documents/Obsidian Vault
-  4. C:/Users/<user>/Obsidian
-  5. D:/Obsidian
+  3. cross-platform conventional locations under $HOME
+  4. host-specific locations (OneDrive on Windows, iCloud on macOS,
+     Nextcloud/Dropbox and container mounts on Linux)
+
+A vault is optional — SkynetClaw runs without one; the Scout's four tools
+simply report that none is configured.
 """
 from __future__ import annotations
-import json, os, re
+import json, os, re, sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -42,15 +45,36 @@ def get_vault() -> Optional[Path]:
     if isinstance(s.get("obsidian_vaults"), list) and s["obsidian_vaults"]:
         candidates.append(s["obsidian_vaults"][0])
 
-    # OS-typical paths
+    # OS-typical paths. The same Obsidian install lives somewhere different on
+    # each platform, so probe the host's conventions rather than assuming one.
     home = Path.home()
     candidates += [
         str(home / "Documents" / "Obsidian Vault"),
         str(home / "Obsidian"),
-        str(home / "OneDrive" / "Documents" / "Obsidian Vault"),
-        "D:/Obsidian",
-        "D:/Notes",
+        str(home / "Notes"),
+        str(home / "vault"),
     ]
+    if os.name == "nt":                                     # Windows
+        candidates += [
+            str(home / "OneDrive" / "Documents" / "Obsidian Vault"),
+            str(home / "OneDrive" / "Obsidian"),
+            "D:/Obsidian",
+            "D:/Notes",
+        ]
+    elif sys.platform == "darwin":                          # macOS
+        candidates += [
+            str(home / "Library" / "Mobile Documents"
+                / "iCloud~md~obsidian" / "Documents"),      # iCloud-synced vaults
+            str(home / "Documents" / "Obsidian"),
+        ]
+    else:                                                    # Linux / BSD
+        candidates += [
+            str(home / "Nextcloud" / "Obsidian"),
+            str(home / "Dropbox" / "Obsidian"),
+            str(home / "Sync" / "Obsidian"),
+            "/vault",                                        # docker-compose mount
+            "/data/obsidian",
+        ]
     for c in candidates:
         p = Path(c)
         if p.exists() and p.is_dir():

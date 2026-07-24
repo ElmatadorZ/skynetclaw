@@ -155,6 +155,8 @@ personal file has crept in.
 
 Choosing and mixing models: **[MODELS.md](MODELS.md)**.
 
+Linux specifics — packages, discovery paths, systemd: **[LINUX.md](LINUX.md)**.
+
 ---
 
 ## Before enabling execution
