@@ -36,7 +36,7 @@ institutional memory is unavailable the council still runs.
    │  agent_reputation.py    quality(evidence/critique/forecast) + W/L/D + Elo  │
    │     ▲                                                                      │
    │     │ apply_outcome()                                                      │
-   │  outcome_tracker.py     predictions → 30/90/180-day reviews → reputation   │
+   │  outcome_tracker.py     predictions → 7/30/90/180-day reviews → reputation   │
    │                                                                            │
    │  atlas_system_map.py    ATLAS V2 — 7 civilization layers, 2nd/3rd order    │
    │  obsidian_knowledge_protocol.py   SCOUT V2 — read/search/link/JD/MOC       │
@@ -51,7 +51,7 @@ institutional memory is unavailable the council still runs.
 
 Data flow: a council deliberates → `_persist_council` saves the session, scores
 each agent's contribution, and writes an archive note → later, predictions are
-reviewed at 30/90/180 days → results update agent reputation → the dashboard and
+reviewed at 7/30/90/180 days → results update agent reputation → the dashboard and
 the Historical Recall Layer expose what the House has learned.
 
 ---
@@ -65,7 +65,7 @@ backend/
 ├── deliberation_archive.py          # PART 2 archive → SQLite + Obsidian
 ├── house_constitution.py            # PART 3 seven permanent rules + compliance check
 ├── agent_reputation.py              # PART 4 reputation (quality + W/L/D + Elo)
-├── outcome_tracker.py               # PART 5 30/90/180-day outcome reviews
+├── outcome_tracker.py               # PART 5 7/30/90/180-day outcome reviews
 ├── atlas_system_map.py              # PART 6 ATLAS V2 — 7 civilization layers
 ├── obsidian_knowledge_protocol.py   # PART 7 SCOUT V2 — executable vault protocol
 ├── council_intelligence_api.py      # PART 9 FastAPI router  (register(app))

@@ -13,10 +13,17 @@ applicable policy at a hook and the MOST-RESTRICTIVE decision wins
 the A4 authority owner), so the black-box recorder captures all governance.
 
 This step EXPRESSES the House's existing checks as policies (strangler-fig):
-  · guidance_check (Vol V G1, deviant-act guard)  → PRE_ACT
-  · warrant_check  (CEE-C1, fabrication guard)     → PRE_COMMIT
+  · guidance_check (Vol V G1, deviant-act guard)  → PRE_COMMIT
+  · warrant_check  (CEE-C1, fabrication guard)    → PRE_COMMIT
 The hooks are wired to fire live in step 5 (Scheduling/Execution split); here the
 policies exist on the hook surface and the engine resolves them.
+
+Where each policy runs (registered_by_hook() is the authority, not this comment):
+  PRE_ACT      governance.gps2 · shadow.fabrication · approvals.prior_deny ·
+               run.tool_allow      — before a side effect leaves the House
+  PRE_COMMIT   guidance.g1 · warrant.cee_c1
+                                   — before a claim is committed as belief
+  PRE_VALIDATE cvl.quality_gate    — before output is accepted as valid
 
 Never raises. Stdlib only; checks + kernel_events are lazy imports.
 License: Apache-2.0 — ElmatadorZ
@@ -60,6 +67,21 @@ def register(p: Policy) -> None:
 
 def registered() -> List[str]:
     return [getattr(p, "id", "?") for p in _POLICIES]
+
+
+def registered_by_hook() -> Dict[str, List[str]]:
+    """Policy ids grouped by the hook each one actually runs on.
+
+    registered() is a flat list, and a flat list printed under a single hook's
+    name reads as if every policy fires at that one boundary. They do not: the
+    fabrication and warrant guards run at PRE_COMMIT, the quality gate at
+    PRE_VALIDATE. A governance surface that misreports *where* it acts is worse
+    than one that says nothing, because it is believed.
+    """
+    out: Dict[str, List[str]] = {}
+    for p in _POLICIES:
+        out.setdefault(getattr(p, "hook", "?"), []).append(getattr(p, "id", "?"))
+    return {h: out[h] for h in HOOKS if h in out} | {h: v for h, v in out.items() if h not in HOOKS}
 
 
 def policies_for(hook: str) -> List[Policy]:

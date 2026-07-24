@@ -68,7 +68,7 @@ unit-tested) · **DEPRECATED** (superseded/unused) · **BLOCKED** (cannot ship).
 | `governance_engine.py` | constitution enforcement + minority tracking |
 | `house_constitution.py` | the 7 rules + compliance scoring |
 | `agent_reputation.py` | Bayesian, calibrated, recency-weighted reputation |
-| `outcome_tracker.py` | 30/90/180-day prediction reviews |
+| `outcome_tracker.py` | 7/30/90/180-day prediction reviews |
 | `scheduler.py` | durable Outcome Clock |
 | `extractor.py` | falsifiable-prediction extraction |
 | `council_intelligence_api.py` | `/api/council/*` + dashboard |

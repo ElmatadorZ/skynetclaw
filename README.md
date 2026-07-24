@@ -43,7 +43,7 @@ cd skynetclaw
 cp .env.example .env
 cp backend/settings.example.json backend/settings.json
 
-# 2 — dependencies (5 packages, no build step)
+# 2 — dependencies (16 packages + 2 for tests, no build step)
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r backend/requirements.txt
@@ -68,8 +68,11 @@ the council.
 
 ```
 [Governance] GPS-2 gate armed — deny-by-default · human gate on irreversible tools
+[Kernel] PRE_ACT armed — governance.gps2, shadow.fabrication, approvals.prior_deny, run.tool_allow
+[Kernel] PRE_VALIDATE armed — cvl.quality_gate
+[Kernel] PRE_COMMIT armed — guidance.g1, warrant.cee_c1
 [Council] L5 six specialists loaded
-[Prompts] full: 20,590 chars · compact: 12,672 chars
+[Prompts] full: 22,054 chars · compact: 12,672 chars
 INFO:     Uvicorn running on http://127.0.0.1:8766
 ```
 
@@ -156,7 +159,7 @@ Council (14)     ── parallel deliberation → verdict
    ↓
 Governance       ── enforce the constitution; preserve dissent
    ↓
-House Mind Update + Memory + Predictions (graded at 30/90/180 days)
+House Mind Update + Memory + Predictions (graded at 7/30/90/180 days)
    ↓
 Verdict
 ```
@@ -173,7 +176,7 @@ versioned, reversible migration history (currently schema **v5**):
 | `house_state.py` | **the House Mind** — shared cognitive state + belief evolution |
 | `governance_engine.py` | enforces the constitution · minority tracking |
 | `agent_reputation.py` | Bayesian, calibrated, recency-weighted reputation |
-| `outcome_tracker.py` | 30/90/180-day prediction reviews |
+| `outcome_tracker.py` | 7/30/90/180-day prediction reviews |
 | `scheduler.py` | durable Outcome Clock |
 | `council_intelligence_api.py` | `/api/council/*` + the Council Intelligence UI |
 

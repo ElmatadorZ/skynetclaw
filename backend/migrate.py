@@ -63,6 +63,12 @@ if __name__ == "__main__":
     if cmd == "up":
         print("applied:", up())
     elif cmd == "down":
+        # The version is required on purpose: a bare "down" that guesses which
+        # migration to drop is a footgun on a database holding the House's memory.
+        if len(sys.argv) < 3:
+            print("usage: python migrate.py down <version>   e.g. down 005")
+            print("applied versions:", status())
+            sys.exit(2)
         print("rolled back:", down(sys.argv[2]))
     else:
         print("versions:", status())

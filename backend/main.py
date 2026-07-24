@@ -580,10 +580,15 @@ try:
     import kernel_policy as _kpol
     import kernel_execution as _kexec
     _kpol.install_act_policies(gate=_GOV, shadow=_mp_shadow_gate)
-    print(f"[Kernel] PRE_ACT hook armed — policies: {_kpol.registered()}")
+    # Report policies under the hook each one actually runs on. Printing the flat
+    # list under "PRE_ACT" claimed the fabrication and warrant guards fire before
+    # the action; they fire before the commit. The boot log is read as the
+    # authority on where the gates are, so it has to be the truth.
+    for _hook, _ids in _kpol.registered_by_hook().items():
+        print(f"[Kernel] {_hook} armed — {', '.join(_ids)}")
 except Exception as _ke_e:
     _kexec = None
-    print(f"[Kernel] PRE_ACT hook NOT armed ({_ke_e}) — legacy gate chain still applies")
+    print(f"[Kernel] policy hooks NOT armed ({_ke_e}) — legacy gate chain still applies")
 
 
 # COGNITIVE KERNEL — authenticated operator role (the SAFE alternative to a backdoor).
