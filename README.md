@@ -77,8 +77,12 @@ Confirm it is healthy:
 
 ```bash
 curl http://127.0.0.1:8766/api/system/health
-# {"ok":true,"status":"GREEN","summary":"all 14 checks pass", ...}
+# {"ok":true,"status":"YELLOW","summary":"13 green · 1 degraded", ...}
 ```
+
+`YELLOW` is expected before a model runtime is running — the `ollama` check reports *degraded* and
+names the remedy. Start Ollama and the same call returns `GREEN — all 14 checks pass`. Only `RED`
+means the House itself is faulty, and only `RED` makes `ok` false.
 
 | Surface | Where |
 |---|---|

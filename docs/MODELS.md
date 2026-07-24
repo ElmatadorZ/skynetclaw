@@ -34,6 +34,17 @@ Then in `backend/settings.json`:
 **No GPU required.** A 7–8B model runs on CPU; it is slower, not broken. If you have an NVIDIA GPU,
 Ollama will use it automatically.
 
+**If Ollama is not on this machine**, point the backend at it — the default is
+`http://localhost:11434`:
+
+```bash
+# .env
+OLLAMA_BASE_URL=http://192.168.1.20:11434
+```
+
+`docker compose` sets this to `http://ollama:11434` for you, because inside a container
+"localhost" is the container itself and not the host.
+
 ### Why two models
 
 ```jsonc

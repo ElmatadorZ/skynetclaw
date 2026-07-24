@@ -132,13 +132,23 @@ INFO:     Uvicorn running on http://127.0.0.1:8766
 | **Health** | `http://127.0.0.1:8766/api/system/health` |
 | **Bridge console** | `http://127.0.0.1:8766/bridge` |
 
-Health should report:
+Health on a machine that has not started a model runtime yet reports:
 
 ```json
-{"ok": true, "status": "GREEN", "summary": "all 14 checks pass"}
+{"ok": true, "status": "YELLOW", "summary": "13 green · 1 degraded"}
 ```
 
-If it does not, the response names the failing check.
+That is the correct answer, not a problem: the `ollama` check is *degraded* and says so, along
+with what to do about it. Once a runtime is up the same call returns
+`{"ok": true, "status": "GREEN", "summary": "all 14 checks pass"}`.
+
+| Verdict | Meaning | `ok` |
+|---|---|---|
+| `GREEN` | every subsystem reachable | `true` |
+| `YELLOW` | running; something optional is absent or not yet generated | `true` |
+| `RED` | the House itself is faulty — a file, module, or database is broken | `false` |
+
+Every check names itself in `checks[]`, so read the response before changing anything.
 
 ---
 
@@ -181,5 +191,6 @@ See [NOTICE](../NOTICE).
 | Port 8766 in use | previous instance running | change `--port`, or stop it |
 | Model calls hang | Ollama not running | `ollama serve`, then `ollama list` |
 | JSON / tool-call failures | model too small | see the note in [MODELS.md](MODELS.md) |
-| Health not GREEN | a subsystem failed to load | read `/api/system/health` — it names the check |
-| Docker: backend cannot reach Ollama | wrong base URL inside the container | inside Docker it is `http://ollama:11434`, not `localhost` |
+| Health `YELLOW` | normal — an optional subsystem is absent | read the check's message; it names the remedy |
+| Health `RED` | a subsystem failed to load | read `/api/system/health` — it names the check |
+| Docker: backend cannot reach Ollama | wrong base URL inside the container | set `OLLAMA_BASE_URL`; inside Docker it is `http://ollama:11434`, not `localhost` |
