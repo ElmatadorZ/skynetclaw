@@ -45,8 +45,13 @@ ALLOWED_JSON = {
     "skills_index.json", "skills_capability_index.json",
     "vision_probe_cache.json", "runtime_inventory.json",
     "runtime_rankings.json", "driver_inventory.json",
-    # template
-    "settings.example.json",
+    # templates — shipped for the operator to copy, never written by the House
+    "settings.example.json", "mcp_servers.example.json",
+    # ADR-0015 (Tool Provider Layer): operator-authored MCP server declarations.
+    # Same class as settings.json — read by the House, never written by it, and
+    # gitignored because it may carry API tokens. It does not exist in a fresh
+    # clone; it appears once the operator copies the template.
+    "mcp_servers.json",
 }
 
 FAILED = []

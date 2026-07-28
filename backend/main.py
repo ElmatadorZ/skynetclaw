@@ -1182,9 +1182,224 @@ def _tool_result_failed(name: str, result: str) -> bool:
     if head.startswith("[") and ("not found" in low or "error" in low or "unknown" in low): return True
     return False
 
+# External tool sources reach the House through the Tool Provider Layer
+# (tool_providers/), the way runtimes reach it through drivers. Adding a source
+# means dropping a module in that package — not editing this file or exec_tool.
+#
+# The registry only contributes schemas from providers that are genuinely
+# reachable, and REFUSES to load one whose tool names would shadow a native tool
+# and inherit its trust. Unavailable providers are reported, never simulated.
+try:
+    from tool_providers import registry as _tools
+    _provided = _tools.tools()
+    if _provided:
+        BUILTIN_TOOLS = BUILTIN_TOOLS + _provided
+    _TOOL_GROUPS.extend(_tools.tool_groups())
+    for _p in _tools.status()["providers"]:
+        if _p["available"]:
+            print(f"[tools] {_p['name']}: {_p['tools']} tools — {_p['description']}")
+        else:
+            print(f"[tools] {_p['name']}: unavailable — {_p['reason']}")
+    for _r in _tools.rejected():
+        print(f"[tools] REJECTED {_r['provider']}: {_r['reason']}")
+except Exception as _te:
+    _tools = None
+    print(f"[tools] provider layer not loaded ({_te}) — native tools unaffected")
+
+def _select_tools_for_task(task: str) -> list:
+    try:
+        if load_settings().get("full_toolset"):
+            return BUILTIN_TOOLS
+    except Exception:
+        pass
+    t = (task or "").lower()
+    wanted = set(_TOOL_CORE)
+    for keys, tools in _TOOL_GROUPS:
+        if any(k in t for k in keys):
+            wanted |= tools
+    sel = [td for td in BUILTIN_TOOLS if td.get("function", {}).get("name") in wanted]
+    if len(sel) < 8:   # safety floor — something went wrong, ship everything
+        return BUILTIN_TOOLS
+    return sel
+
+# ── MISSION LEDGER — Commander-signed status of work in a workspace ──────────
+# Prevents redundant reruns: every AGENT_RUN signs off COMPLETE / INCOMPLETE /
+# PROBLEM with the files it touched; the next run reads the digest and knows
+# what is already done. (Signing lives in the ledger, never inside work files.)
+_LEDGER_NAME = "_MISSION_LEDGER.json"
+
+def _ledger_load(ws: str) -> dict:
+    try:
+        p = Path(ws) / _LEDGER_NAME
+        if p.exists():
+            return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return {"version": 1, "missions": []}
+
+def _ledger_sign(ws: str, entry: dict) -> None:
+    try:
+        data = _ledger_load(ws)
+        data["missions"].append(entry)
+        data["missions"] = data["missions"][-100:]
+        p = Path(ws) / _LEDGER_NAME
+        tmp = p.with_suffix(".tmp")
+        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(p)
+    except Exception as e:
+        print(f"[MissionLedger] sign failed: {e}")
+
+def _ledger_digest(ws: str, limit: int = 6) -> str:
+    try:
+        ms = _ledger_load(ws).get("missions", [])[-limit:]
+        if not ms:
+            return ""
+        lines = []
+        for m in reversed(ms):
+            mark = {"COMPLETE": "✓", "INCOMPLETE": "◐", "PROBLEM": "✗"}.get(m.get("status"), "?")
+            line = f"{mark} {m.get('status','?')}: {str(m.get('task',''))[:120]}"
+            if m.get("files"):
+                line += f" → files: {', '.join(str(f) for f in m['files'][:4])}"
+            if m.get("problem"):
+                line += f" [issue: {str(m['problem'])[:80]}]"
+            lines.append(line)
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+# ── Background dev-server registry (web-work verification loop) ──────────────
+_DEV_SERVERS: dict = {}
+
+def _dev_server_kill(entry) -> str:
+    """Kill a tracked background process and its children (npm spawns node etc.)."""
+    proc = entry.get("proc")
+    if proc is None or proc.poll() is not None:
+        return "already exited"
+    try:
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                           capture_output=True, timeout=15)
+        else:
+            proc.terminate()
+            try: proc.wait(timeout=5)
+            except subprocess.TimeoutExpired: proc.kill()
+        return "stopped"
+    except Exception as e:
+        return f"kill failed: {e}"
+
+def _dev_server_tail(entry, lines: int = 60) -> str:
+    try:
+        txt = Path(entry["log"]).read_text(encoding="utf-8", errors="replace")
+        return "\n".join(txt.splitlines()[-max(lines, 1):]) or "(no output yet)"
+    except Exception as e:
+        return f"(log unreadable: {e})"
+
+# ── Write-verification (Cowork principle: a bad write must FAIL LOUDLY) ──────
+def _syntax_verify(p) -> str:
+    """Auto syntax-check a just-written code file; result is appended to the tool
+    output so the model sees breakage IMMEDIATELY and self-corrects in the same run."""
+    try:
+        suf = p.suffix.lower()
+        if suf == ".py":
+            import ast as _ast
+            _ast.parse(p.read_text(encoding="utf-8", errors="replace"))
+            return " · ✓ python syntax OK"
+        if suf == ".json":
+            json.loads(p.read_text(encoding="utf-8", errors="replace"))
+            return " · ✓ JSON valid"
+        if suf in (".js", ".mjs", ".cjs"):
+            node = shutil.which("node")
+            if not node:
+                return ""
+            r = subprocess.run([node, "--check", str(p)], capture_output=True, text=True,
+                               timeout=15, encoding="utf-8", errors="replace")
+            if r.returncode == 0:
+                return " · ✓ JS syntax OK"
+            return f"\n⚠ JS SYNTAX ERROR — fix immediately with edit_file:\n{(r.stderr or '')[:800]}"
+        if suf in (".html", ".htm"):
+            txt = p.read_text(encoding="utf-8", errors="replace")
+            issues = [f"unbalanced <{t}> tags" for t in ("script", "style")
+                      if txt.count("<" + t) != txt.count("</" + t + ">")]
+            return ("\n⚠ HTML CHECK: " + "; ".join(issues) + " — fix immediately") if issues else " · ✓ HTML tags balanced"
+    except SyntaxError as se:
+        return f"\n⚠ PYTHON SYNTAX ERROR (line {se.lineno}): {se.msg} — fix immediately with edit_file"
+    except json.JSONDecodeError as je:
+        return f"\n⚠ JSON INVALID (line {je.lineno}): {je.msg} — fix immediately with edit_file"
+    except Exception:
+        return ""
+    return ""
+
+# ── SSRF / confused-deputy guard for http_request ────────────────────────────
+# Security audit P0: the model must not use http_request (an ALLOW deputy) to reach
+# loopback services — above all the stealth bridge on :8781, whose /call executes
+# ungated browser tools (arbitrary JS). Deny loopback, link-local (cloud metadata),
+# the unspecified address, and the bridge port. Conserves authority at the boundary:
+# http_request may not become a path to a higher-authority executor.
+def _http_target_blocked(url: str) -> Optional[str]:
+    try:
+        from urllib.parse import urlparse
+        import socket, ipaddress
+        u = urlparse(url if "://" in (url or "") else "http://" + (url or ""))
+        host = (u.hostname or "").strip()
+        port = u.port
+        _BRIDGE_PORT = int(os.getenv("STEALTH_BRIDGE_PORT", "8781"))
+        if not host:
+            return None
+        if host.lower() in ("localhost", "ip6-localhost", "ip6-loopback"):
+            return f"{host} (loopback name)"
+        # resolve every address the host maps to; block if ANY is loopback/link-local/reserved
+        addrs = set()
+        try:
+            for fam, _, _, _, sa in socket.getaddrinfo(host, port or 80):
+                addrs.add(sa[0])
+        except Exception:
+            addrs.add(host)  # host was likely a literal IP
+        for a in addrs:
+            try:
+                ip = ipaddress.ip_address(a)
+            except ValueError:
+                continue
+            if ip.is_loopback or ip.is_link_local or ip.is_unspecified:
+                return f"{host}->{a} (loopback/link-local/unspecified)"
+        if port == _BRIDGE_PORT:
+            return f"{host}:{port} (stealth bridge port)"
+    except Exception:
+        return None
+    return None
+
+# ── Failure detection (drives the failure-adaptation loop) ───────────────────
+def _tool_result_failed(name: str, result: str) -> bool:
+    """Heuristic: did this tool call FAIL? A failed action must change the next
+    action — the loops count consecutive failures and force a replan."""
+    r = (result or "").lstrip()
+    if r.startswith("[exit "):
+        # formats: "[exit 255]" / "[exit 1 · cwd=...]" — judge purely by exit code
+        try:
+            return int(r[6:r.index("]")].split()[0]) != 0
+        except Exception:
+            return False
+    head = r[:500]
+    low = head.lower()
+    if "traceback (most recent call last)" in low: return True
+    if "syntax error" in low or "syntaxerror" in low or "json invalid" in low: return True
+    if head.startswith("❌") or head.startswith("⛔"): return True
+    if head.startswith("[") and ("not found" in low or "error" in low or "unknown" in low): return True
+    return False
+
 # ── Tool Executor ─────────────────────────────────────────────────────────────
 async def exec_tool(name: str, args: dict) -> str:
     try:
+        # ── PROVIDED TOOLS (Tool Provider Layer) ──────────────────────────
+        # MCP servers, the stealth browser, and anything else in
+        # tool_providers/. Consulted first: a provider can only own a name the
+        # registry has already verified does NOT collide with a native tool, so
+        # this cannot intercept the House's own tools. Returns None when no
+        # provider owns the name, and the native dispatcher below handles it.
+        if _tools is not None:
+            _provided_result = await _tools.dispatch(name, args)
+            if _provided_result is not None:
+                return _provided_result
+
         # ── OBSIDIAN (SCOUT) — vault read/write/search ─────────────────────
         # accept common aliases so the model doesn't loop on wrong names
         _OBSIDIAN_ALIASES = {
@@ -1207,6 +1422,21 @@ async def exec_tool(name: str, args: dict) -> str:
                 return _j.dumps(result, ensure_ascii=False)[:8000]
             except Exception as _oe:
                 return f"[obsidian tool error: {_oe}]"
+
+        if name in ("prove_it", "self_audit", "pending_judgments"):
+            try:
+                import epistemic_dossier as _ed, json as _j
+                if name == "pending_judgments":
+                    import judgment_queue as _jq
+                    return _j.dumps(_jq.queue(limit=int(args.get("limit", 20) or 20)),
+                                    ensure_ascii=False)[:8000]
+                if name == "self_audit":
+                    return _j.dumps(_ed.self_audit(), ensure_ascii=False)[:8000]
+                r = _ed.dossier(args.get("claim", "") or "",
+                                limit=int(args.get("limit", 6) or 6))
+                return _j.dumps(r, ensure_ascii=False)[:8000]
+            except Exception as _pe:
+                return f"[prove_it error] {type(_pe).__name__}: {_pe}"
 
         # ── DISCOVERY (OX-1) — read-only queries over the House's own registries ──
         # Investigate first: the loop can look at Mission Center / House Mind /
@@ -9630,6 +9860,85 @@ async def skills_import_presets():
         imported.append(sk["name"])
     conn.commit(); conn.close()
     return {"imported": imported, "skipped": skipped, "total": len(imported)}
+
+@app.get("/api/house/prove")
+async def house_prove(claim: str, limit: int = 6):
+    """The receipt for a belief: provenance, dissent, falsifier, track record.
+
+    Answers "why should I believe you?" from the record rather than from
+    generation — including the uncomfortable answer, which is usually that the
+    confidence is stated but unearned.
+    """
+    import epistemic_dossier as _ed
+    return _ed.dossier(claim, limit=max(1, min(int(limit or 6), 25)))
+
+
+@app.get("/api/house/judgments")
+async def house_judgments(limit: int = 50):
+    """What is still open, and who it is waiting on.
+
+    Separates "reality has not answered" from "nobody asked a human" — the
+    confusion that left nine dissents unresolved because one unanswerable claim
+    silently blocked the sessions they were recorded in.
+    """
+    import judgment_queue as _jq
+    return _jq.queue(limit=max(1, min(int(limit or 50), 200)))
+
+
+class JudgmentReq(BaseModel):
+    prediction_id: str
+    verdict: str          # correct | partial | incorrect
+    horizon: str = "7"
+    note: str = ""
+
+
+@app.post("/api/house/judgments/rule")
+async def house_judgment_rule(req: JudgmentReq):
+    """The operator rules on a claim no automatic judge can settle.
+
+    Goes through the ordinary grading path, so a human verdict moves reputation,
+    resolves the session's dissents, and revises the House's beliefs exactly as
+    an automatic verdict would. The human is the judge; the loop is unchanged.
+    """
+    import judgment_queue as _jq
+    try:
+        return _jq.submit(req.prediction_id, req.verdict,
+                          horizon=req.horizon, note=req.note)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except KeyError as e:
+        raise HTTPException(404, str(e))
+
+
+@app.get("/api/house/self-audit")
+async def house_self_audit():
+    """The House's epistemic vital signs, stated against itself.
+
+    Every ratio here can be embarrassing and is reported anyway: a number that
+    can only flatter measures nothing.
+    """
+    import epistemic_dossier as _ed
+    return _ed.self_audit()
+
+
+@app.get("/api/tools/providers")
+async def tool_providers_status():
+    """Which external tool sources exist, which are reachable, and why not.
+
+    Reports unavailable providers too, with an actionable reason — a capability
+    that is missing should be visible as missing rather than absent from the
+    list. `rejected` names any provider the registry refused to load (a name
+    collision with a native tool, for instance), because a refused provider that
+    disappeared silently would be indistinguishable from one never written.
+    """
+    if _tools is None:
+        return {"available": False,
+                "reason": "the tool provider layer failed to load; native tools are unaffected",
+                "providers": [], "rejected": [], "tools_total": 0}
+    st = _tools.status()
+    st["available"] = True
+    return st
+
 
 @app.get("/api/tools")
 async def tools_list():

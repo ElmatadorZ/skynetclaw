@@ -151,3 +151,8 @@ backend/skills_usage.jsonl
 
 # Operator's personal profile (copy backend/prompts/USER.example.md)
 backend/prompts/USER.md
+
+# MCP server config — holds API tokens (GITHUB_PERSONAL_ACCESS_TOKEN etc).
+# Copy mcp_servers.example.json to create it; the example is what ships.
+mcp_servers.json
+backend/mcp_servers.json

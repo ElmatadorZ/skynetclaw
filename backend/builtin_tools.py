@@ -112,6 +112,13 @@ BUILTIN_TOOLS = [
         "parameters":{"type":"object","properties":{}}}},
     {"type":"function","function":{"name":"recall_archive","description":"DISCOVER FIRST: prior deliberations and similar past missions for a directive — avoid redoing solved work.",
         "parameters":{"type":"object","properties":{"query":{"type":"string","description":"the directive to find similar prior work for"}}}}},
+    # ── Epistemic self-audit — check the warrant BEFORE relying on a belief ──
+    {"type":"function","function":{"name":"prove_it","description":"CHECK WARRANT BEFORE ASSERTING: the receipt for a belief — which agent asserted it, on what evidence, who dissented and whether that was ever resolved, what would prove it wrong, whether reality has graded it, and the calibrated track record of the asserters. Returns trust_basis EARNED or UNEARNED. Use before stating anything as established, and when the operator asks 'why do you believe that' or 'ตรวจสอบว่าเชื่อได้ไหม'.",
+        "parameters":{"type":"object","properties":{"claim":{"type":"string","description":"the claim or topic to pull the record for"},"limit":{"type":"integer","description":"max items per section (default 6)"}},"required":["claim"]}}},
+    {"type":"function","function":{"name":"self_audit","description":"The House's epistemic vital signs stated against itself: how many dissents were ever resolved, how many staked claims were graded, how many beliefs changed because of an outcome rather than more talk, how many agents have a real track record. Reports uncomfortable findings deliberately. Use when asked how reliable the House is, or before claiming the learning loop works.",
+        "parameters":{"type":"object","properties":{}}}},
+    {"type":"function","function":{"name":"pending_judgments","description":"What the learning loop is still waiting on, and WHO it is waiting on — separates claims whose horizon has not elapsed (reality has not answered) from claims that are overdue with no automatic judge (a human must rule, and until they do it blocks that session's dissents). Also flags malformed records. Use when asked what is outstanding, why a dissent is unresolved, or ทำไม loop ยังไม่ปิด.",
+        "parameters":{"type":"object","properties":{"limit":{"type":"integer","description":"max items (default 20)"}}}}},
     # ── Social / Integrations ──
     {"type":"function","function":{"name":"telegram_send","description":"Send a message via Telegram bot (requires Telegram integration)",
         "parameters":{"type":"object","properties":{"message":{"type":"string"},"chat_id":{"type":"string","default":""}},"required":["message"]}}},

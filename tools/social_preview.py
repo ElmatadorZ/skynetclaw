@@ -134,9 +134,9 @@ def main() -> int:
     d.rounded_rectangle([x, py0, W - 74, py0 + 128], radius=10, fill=PANEL, outline=LINE)
 
     cells = [
-        ("606", "tests"),
-        ("267", "routes"),
-        ("56", "tools"),
+        ("672", "tests"),
+        ("272", "routes"),
+        ("91", "tools"),
         ("14", "council"),
         ("6", "CI matrix"),
     ]

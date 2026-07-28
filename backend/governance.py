@@ -36,7 +36,9 @@ PENDING_PATH = _BASE / "pending_gates.json"
 # deny     — hard-blocked
 # unknown tool → DENY (capability-as-constitutional-act: new tools enter via config)
 DEFAULT_CONFIG: Dict[str, Any] = {
-    "version": 6,  # v2: +grep_search · v3: +dev_server · v4: classify 7 orphan · v5: +system_diagnostics · v6: +system_repair (escalate)
+    # NOTE: bump this whenever a tool is added below, or existing installs keep
+    # their old policy and the new tool is DENIED (unknown ⇒ deny by default).
+    "version": 7,  # v2: +grep_search · v3: +dev_server · v4: classify 7 orphan · v5: +system_diagnostics · v6: +system_repair (escalate) · v7: +prove_it/self_audit/pending_judgments (read-only epistemic audit)
                    # (read-only discovery + read_document + build_news_report) so
                    # capability-coverage = 100% — paradigm ratified 2026-07-09
     "_doc": "GPS-2 deny-by-default permission policy. Edit lists then restart backend. "
@@ -54,6 +56,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "obsidian_list_notes", "obsidian_read_note", "obsidian_search",
         # read-only discovery over the House's own registries
         "query_missions", "query_learning", "query_timeline", "read_house_mind", "recall_archive",
+        # epistemic self-audit — read-only over the House's own record. Allowed
+        # by default on purpose: checking whether a belief is warranted must
+        # never be harder than asserting it.
+        "prove_it", "self_audit", "pending_judgments",
         "ask_user_options",
         # workspace-scoped writes (auto-git revertible + shadow gate already applies)
         "write_file", "edit_file", "create_folder", "copy_file", "move_file",
@@ -157,7 +163,34 @@ class GPS2Gate:
             return "ESCALATE", f"'{tool}' is irreversible/outward-facing — human gate required"
         if tool in self.config.get("allow", []):
             return "ALLOW", ""
+        # ── MCP: known, but not trusted ─────────────────────────────────────
+        # A discovered mcp__ tool is not an "unknown capability" — it was
+        # enumerated from a server the operator declared, is namespaced so it
+        # cannot shadow a native tool, and its output is quarantined. DENY would
+        # mean "never", which is wrong; the honest verdict is "ask the human".
+        #
+        # A server MAY declare readOnlyHint/destructiveHint per tool. Those are
+        # the server's own claim about itself, so they can only ever LOWER the
+        # bar to ALLOW when explicitly declared safe — an ABSENT hint is treated
+        # as dangerous, never as safe. That is the difference between trusting a
+        # declaration and guessing from a tool's name.
+        if tool.startswith("mcp__"):
+            if self._mcp_declared_safe(tool):
+                return "ALLOW", f"'{tool}' is declared read-only and non-destructive by its MCP server"
+            return "ESCALATE", (f"'{tool}' is an external MCP tool — human gate required "
+                                "(its server declares no read-only guarantee)")
         return "DENY", f"'{tool}' is not in the permission config — unknown capability (GOS-0: add it to governance_config.json deliberately)"
+
+    def _mcp_declared_safe(self, tool: str) -> bool:
+        """Did the MCP server itself declare this tool read-only and non-destructive?"""
+        try:
+            import mcp_client
+            for t in mcp_client.cached_tools():
+                if t.get("function", {}).get("name") == tool:
+                    return bool((t.get("x_mcp_safety") or {}).get("declared_safe"))
+        except Exception:
+            pass
+        return False
 
     # ── Human gate: open a pending decision ──────────────────────────────────
     def open_gate(self, tool: str, args: Dict[str, Any], task: str) -> Dict[str, Any]:

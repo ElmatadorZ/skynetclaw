@@ -49,12 +49,78 @@ def _txt(block: Any) -> str:
     return json.dumps(block, ensure_ascii=False) if isinstance(block, dict) else str(block or "")
 
 
+# Debris left when a character window is sliced out of serialised JSON: a
+# dangling key fragment, a stray quote-colon, a trailing comma-brace.
+_JSON_DEBRIS = re.compile(r'^[^"\w฀-๿]*(?:[\w]*"\s*:\s*[\d.]+\s*,\s*)?'
+                          r'"?[\w_]*"?\s*:\s*"?')
+
+
+def _clean_fragment(s: str) -> str:
+    """Salvage a human-readable condition from a slice of serialised text.
+
+    `_txt()` renders a dict with json.dumps, so any window cut out of it lands
+    mid-token and yields things like `s": 7, "invalidation": "user declines`.
+    Two such rows reached the predictions table and could never have been judged
+    by anyone. Strip the JSON scaffolding and end on a real boundary.
+    """
+    s = (s or "").strip()
+    s = _JSON_DEBRIS.sub("", s)
+    s = s.strip().strip('",{}[]:').strip()
+    # Stop at the next key/value boundary rather than running into the next field.
+    cut = re.search(r'"\s*,\s*"[\w_]+"\s*:', s)
+    if cut:
+        s = s[:cut.start()]
+    return s.strip().strip('",{}[]').strip()
+
+
 def _find_invalidation(*texts: str) -> str:
+    """The condition that would prove the claim wrong.
+
+    Reads the field structurally when the text is JSON — slicing a window out of
+    serialised data is how corrupt conditions got recorded in the first place.
+    """
     for t in texts:
-        m = _INVAL_RE.search(t or "")
+        t = t or ""
+        if not t:
+            continue
+        # Structured first: if this is JSON, take the field, not a substring.
+        stripped = t.lstrip()
+        if stripped[:1] in "{[":
+            try:
+                obj = json.loads(t)
+            except Exception:
+                obj = None
+            found = _invalidation_from_obj(obj)
+            if found:
+                return found[:200]
+
+        m = _INVAL_RE.search(t)
         if m:
-            s = max(0, m.start() - 8)
-            return t[s:m.end() + 40].strip().strip('"{}')
+            frag = _clean_fragment(t[m.end():m.end() + 220])
+            if len(frag) < 8:  # nothing meaningful followed the label
+                frag = _clean_fragment(t[max(0, m.start() - 8):m.end() + 220])
+            if len(frag) >= 8:
+                return frag[:200]
+    return ""
+
+
+def _invalidation_from_obj(obj: Any, depth: int = 0) -> str:
+    """Walk a parsed structure for an invalidation field, at any nesting."""
+    if depth > 4 or obj is None:
+        return ""
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if _INVAL_RE.search(str(k)) and isinstance(v, str) and v.strip():
+                return v.strip()
+        for v in obj.values():
+            got = _invalidation_from_obj(v, depth + 1)
+            if got:
+                return got
+    elif isinstance(obj, list):
+        for v in obj:
+            got = _invalidation_from_obj(v, depth + 1)
+            if got:
+                return got
     return ""
 
 
@@ -80,13 +146,43 @@ def _horizon(text: str) -> str:
     return "90"
 
 
+# Where the readable claim lives inside a nested scenario object.
+_CLAIM_KEYS = ("outcome", "scenario", "statement", "claim", "text", "description")
+
+
+def _readable(v: Any) -> str:
+    """A claim a person can read, or "" — never a stringified object.
+
+    `map(str, ...)` over a list of scenario dicts produced Python reprs like
+    `{'prob': 0.55, 'outcome': '...'}` and staked them as the claim. A prediction
+    nobody can read is a prediction nobody can judge, so it must be rejected at
+    the gate rather than recorded and left to rot as `pending`.
+    """
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, dict):
+        for k in _CLAIM_KEYS:
+            got = v.get(k)
+            if isinstance(got, str) and got.strip():
+                return got.strip()
+        return ""
+    if isinstance(v, list):
+        parts = [p for p in (_readable(x) for x in v) if p]
+        return ", ".join(parts)
+    if isinstance(v, (int, float)):
+        return str(v)
+    return ""
+
+
 def _claim_statement(role: str, block: Any) -> str:
     if isinstance(block, dict):
         for k in ("scenario", "base_case", "forecast", "prediction", "outlook",
                   "leverage_point", "asymmetric_bet", "known", "early_warning_1"):
             if block.get(k):
-                v = block[k]
-                return (", ".join(map(str, v)) if isinstance(v, list) else str(v))
+                got = _readable(block[k])
+                if got:
+                    return got
+        return ""   # structured but unreadable → skipped, never stringified
     return _txt(block)[:160]
 
 
@@ -202,6 +298,26 @@ def extract_predictions(verdict: Dict[str, Any]) -> List[Dict[str, Any]]:
     return out
 
 
+# Debris that betrays a mis-parse: a serialised object, or a JSON key fragment
+# where a human-readable condition should be.
+_LOOKS_SERIALISED = re.compile(r"^\s*[\[{]|'\s*:\s*|\"\w+\"\s*:\s*")
+
+
+def _rejects(p: Dict[str, Any]) -> str:
+    """Why this extracted prediction must not be staked. "" means it is sound."""
+    stmt = str(p.get("statement") or "").strip()
+    inval = str(p.get("invalidation") or "").strip()
+    if len(stmt) < 8:
+        return "statement too short to judge"
+    if _LOOKS_SERIALISED.search(stmt):
+        return "statement is a serialised object, not a readable claim"
+    if len(inval) < 8:
+        return "invalidation too short to judge"
+    if _LOOKS_SERIALISED.search(inval):
+        return "invalidation is a fragment of serialised data"
+    return ""
+
+
 def record_from_verdict(verdict: Dict[str, Any], session_id: str = "",
                         made_at: Optional[float] = None,
                         path: Optional[str] = None) -> List[str]:
@@ -213,6 +329,15 @@ def record_from_verdict(verdict: Dict[str, Any], session_id: str = "",
     forecast as two rows → double reputation stake for one claim)."""
     pids: List[str] = []
     for p in extract_predictions(verdict):
+        # Constitution R4 already rejects an unfalsifiable claim. A CORRUPT claim
+        # is worse: it looks falsifiable, sits on the clock as `pending`, and —
+        # because on_outcome() waits for its session to be fully graded — blocks
+        # every dissent recorded beside it. Two such rows did exactly that.
+        bad = _rejects(p)
+        if bad:
+            print(f"[Extractor] rejected malformed prediction ({bad}): "
+                  f"{str(p.get('statement'))[:70]!r}")
+            continue
         try:
             if _out.has_pending(p["statement"][:300], agent=p["originating_agent"], path=path):
                 continue

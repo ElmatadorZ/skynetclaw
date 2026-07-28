@@ -139,6 +139,22 @@ Full provider matrix — Ollama, llama.cpp, and ten cloud APIs: **[docs/MODELS.m
   overconfidence-penalised).
 - **The House Mind** — a shared cognitive state that can answer, at any moment: *what do we know ·
   what don't we know · what do we believe · why · what changed our mind.*
+- **"Prove it"** — a receipt for any belief: who asserted it, on what evidence, who dissented and
+  whether that was ever resolved, what would falsify it, and the calibrated track record of the
+  asserters. The field that matters is `trust_basis`: **UNEARNED** when a belief carries a
+  confidence figure but nobody who asserted it has ever been graded against reality. Most beliefs
+  start there, and saying so is the point.
+- **Tool Provider Layer** — external tool sources reach the House as *providers*, the way runtimes
+  reach it through drivers. **MCP servers** are provider #1: tools arrive namespaced
+  `mcp__<server>__<tool>` so an external server can never shadow a native tool and inherit its
+  trust, output is quarantined as untrusted, and the gate escalates anything the server has not
+  itself declared read-only.
+
+```bash
+curl "http://127.0.0.1:8766/api/house/prove?claim=your+claim+here"
+curl  http://127.0.0.1:8766/api/house/self-audit     # the loop's vital signs, stated against itself
+curl  http://127.0.0.1:8766/api/house/judgments      # what is open, and who it is waiting on
+```
 
 See [`docs/`](docs/) for the architecture of each layer.
 
@@ -235,7 +251,7 @@ badge is red, the claim that this works is not currently true.
 
 ```bash
 cd backend
-python -m pytest -q          # 601 tests
+python -m pytest -q          # 672 tests
 ```
 
 ---

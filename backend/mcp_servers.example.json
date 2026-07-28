@@ -1,0 +1,43 @@
+{
+  "_comment": [
+    "Copy to mcp_servers.json and edit. This is the same shape Claude Desktop's",
+    "config uses, so an existing `mcpServers` block can be pasted straight in.",
+    "",
+    "After editing, run:  python mcp_client.py --discover",
+    "That asks each server what it offers and caches the schemas. Servers that",
+    "fail to start are reported and their tools are NOT offered to the agent.",
+    "",
+    "Tools arrive namespaced as mcp__<server>__<tool>, so an external server can",
+    "never shadow a native tool like write_file and inherit its trust.",
+    "",
+    "Every MCP call still passes the GPS-2 permission gate and the PRE_ACT hook,",
+    "exactly like a native tool. Grant filesystem or shell-capable servers the",
+    "same caution you would grant the House itself.",
+    "",
+    "Set \"disabled\": true to keep a server declared but out of the agent's reach."
+  ],
+
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:\\your\\workspace"],
+      "disabled": true
+    },
+
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": ""
+      },
+      "disabled": true
+    },
+
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres",
+               "postgresql://user:pass@localhost/db"],
+      "disabled": true
+    }
+  }
+}

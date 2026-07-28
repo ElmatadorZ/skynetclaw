@@ -1,3 +1,8 @@
 vision_probe_cache.json
 kernel_audit.jsonl
 .operator_token
+
+# MCP server config — holds API tokens (GITHUB_PERSONAL_ACCESS_TOKEN etc).
+# Copy mcp_servers.example.json to create it; the example is what ships.
+mcp_servers.json
+backend/mcp_servers.json

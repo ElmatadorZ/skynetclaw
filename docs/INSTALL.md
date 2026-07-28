@@ -112,7 +112,7 @@ cd skynetclaw
 make setup     # venv + dependencies + config + database
 make run       # start
 make health    # probe a running instance
-make test      # 601 tests
+make test      # 672 tests
 ```
 
 ---
