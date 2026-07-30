@@ -258,3 +258,48 @@ def test_unreadable_database_degrades_honestly(monkeypatch, tmp_path):
     d = ed.dossier("anything at all")
     assert d["standing"] == "UNAVAILABLE"
     assert "cannot reach its own record" in d["honest_summary"]
+
+
+# ── the instrument must not go quiet on one success (RFC-0001 Q5) ────────────
+def test_one_resolved_dissent_does_not_silence_the_finding(db):
+    """The First Evidence Review caught this: `if dissents and not resolved`
+    meant 1-of-9 reported identically to 9-of-9. A single data point silenced a
+    systemic warning."""
+    for i in range(9):
+        _sql(db, "INSERT INTO minority_positions VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+             f"mp_{i}", "cs_1", "Skeptic", "FRAGILE", "r", "dissent",
+             1_780_000_000.0, 1 if i == 0 else 0, None, 0.0, 0)
+
+    a = ed.self_audit()
+    joined = " ".join(a["uncomfortable_findings"])
+    assert "dissent" in joined, "a 1-of-9 gap must still be reported"
+    assert "1 of 9" in joined, "the finding must state how far along it is"
+
+
+def test_a_closed_gap_stops_being_reported(db):
+    """Proportional, not permanent: when every dissent is resolved, the finding
+    goes away. Otherwise the audit would cry wolf forever."""
+    _sql(db, "INSERT INTO minority_positions VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+         "mp_1", "cs_1", "Skeptic", "FRAGILE", "r", "dissent",
+         1_780_000_000.0, 1, 1, 1_780_000_100.0, 1)
+    joined = " ".join(ed.self_audit()["uncomfortable_findings"])
+    assert "dissent" not in joined
+
+
+def test_zero_progress_still_says_never(db):
+    for i in range(3):
+        _sql(db, "INSERT INTO minority_positions VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+             f"mp_{i}", "cs_1", "Skeptic", "FRAGILE", "r", "dissent",
+             1_780_000_000.0, 0, None, 0.0, 0)
+    joined = " ".join(ed.self_audit()["uncomfortable_findings"])
+    assert "never run" in joined
+
+
+def test_one_reality_revision_does_not_silence_the_finding(db):
+    for i in range(10):
+        _sql(db, "INSERT INTO belief_changes VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+             f"bc_{i}", "hs_1", "si_1", "a", "b", 0.5, 0.6, "why", None,
+             "Reality (outcome)" if i == 0 else "Council", 1_780_000_000.0)
+    joined = " ".join(ed.self_audit()["uncomfortable_findings"])
+    assert "deliberation" in joined
+    assert "1 of 10" in joined

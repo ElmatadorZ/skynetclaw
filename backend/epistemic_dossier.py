@@ -392,21 +392,45 @@ def self_audit() -> Dict[str, Any]:
         # Honest null over a fabricated zero: "none of nothing" is not 0%.
         return round(num / den, 3) if den else None
 
+    # Findings are PROPORTIONAL, not binary.
+    #
+    # The First Evidence Review (RFC-0001, 2026-07-30) caught this instrument
+    # lying by omission. The conditions read `if dissents and not resolved`, so
+    # the moment ONE of nine dissents was resolved the finding vanished — 1/9
+    # reported identically to 9/9. A single success silenced a systemic warning,
+    # and the system's self-report stopped mentioning a pattern that had barely
+    # changed. Q5 exists to grade interpretation rather than bookkeeping, and
+    # this is what it found.
+    #
+    # A gap is now reported until it is CLOSED, and the wording tracks how far
+    # along it is, so the reader can tell "never happened" from "happened once".
     findings = []
-    if dissents and not resolved:
-        findings.append(
-            f"{dissents} dissent(s) recorded, none ever resolved. The machinery "
-            "to find out whether a minority was right exists and has never run.")
-    if revisions and not by_reality:
-        findings.append(
-            f"{revisions} belief revision(s), none driven by an outcome. Beliefs "
-            "change here by deliberation, not yet by reality.")
-    if agents and agents_graded < agents:
-        findings.append(
-            f"{agents - agents_graded} of {agents} agents sit at the neutral "
-            "prior with no graded prediction — their scores are placeholders.")
-    if staked and graded < staked:
-        findings.append(f"{staked - graded} staked claim(s) are still awaiting reality.")
+
+    def _gap(label: str, done: int, total: int, never: str, partial: str) -> None:
+        if not total or done >= total:
+            return
+        findings.append(never if done == 0
+                        else f"{partial} ({done} of {total} so far — "
+                             f"{round(100.0 * done / total)}%)")
+
+    _gap("dissent", resolved, dissents,
+         never=(f"{dissents} dissent(s) recorded, none ever resolved. The machinery "
+                "to find out whether a minority was right exists and has never run."),
+         partial=("dissent resolution has run but is not routine — most recorded "
+                  "disagreements are still unexamined"))
+    _gap("reality-driven revision", by_reality, revisions,
+         never=(f"{revisions} belief revision(s), none driven by an outcome. Beliefs "
+                "change here by deliberation, not yet by reality."),
+         partial=("beliefs still change mostly by deliberation rather than by "
+                  "outcome"))
+    _gap("agent track record", agents_graded, agents,
+         never=(f"none of {agents} agents has a graded prediction — every score is "
+                "the neutral prior, not a measurement"),
+         partial=(f"{agents - agents_graded} of {agents} agents sit at the neutral "
+                  "prior with no graded prediction — their scores are placeholders"))
+    _gap("grading", graded, staked,
+         never=f"{staked} claim(s) staked, none graded — nothing has met reality yet.",
+         partial=f"{staked - graded} staked claim(s) are still awaiting reality")
 
     return {
         "available": True,

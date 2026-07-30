@@ -251,7 +251,7 @@ badge is red, the claim that this works is not currently true.
 
 ```bash
 cd backend
-python -m pytest -q          # 705 tests
+python -m pytest -q          # 709 tests
 ```
 
 ---
