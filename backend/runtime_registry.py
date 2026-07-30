@@ -28,6 +28,11 @@ _REASON_MIN_B = 18.0    # reasoning starts here (or any 'thinking' model)
 _COUNCIL_MIN_B = 30.0   # council = the heaviest models
 
 
+# Roles a text model physically CANNOT stand in for. Substituting here does not
+# degrade quality — it produces confident nonsense, so the router must refuse.
+HARD_CAPABILITY_ROLES = ("Vision", "Embedding")
+
+
 def classify(model: Dict[str, Any]) -> List[str]:
     """Capability → roles. A model may hold several roles. No model names used."""
     roles: List[str] = []
@@ -48,12 +53,21 @@ def classify(model: Dict[str, Any]) -> List[str]:
     if tools is not False and small:
         roles.append("Execution")
 
-    # Reasoning: explicit thinking capability OR a mid/large model.
-    if thinking or (pb is not None and pb >= _REASON_MIN_B):
+    # Reasoning / Council: size is the signal, but an UNDECLARED size is not a
+    # disqualification. /v1/models states no parameter count, so every
+    # OpenAI-compatible and cloud model arrives with param_b=None — and excluding
+    # those meant a frontier hosted model could never hold a reasoning role while
+    # a local 8B could. That is backwards.
+    #
+    # This mirrors the decision already made for tool_calling three lines up:
+    # unknown stays eligible, and `_score` gives it no size credit, so a model
+    # whose size is KNOWN to qualify always outranks one that merely might.
+    # Nothing is lost either way — an empty role already fell back to Execution
+    # and returned the same small model, just without saying so.
+    undeclared = pb is None
+    if thinking or undeclared or pb >= _REASON_MIN_B:
         roles.append("Reasoning")
-
-    # Council: the heaviest models.
-    if pb is not None and pb >= _COUNCIL_MIN_B:
+    if undeclared or pb >= _COUNCIL_MIN_B:
         roles.append("Council")
 
     if not roles:
@@ -78,6 +92,19 @@ def flatten(scan_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             rec["api_type"] = rt.get("api_type") or m.get("api_type")
             rec["online"] = rt.get("online", True)
             rec["roles"] = classify(rec)
+            # Say on what grounds it qualified. A role held because the size is
+            # undeclared is not the same claim as one held because the size was
+            # read and met the bar, and the operator-facing registry should not
+            # present them as if they were.
+            rec["role_basis"] = ("declared-capability" if rec.get("param_b") is not None
+                                 or rec.get("thinking") or rec.get("vision")
+                                 or rec.get("embedding")
+                                 else "undeclared-size (eligible, unproven)")
+            # A runtime that answered but refused us is NOT offline, and saying
+            # "offline" would send the operator to restart a server that is running.
+            if rt.get("authorized") is False:
+                rec["authorized"] = False
+                rec["unavailable_reason"] = rt.get("reason") or "authentication required"
             out.append(rec)
     return out
 

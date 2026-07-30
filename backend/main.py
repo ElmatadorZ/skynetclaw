@@ -7263,9 +7263,13 @@ def _runtime_extra_probes():
     out = []
     try:
         conn = sqlite3.connect(DB_PATH); c = conn.cursor()
-        for cid, name, base, at in c.execute(
-                "SELECT id,name,base_url,api_type FROM connections"):
-            out.append({"runtime": name or cid, "url": base, "api_type": at or "ollama"})
+        # The api_key travels with the probe: a runtime behind `--api-key` used to
+        # answer 401 and be filed as offline, which sent the operator to restart a
+        # server that was running and had merely refused an unauthenticated request.
+        for cid, name, base, at, key in c.execute(
+                "SELECT id,name,base_url,api_type,api_key FROM connections"):
+            out.append({"runtime": name or cid, "url": base,
+                        "api_type": at or "ollama", "api_key": key or None})
         conn.close()
     except Exception:
         pass

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+import urllib.error
 import urllib.request
 from typing import Any, Dict, List, Optional
 
@@ -35,22 +36,48 @@ DEFAULT_PROBES = [
 
 
 # ── http helpers ──────────────────────────────────────────────────────────────
-def _get(url: str, timeout: float = 3.0) -> Optional[Any]:
-    try:
-        with urllib.request.urlopen(url, timeout=timeout) as r:
-            return json.loads(r.read().decode("utf-8", "replace"))
-    except Exception:
-        return None
+# A runtime may sit behind a key: `vllm serve --api-key`, LM Studio with auth on,
+# or any hosted OpenAI-compatible endpoint. Sending no Authorization header meant
+# such a runtime answered 401 and was filed as OFFLINE — indistinguishable from
+# "not running", so the operator was told to start a server that was already up.
+# The key travels with the probe; a refusal is now reported as a refusal.
+def _headers(api_key: Optional[str] = None) -> Dict[str, str]:
+    h = {"Content-Type": "application/json"}
+    if api_key:
+        h["Authorization"] = f"Bearer {api_key}"
+    return h
 
 
-def _post(url: str, body: dict, timeout: float = 6.0) -> Optional[Any]:
+def _request(url: str, timeout: float, api_key: Optional[str] = None,
+             body: Optional[dict] = None) -> Dict[str, Any]:
+    """Returns {data, status, unauthorized, reachable}. Never raises.
+
+    `unauthorized` is the point: it separates "the server said no" from "there was
+    no server", which the previous bare `except: return None` collapsed into one.
+    """
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(url, data=data, headers=_headers(api_key))
     try:
-        req = urllib.request.Request(url, data=json.dumps(body).encode(),
-                                     headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=timeout) as r:
-            return json.loads(r.read().decode("utf-8", "replace"))
+            return {"data": json.loads(r.read().decode("utf-8", "replace")),
+                    "status": getattr(r, "status", 200),
+                    "unauthorized": False, "reachable": True}
+    except urllib.error.HTTPError as e:
+        # An HTTP error means something answered — the runtime IS reachable.
+        return {"data": None, "status": e.code,
+                "unauthorized": e.code in (401, 403), "reachable": True}
     except Exception:
-        return None
+        return {"data": None, "status": None, "unauthorized": False,
+                "reachable": False}
+
+
+def _get(url: str, timeout: float = 3.0, api_key: Optional[str] = None) -> Optional[Any]:
+    return _request(url, timeout, api_key)["data"]
+
+
+def _post(url: str, body: dict, timeout: float = 6.0,
+          api_key: Optional[str] = None) -> Optional[Any]:
+    return _request(url, timeout, api_key, body=body)["data"]
 
 
 # ── pure capability parsers (unit-tested) ─────────────────────────────────────
@@ -92,8 +119,8 @@ def caps_from_ollama_show(show: dict) -> Dict[str, Any]:
 
 
 # ── per-runtime model discovery ───────────────────────────────────────────────
-def _ollama_models(base: str) -> List[Dict[str, Any]]:
-    tags = _get(base.rstrip("/") + "/api/tags")
+def _ollama_models(base: str, api_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    tags = _get(base.rstrip("/") + "/api/tags", api_key=api_key)
     out: List[Dict[str, Any]] = []
     if not tags:
         return out
@@ -107,7 +134,7 @@ def _ollama_models(base: str) -> List[Dict[str, Any]]:
             "context": None, "tool_calling": None, "vision": None,
             "thinking": None, "embedding": None, "api_type": "ollama",
         }
-        show = _post(base.rstrip("/") + "/api/show", {"model": mid})
+        show = _post(base.rstrip("/") + "/api/show", {"model": mid}, api_key=api_key)
         if show:
             c = caps_from_ollama_show(show)
             rec.update({k: c[k] for k in ("context", "tool_calling", "vision",
@@ -121,13 +148,13 @@ def _ollama_models(base: str) -> List[Dict[str, Any]]:
     return out
 
 
-def _openai_models(base: str) -> List[Dict[str, Any]]:
-    data = _get(base.rstrip("/") + "/models")
+def _openai_models(base: str, api_key: Optional[str] = None) -> List[Dict[str, Any]]:
+    data = _get(base.rstrip("/") + "/models", api_key=api_key)
     out: List[Dict[str, Any]] = []
     if not data:
         return out
     # llama.cpp exposes richer metadata at /props (single loaded model)
-    props = _get(base.rstrip("/") + "/props") or {}
+    props = _get(base.rstrip("/") + "/props", api_key=api_key) or {}
     pctx = None
     try:
         pctx = int((props.get("default_generation_settings") or {}).get("n_ctx")
@@ -152,20 +179,40 @@ def _openai_models(base: str) -> List[Dict[str, Any]]:
 
 
 def scan_runtime(probe: Dict[str, str]) -> Dict[str, Any]:
-    """Probe one runtime → {runtime,url,online,api_type,models}. Never raises."""
+    """Probe one runtime → {runtime,url,online,api_type,models,...}. Never raises.
+
+    `probe` may carry an `api_key`; a runtime that answers 401/403 is reported as
+    online-but-unauthorized rather than offline, because telling the operator to
+    restart a server that is running and simply refused the request wastes their
+    time and hides the real fix.
+    """
     url, api = probe["url"], probe.get("api_type", "openai")
+    key = probe.get("api_key") or None
+    unauthorized = False
     try:
         if api == "ollama":
-            models = _ollama_models(url)
-            online = _get(url.rstrip("/") + "/api/tags") is not None
+            probe_r = _request(url.rstrip("/") + "/api/tags", 3.0, key)
+            models = _ollama_models(url, key) if not probe_r["unauthorized"] else []
         else:
-            models = _openai_models(url)
-            online = (_get(url.rstrip("/") + "/models") is not None
-                      or _get(url.rstrip("/") + "/health") is not None)
+            probe_r = _request(url.rstrip("/") + "/models", 3.0, key)
+            if not probe_r["reachable"]:
+                probe_r = _request(url.rstrip("/") + "/health", 3.0, key)
+            models = _openai_models(url, key) if not probe_r["unauthorized"] else []
+        unauthorized = bool(probe_r["unauthorized"])
+        # Reachable is the honest signal: a refusal proves something is listening.
+        online = probe_r["reachable"] or bool(models)
     except Exception:
         models, online = [], False
-    return {"runtime": probe["runtime"], "url": url, "api_type": api,
-            "online": bool(online or models), "models": models}
+    out: Dict[str, Any] = {
+        "runtime": probe["runtime"], "url": url, "api_type": api,
+        "online": bool(online), "models": models,
+    }
+    if unauthorized:
+        out["authorized"] = False
+        out["reason"] = ("the runtime is reachable but refused the request (401/403) — "
+                         "it needs an API key. Add one to this connection; it is "
+                         "running, not down.")
+    return out
 
 
 def scan(extra_probes: Optional[List[Dict[str, str]]] = None,
