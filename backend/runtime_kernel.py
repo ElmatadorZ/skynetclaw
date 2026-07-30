@@ -23,7 +23,7 @@ from typing import Any, Dict, Iterable, List, Optional
 import runtime_registry as registry
 import runtime_router as router
 from runtime_plugins import load_drivers
-from runtime_scanner import DEFAULT_PROBES
+from runtime_scanner import DEFAULT_PROBES, default_probes
 
 
 # ── data model ────────────────────────────────────────────────────────────────
@@ -73,7 +73,9 @@ class RuntimeKernel:
 
     def discover(self, extra_probes: Optional[List[dict]] = None) -> "RuntimeKernel":
         self.instances = []
-        for p in list(DEFAULT_PROBES) + list(extra_probes or []):
+        # default_probes(), not the raw constant: it adds OLLAMA_BASE_URL so a
+        # containerised or remote runtime is discovered, not only localhost.
+        for p in default_probes() + list(extra_probes or []):
             drv = self._driver_for(p.get("api_type", "openai"))
             if not drv:
                 continue

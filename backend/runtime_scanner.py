@@ -18,7 +18,9 @@ License: Apache-2.0 — ElmatadorZ / THE HOUSE
 """
 from __future__ import annotations
 
+import concurrent.futures
 import json
+import os
 import re
 import urllib.error
 import urllib.request
@@ -33,6 +35,54 @@ DEFAULT_PROBES = [
     {"runtime": "vllm",     "url": "http://127.0.0.1:8000/v1", "api_type": "openai"},
     {"runtime": "sglang",   "url": "http://127.0.0.1:30000/v1", "api_type": "openai"},
 ]
+
+# Probes run concurrently, so a runtime that is not there costs the timeout ONCE
+# for the whole scan instead of once each. Serial probing meant five absent
+# runtimes added ~15s before any answer, and that latency landed on the first
+# agent request after boot.
+_MAX_PARALLEL = 8
+
+
+def default_probes() -> List[Dict[str, str]]:
+    """The local probe list, plus wherever the deployment says Ollama actually is.
+
+    DEFAULT_PROBES pins 127.0.0.1, which is right on a workstation and wrong
+    inside a container, where the model runtime is a sibling service. The address
+    is ADDED rather than substituted — someone may run both a local and a remote
+    Ollama, and with parallel probing the extra probe is free.
+    """
+    probes = list(DEFAULT_PROBES)
+    base = (os.getenv("OLLAMA_BASE_URL") or "").strip().rstrip("/")
+    if base and base not in {p["url"].rstrip("/") for p in probes}:
+        probes.insert(0, {"runtime": "ollama", "url": base, "api_type": "ollama"})
+    return probes
+
+
+def _in_parallel(fn, items: List[Any]) -> List[Any]:
+    """Map fn over items concurrently, preserving order. Never raises.
+
+    Order is preserved deliberately: probe order is documented as informational,
+    but a scan whose output shuffled between runs would make the registry —
+    and every ranking built on it — non-reproducible.
+    """
+    if not items:
+        return []
+    if len(items) == 1:
+        try:
+            return [fn(items[0])]
+        except Exception:
+            return [None]
+    out: List[Any] = [None] * len(items)
+    with concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(_MAX_PARALLEL, len(items))) as ex:
+        futures = {ex.submit(fn, it): i for i, it in enumerate(items)}
+        for f in concurrent.futures.as_completed(futures):
+            i = futures[f]
+            try:
+                out[i] = f.result()
+            except Exception:
+                out[i] = None
+    return out
 
 
 # ── http helpers ──────────────────────────────────────────────────────────────
@@ -124,7 +174,15 @@ def _ollama_models(base: str, api_key: Optional[str] = None) -> List[Dict[str, A
     out: List[Dict[str, Any]] = []
     if not tags:
         return out
-    for t in tags.get("models", []):
+    listed = tags.get("models", [])
+    # /api/show is one round trip PER MODEL. Serially, a library of twenty models
+    # cost twenty timeouts — minutes on the first request after boot. Concurrently
+    # it costs one.
+    shows = _in_parallel(
+        lambda mid: _post(base.rstrip("/") + "/api/show", {"model": mid},
+                          api_key=api_key),
+        [(t.get("name") or t.get("model") or "") for t in listed])
+    for t, show in zip(listed, shows):
         mid = t.get("name") or t.get("model") or ""
         rec: Dict[str, Any] = {
             "id": mid, "family": family_of(mid),
@@ -134,7 +192,6 @@ def _ollama_models(base: str, api_key: Optional[str] = None) -> List[Dict[str, A
             "context": None, "tool_calling": None, "vision": None,
             "thinking": None, "embedding": None, "api_type": "ollama",
         }
-        show = _post(base.rstrip("/") + "/api/show", {"model": mid}, api_key=api_key)
         if show:
             c = caps_from_ollama_show(show)
             rec.update({k: c[k] for k in ("context", "tool_calling", "vision",
@@ -219,17 +276,17 @@ def scan(extra_probes: Optional[List[Dict[str, str]]] = None,
          include_offline: bool = False) -> List[Dict[str, Any]]:
     """Scan all known runtimes. `extra_probes` merges DB/user connections so a
     new runtime needs only a probe entry — ZERO code change to add one."""
-    probes = list(DEFAULT_PROBES) + list(extra_probes or [])
-    seen, results = set(), []
+    probes = default_probes() + list(extra_probes or [])
+    seen, unique = set(), []
     for p in probes:
         key = p["url"].rstrip("/")
         if key in seen:
             continue
         seen.add(key)
-        r = scan_runtime(p)
-        if r["online"] or include_offline:
-            results.append(r)
-    return results
+        unique.append(p)
+    scanned = _in_parallel(scan_runtime, unique)
+    return [r for r in scanned
+            if r is not None and (r["online"] or include_offline)]
 
 
 if __name__ == "__main__":

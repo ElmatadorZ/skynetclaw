@@ -45,6 +45,10 @@ OLLAMA_BASE_URL=http://192.168.1.20:11434
 `docker compose` sets this to `http://ollama:11434` for you, because inside a container
 "localhost" is the container itself and not the host.
 
+Runtime discovery probes that address **in addition to** localhost, so a local and a remote
+Ollama can coexist. Probes run concurrently: a runtime you have not installed costs the
+connect timeout once for the whole scan, not once each.
+
 ### Why two models
 
 ```jsonc
