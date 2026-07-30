@@ -165,3 +165,29 @@ curl http://127.0.0.1:8766/api/system/health   # everything at once
 
 Health reports `GREEN` only when every subsystem loaded. If a model check fails, that check names
 what is missing.
+
+---
+
+## Embeddings — both worlds, one setting
+
+Semantic search over your vault needs an embedding model. `backend/settings.json`:
+
+```jsonc
+"embed_model": "nomic-embed-text"          // local, via Ollama
+"embed_model": "text-embedding-3-small"    // OpenAI-compatible / cloud
+```
+
+The House dispatches on the **active connection's** `api_type`, because the two
+worlds disagree on every detail of this call:
+
+| | route | field | response |
+|---|---|---|---|
+| Ollama | `POST /api/embeddings` | `prompt` | `{"embedding": [...]}` |
+| OpenAI-compatible | `POST /embeddings` | `input` | `{"data":[{"embedding":[...]}]}` |
+
+You do not choose between them — set `embed_model` to something the active
+connection serves and the right dialect is used.
+
+**If no embedding model is reachable, search falls back to keyword matching and
+says so.** It does not return a zero vector: that would make every similarity
+score identical and look like a working semantic search.

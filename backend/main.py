@@ -9170,6 +9170,48 @@ def cosine_sim(a,b):
     dot=sum(x*y for x,y in zip(a,b))
     return dot/(math.sqrt(sum(x*x for x in a))*math.sqrt(sum(x*x for x in b))+1e-9)
 
+async def embed_text(text: str, model: str = "", conn: dict = None) -> list:
+    """One embedding path for BOTH worlds. Returns [] when unavailable.
+
+    Ollama and OpenAI disagree on every detail of this call — the route
+    (/api/embeddings vs /embeddings), the field (`prompt` vs `input`), and the
+    response (`embedding` vs `data[0].embedding`). Three endpoints here spoke only
+    Ollama's dialect and read `r.json()["embedding"]` directly, so on an
+    API-only install — no Ollama anywhere — semantic search and vault indexing
+    404'd. runtime_plugins/openai_driver.py had implemented the OpenAI shape
+    correctly all along; these call sites simply bypassed it.
+
+    Raises nothing: an empty vector lets the caller fall back to keyword search,
+    which is the honest degradation. Returning a zero vector would silently make
+    every similarity score identical.
+    """
+    conn = conn or get_active_conn()
+    base = (conn.get("base_url") or OLLAMA_DEFAULT_URL).rstrip("/")
+    key = conn.get("api_key") or ""
+    api = (conn.get("api_type") or "ollama").lower()
+    model = model or load_settings().get("embed_model", "nomic-embed-text")
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    try:
+        if api == "ollama":
+            r = await _client.post(f"{base}/api/embeddings",
+                                   json={"model": model, "prompt": text},
+                                   headers=headers)
+            if r.status_code == 200:
+                return r.json().get("embedding") or []
+            return []
+        # Everything else speaks the OpenAI shape (llama.cpp, LM Studio, vLLM,
+        # OpenAI, and the cloud providers behind the universal adapter).
+        r = await _client.post(f"{base}/embeddings",
+                               json={"model": model, "input": text},
+                               headers=headers)
+        if r.status_code == 200:
+            data = (r.json().get("data") or [{}])[0]
+            return data.get("embedding") or []
+        return []
+    except Exception:
+        return []
+
+
 @app.get("/api/obsidian/notes")
 async def obs_notes(vault_path: str):
     try:
@@ -9228,10 +9270,8 @@ async def obs_embed(req: EmbedReq):
     for note in notes:
         try:
             content=note.read_text(encoding="utf-8",errors="replace")[:2000]
-            r=await _client.post(f"{base}/api/embeddings",
-                                  json={"model":req.embed_model,"prompt":content},headers=headers)
-            if r.status_code==200:
-                emb=r.json()["embedding"]
+            emb=await embed_text(content, req.embed_model)
+            if emb:
                 nid=hashlib.md5(str(note).encode()).hexdigest()
                 c.execute("INSERT OR REPLACE INTO embeddings VALUES(?,?,?,?,?,?)",
                           (nid,str(note),content,json.dumps(emb),req.vault_path,time.time()))
@@ -9250,11 +9290,9 @@ async def obs_search(req: ObsSearchReq):
         rows=c.fetchall(); conn.close()
         if rows:
             try:
-                base=get_active_base_url(); key=get_active_api_key()
-                headers={"Authorization":f"Bearer {key}"} if key else {}
-                em=load_settings().get("embed_model","nomic-embed-text")
-                r=await _client.post(f"{base}/api/embeddings",json={"model":em,"prompt":req.query},headers=headers)
-                q_emb=r.json()["embedding"]
+                q_emb=await embed_text(req.query)
+                if not q_emb:
+                    raise RuntimeError("no embedding model reachable")
                 results=[]
                 for _,path,content,emb_json in rows:
                     score=cosine_sim(q_emb,json.loads(emb_json))
@@ -9280,10 +9318,9 @@ async def obs_chat(req: ObsChatReq):
     rows=c.fetchall(); conn.close()
     if rows:
         try:
-            headers={"Authorization":f"Bearer {key}"} if key else {}
-            em=load_settings().get("embed_model","nomic-embed-text")
-            r=await _client.post(f"{base}/api/embeddings",json={"model":em,"prompt":last_user},headers=headers)
-            q_emb=r.json()["embedding"]
+            q_emb=await embed_text(last_user)
+            if not q_emb:
+                raise RuntimeError("no embedding model reachable")
             scored=[(cosine_sim(q_emb,json.loads(emb_json)),path,content)
                     for _,path,content,emb_json in rows]
             scored.sort(reverse=True)
