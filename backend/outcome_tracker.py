@@ -128,16 +128,38 @@ def evaluate(pid: str, horizon: str, result: str,
     # CLOSE THE LOOP: a graded outcome revises the House Mind's belief
     # (ผิด/ถูก → เรียนรู้ → เปลี่ยนความเชื่อ). Reality, not another verdict,
     # changes the House's mind. Best-effort — never breaks grading.
+    # ADR-0016: a mission outcome revises belief WITHOUT borrowing a session's
+    # identity. revise_from_outcome() locates the House State by DIRECTIVE TEXT, so
+    # it never needed a session_id — but this block fetched the directive *through*
+    # council_sessions, and a mission has no session row. The whole `if sid:` guard
+    # was therefore a silent no-op for every mission: graded correct, Validated
+    # Episode written, and the House learned nothing. That was Q2's finding in the
+    # First Evidence Review.
+    #
+    # The prediction already carries what the revision needs. Prefer the session's
+    # directive when there is one (it is the fuller text) and fall back to the
+    # claim's own statement, which for a mission hypothesis embeds the directive.
+    #
+    # Note deliberately NOT changed: on_outcome() above stays session-gated. A
+    # mission has no council deliberation and therefore no dissent to resolve —
+    # skipping it there is correct, not a second instance of this bug.
     belief_change = None
+    directive = ""
     if sid:
         try:
-            import house_state as _hs
             with _db.connect(path) as c2:
                 srow = c2.execute("SELECT directive FROM council_sessions WHERE id=?",
                                   (sid,)).fetchone()
-            if srow and srow["directive"]:
-                belief_change = _hs.revise_from_outcome(srow["directive"], result,
-                                                        horizon=horizon, path=path)
+            directive = (srow["directive"] if srow else "") or ""
+        except Exception:
+            directive = ""
+    if not directive:
+        directive = (r["statement"] or "") if r else ""
+    if directive:
+        try:
+            import house_state as _hs
+            belief_change = _hs.revise_from_outcome(directive, result,
+                                                    horizon=horizon, path=path)
         except Exception:
             belief_change = None
     return {"prediction": pid, "horizon": horizon, "result": result,

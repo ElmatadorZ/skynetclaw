@@ -251,10 +251,59 @@ def vital_signs(path: Optional[str] = None) -> Dict[str, Any]:
     promoted = _promoted_capability_count()
     coverage = ((staked / complete_runs) if complete_runs else None)
 
+    # How long has the oldest due hypothesis been waiting for someone to ask?
+    # The First Evidence Review (2026-07-28) found the House could not tell
+    # "reality has not answered yet" from "nobody asked reality": a hypothesis
+    # sat 26 hours past its horizon while the dashboard reported AWAITING_REALITY,
+    # because the outcome clock only ticks inside a running process and the House
+    # had been switched off. Both states were true statements about the loop and
+    # only one was a true statement about the world. They are now distinct.
+    now = time.time()
+    overdue_by = []
+    for p in due:
+        for h in _ot.HORIZONS:
+            ts = p.get(f"due_{h}")
+            if ts and float(ts) <= now:
+                overdue_by.append(now - float(ts))
+                break
+    oldest_overdue_h = (max(overdue_by) / 3600.0) if overdue_by else None
+
+    # RETROSPECTIVE lateness. `oldest_overdue_hours` measures answers still
+    # uncollected; nothing measured how late the collected ones were. The First
+    # Evidence Review's Q1 found the pilot verdict landed ~27h after its horizon —
+    # the Outcome Clock ticks every 10 minutes but only while the House is running,
+    # so grading is gated on process liveness rather than on wall-clock time. The
+    # loop was autonomous and unpunctual, and nothing said so.
+    #
+    # Null when nothing has been graded yet: "never late" and "never measured" are
+    # different claims.
+    lateness_h: List[float] = []
+    try:
+        with _db.connect(path) as c:
+            for row in c.execute(
+                    "SELECT due_7, due_30, due_90, due_180, evaluated_at "
+                    "FROM predictions WHERE evaluated_at IS NOT NULL "
+                    "AND status NOT IN ('pending','')"):
+                ev = float(row["evaluated_at"] or 0)
+                if not ev:
+                    continue
+                # The horizon it was actually answered against: the latest one that
+                # had already elapsed when the verdict landed.
+                elapsed = [float(row[f"due_{h}"] or 0) for h in _ot.HORIZONS
+                           if row[f"due_{h}"] and float(row[f"due_{h}"]) <= ev]
+                if elapsed:
+                    lateness_h.append((ev - max(elapsed)) / 3600.0)
+    except Exception:
+        lateness_h = []
+
     if staked == 0:
         verdict = "WAITING_FIRST_HYPOTHESIS"
+    elif due:
+        # Reality's answer is available and uncollected. This is the House's
+        # fault, not reality's, and it must not read as patience.
+        verdict = "REALITY_UNCOLLECTED"
     elif validated == 0:
-        verdict = "AWAITING_REALITY"          # staked; the 7-day clock is running
+        verdict = "AWAITING_REALITY"          # staked; the horizon is still running
     elif revisions:
         verdict = "ALIVE"                     # full cycle observed: reality changed a belief
     else:
@@ -264,13 +313,25 @@ def vital_signs(path: Optional[str] = None) -> Dict[str, Any]:
         "verdict": verdict,
         "hypotheses_staked": staked,
         "due_for_review": len(due),
+        # Age of the oldest uncollected answer. None means nothing is overdue —
+        # honestly null, never a fabricated 0, because "no backlog" and "a
+        # backlog aged zero hours" are different claims.
+        "oldest_overdue_hours": (round(oldest_overdue_h, 1)
+                                 if oldest_overdue_h is not None else None),
+        # How late the ANSWERED ones were. A loop can be autonomous and still
+        # chronically behind its own horizons; without this the two are
+        # indistinguishable.
+        "grading_lateness_hours_max": (round(max(lateness_h), 1) if lateness_h else None),
+        "grading_lateness_hours_avg": (round(sum(lateness_h) / len(lateness_h), 1)
+                                       if lateness_h else None),
+        "graded_on_time": (sum(1 for x in lateness_h if x <= 1.0) if lateness_h else None),
         "validated_episodes": validated,
         "belief_revisions_from_reality": revisions,
         "promotion_candidates": validated,     # promotion dormant → all validated are candidates
         "promoted_capabilities": promoted,
-        # promoted is None when capabilities.json has never been written
-        # (a fresh install). None/int raises, so guard both operands —
-        # an unknown rate stays None, never a fabricated 0.
+        # Public-only guard, do not lose again: `promoted` is None when the
+        # promotion path is dormant, and None/int raises. "No promotions" and
+        # "promotion not measured" are different claims, so this stays null.
         "promotion_rate": ((promoted / validated)
                            if (validated and promoted is not None) else None),
         "abstain_rate": abstain_rate,

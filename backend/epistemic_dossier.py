@@ -428,9 +428,31 @@ def self_audit() -> Dict[str, Any]:
                 "the neutral prior, not a measurement"),
          partial=(f"{agents - agents_graded} of {agents} agents sit at the neutral "
                   "prior with no graded prediction — their scores are placeholders"))
+    # Claims nobody can judge as recorded (a corrupt invalidation, no metric) sit
+    # in the denominator forever, so grading_rate can never reach 1.0. Reported
+    # SEPARATELY rather than quietly excluded: dropping them would flatter the
+    # rate, and hiding them would lose the defect they are evidence of.
+    unjudgeable = 0
+    try:
+        c2 = _conn()
+        with c2:
+            import judgment_queue as _jq
+            rows = [dict(r) for r in c2.execute(
+                "SELECT * FROM predictions ORDER BY made_at DESC LIMIT 500")]
+        unjudgeable = sum(1 for p in rows
+                          if _jq.classify(p)["state"] == "MALFORMED")
+    except Exception:
+        unjudgeable = 0
+
     _gap("grading", graded, staked,
          never=f"{staked} claim(s) staked, none graded — nothing has met reality yet.",
          partial=f"{staked - graded} staked claim(s) are still awaiting reality")
+    if unjudgeable:
+        findings.append(
+            f"{unjudgeable} staked claim(s) are MALFORMED and can never be graded by "
+            "anyone — they hold a corrupt invalidation or no metric. They stay in the "
+            "denominator on purpose: removing them would flatter the grading rate, and "
+            "deleting them would lose the evidence of the defect that produced them.")
 
     return {
         "available": True,

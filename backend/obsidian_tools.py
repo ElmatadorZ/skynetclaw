@@ -87,10 +87,23 @@ def set_vault(path: str) -> Dict[str, Any]:
     p = Path(path)
     if not p.exists() or not p.is_dir():
         return {"ok": False, "error": f"path not found: {path}"}
-    s = _read_settings()
-    s["obsidian_vault"] = str(p.resolve())
-    SETTINGS.write_text(json.dumps(s, indent=2, ensure_ascii=False), encoding="utf-8")
-    return {"ok": True, "vault": s["obsidian_vault"]}
+    resolved = str(p.resolve())
+    # P1 / ADR-0014 D3 — settings.json has exactly one authoritative writer.
+    # This wrote the file directly, bypassing the backup chain that rotates
+    # .bak/.last-good before every write: a crash mid-write would have left
+    # settings.json truncated with no recoverable copy.
+    try:
+        import main as _house
+        _house.save_settings({"obsidian_vault": resolved})
+    except Exception as e:
+        # No direct-write fallback. This module is not the owner, and a
+        # "resilient" second writer is still a second writer — it would skip
+        # rotation exactly when something is already wrong. Failing is honest.
+        return {"ok": False, "vault": resolved,
+                "error": f"could not persist the vault path via the settings owner "
+                         f"(main.save_settings): {type(e).__name__}. The path is "
+                         f"valid; set 'obsidian_vault' in settings.json to keep it."}
+    return {"ok": True, "vault": resolved}
 
 
 # ──────────────── TOOL IMPLEMENTATIONS ────────────────
