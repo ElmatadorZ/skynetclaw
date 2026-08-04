@@ -134,7 +134,7 @@ def main() -> int:
     d.rounded_rectangle([x, py0, W - 74, py0 + 128], radius=10, fill=PANEL, outline=LINE)
 
     cells = [
-        ("724", "tests"),
+        ("734", "tests"),
         ("272", "routes"),
         ("91", "tools"),
         ("14", "council"),

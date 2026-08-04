@@ -66,6 +66,23 @@ def record_mission_hypothesis(workspace: str, entry: Dict[str, Any],
         return None
     task = str(entry.get("task") or "")[:160]
     statement = f"Mission hypothesis: outcome COMPLETE will hold — {task}"
+
+    # ADR-0016 · Single Canonical Identity. The House Mind is keyed on
+    # mission_identity.clean_identity(task, directive); this path used to record the
+    # mission's name ONLY inside the display sentence above — prefixed, and sliced to
+    # 160 chars. Three ways to differ from the key, so a graded mission could never
+    # find the belief it was about. Measured: 0 of 8 predictions matched any stored
+    # key, and 9 live House-State keys are longer than 160 characters.
+    #
+    # So the identity is recorded as a FIELD, from the same function, UNTRUNCATED.
+    # No lookup and no second naming authority: `statement` stays a label, and the
+    # label may be reworded without breaking learning.
+    try:
+        import mission_identity as _mid
+        mission_ident = _mid.clean_identity(str(entry.get("task") or ""),
+                                            str(entry.get("directive") or ""))
+    except Exception:
+        mission_ident = ""
     if _ot.has_pending(statement, agent=_AGENT, path=path):
         return None                      # one hypothesis per mission — no double staking
     files = files[:20]
@@ -73,6 +90,11 @@ def record_mission_hypothesis(workspace: str, entry: Dict[str, Any],
         "files": files,
         "workspace": str(workspace),
         "ledger_id": str(entry.get("id") or ""),
+        # ADR-0016 — the key the House Mind is filed under, whole. "" when
+        # clean_identity() rejected the input (a prompt, an error message), which
+        # is the same condition under which open_state() was never called: the two
+        # ends fail together, which is what makes this the right key.
+        "mission_identity": mission_ident,
         # Learning Integrity #2 — immutable evidence snapshot at stake time:
         # what existed, byte-for-byte, when the hypothesis was proposed.
         "evidence": {

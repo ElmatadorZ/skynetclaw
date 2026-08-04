@@ -154,6 +154,18 @@ def evaluate(pid: str, horizon: str, result: str,
         except Exception:
             directive = ""
     if not directive:
+        # ADR-0016 · Single Canonical Identity. The stake recorded the key the House
+        # Mind is filed under; use it, rather than resolving anything. `statement`
+        # stays a display label and may be reworded without breaking learning.
+        try:
+            payload = json.loads((r["predicted_outcome"] or "{}") if r else "{}")
+            directive = str(payload.get("mission_identity") or "")
+        except Exception:
+            directive = ""
+    if not directive:
+        # Predictions staked before ADR-0016 carry no identity field. The statement
+        # is a poor key — it wraps and truncates — but it is what those rows have,
+        # and a missing revision is better than a wrong one.
         directive = (r["statement"] or "") if r else ""
     if directive:
         try:

@@ -41,14 +41,19 @@ def db(tmp_path):
     return str(p)
 
 
-def _stake(db, pid, statement, session=None, metric="mission_artifacts"):
+def _stake(db, pid, statement, session=None, metric="mission_artifacts",
+           identity=None):
+    """identity= records the ADR-0016 canonical key in the payload, exactly as
+    reality_grading.record_mission_hypothesis() does at stake time."""
+    import json as _json
+    payload = _json.dumps({"mission_identity": identity} if identity else {})
     with _db.connect(db) as c:
         c.execute(
             "INSERT INTO predictions (id, session_id, agent, statement, "
             " predicted_outcome, invalidation, confidence, made_at, due_7, due_30, "
             " due_90, due_180, status, metric, participants) "
             "VALUES(?,?,?,?,?,?,?,?,?,?,?,?, 'pending', ?, '[]')",
-            (pid, session, "mission_operative", statement, "holds",
+            (pid, session, "mission_operative", statement, payload,
              "if the artifact is gone", 0.8, time.time() - 8 * DAY,
              time.time() - DAY, time.time() + 30 * DAY, time.time() + 90 * DAY,
              time.time() + 180 * DAY, metric))
@@ -70,21 +75,13 @@ def _reality_rows(db):
 
 
 # ── the defect ───────────────────────────────────────────────────────────────
-@pytest.mark.xfail(reason=(
-    "ADR-0016 OPEN. The statement-as-directive fallback is not enough: a mission's "
-    "statement WRAPS its directive ('Mission hypothesis: outcome COMPLETE will hold "
-    "— <directive>'), so _find_state() cannot match it. reality_grading declares the "
-    "structural link itself — 'Mission traceability = payload.ledger_id' — so the "
-    "correct resolution is ledger_id -> ledger entry -> directive, and deciding "
-    "where that lookup lives IS the ADR. Kept as an executable specification rather "
-    "than string-parsed into a fragile pass."), strict=True)
 def test_a_mission_with_no_session_still_revises_belief(db):
     """The whole point of ADR-0016."""
     directive = "MISSION 0001 - ADR-0014 Compliance Audit"
     _belief(db, directive, "the audit will find no violations", conf=1.0)
     _stake(db, "pr_mission",
            f"Mission hypothesis: outcome COMPLETE will hold — {directive}",
-           session=None)
+           session=None, identity=directive)
 
     assert _reality_rows(db) == 0, "precondition"
     out = ot.evaluate("pr_mission", "7", "incorrect", path=db)
@@ -123,12 +120,11 @@ def test_no_matching_belief_is_not_an_error(db):
     assert _reality_rows(db) == 0
 
 
-@pytest.mark.xfail(reason="ADR-0016 OPEN — same unresolved directive lookup.",
-                   strict=True)
 def test_a_correct_mission_reinforces_rather_than_halving(db):
     directive = "MISSION 0002 - index rebuild"
     _belief(db, directive, "the rebuild is safe", conf=0.5)
-    _stake(db, "pr_ok", f"Mission hypothesis: outcome COMPLETE will hold — {directive}")
+    _stake(db, "pr_ok", f"Mission hypothesis: outcome COMPLETE will hold — {directive}",
+           identity=directive)
 
     ot.evaluate("pr_ok", "7", "correct", path=db)
     with _db.connect(db) as c:
